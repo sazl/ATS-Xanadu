@@ -7,11 +7,6 @@ ATS2PKGTGZ=$ATS2PKG.tgz
 ATS2HOME=$2 #${PATSHOME:-$2}
 ATS2URL="https://sourceforge.net/projects/ats2-lang/files/ats2-lang/ats2-postiats-$ATS2VERSION/$ATS2PKGTGZ/download"
 
-# Appveyor Cache
-if [ -d "$ATSHOME" ]; then
-    exit
-fi
-
 mkdir -p $ATS2HOME
 cd $ATS2HOME
 wget -qO- $ATS2URL | tar xz -C $ATS2HOME --strip 1
