@@ -1,14 +1,15 @@
 # [ATS3](http://www.ats-lang.org/) - ATS/Xanadu
 
+
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2453/badge)](https://bestpractices.coreinfrastructure.org/projects/2453)
+[![Build Status](https://travis-ci.org/githwxi/ATS-Xanadu.svg?branch=master)](https://travis-ci.org/githwxi/ATS-Xanadu)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/githwxi/ats-xanadu?branch=master&svg=true)](https://ci.appveyor.com/project/githwxi/ats-xanadu/branch/master)
+
+
 A Programming Language System to Unleash the Potentials of Types
 and Templates
 
 ## Project Description
-
-## Build Status
-
-* [![Build Status](https://travis-ci.org/githwxi/ATS-Xanadu.svg?branch=master)](https://travis-ci.org/githwxi/ATS-Xanadu) Ubuntu
-* [![Build Status](https://ci.appveyor.com/api/projects/status/github/githwxi/ats-xanadu?branch=master&svg=true)](https://ci.appveyor.com/project/githwxi/ats-xanadu/branch/master) Cygwin
 
 ## Installing ATS3
 
