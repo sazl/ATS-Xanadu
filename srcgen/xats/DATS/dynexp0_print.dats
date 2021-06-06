@@ -13,12 +13,12 @@
 ** the terms of  the GNU GENERAL PUBLIC LICENSE (GPL) as published by the
 ** Free Software Foundation; either version 3, or (at  your  option)  any
 ** later version.
-** 
+**
 ** ATS is distributed in the hope that it will be useful, but WITHOUT ANY
 ** WARRANTY; without  even  the  implied  warranty  of MERCHANTABILITY or
 ** FITNESS FOR A PARTICULAR PURPOSE.  See the  GNU General Public License
 ** for more details.
-** 
+**
 ** You  should  have  received  a  copy of the GNU General Public License
 ** along  with  ATS;  see the  file COPYING.  If not, please write to the
 ** Free Software Foundation,  51 Franklin Street, Fifth Floor, Boston, MA
@@ -40,7 +40,7 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/lexing0.sats"
 //
 #staload "./../SATS/staexp0.sats"
 //
@@ -78,11 +78,14 @@ fprint_val<q0arg> = fprint_q0arg
 //
 implement
 fprint_val<a0typ> = fprint_a0typ
+//
 implement
 fprint_val<d0arg> = fprint_d0arg
 //
+(* ****** ****** *)
 implement
-fprint_val<f0arg> = fprint_f0arg
+fprint_val<d0typ> = fprint_d0typ
+(* ****** ****** *)
 //
 implement
 fprint_val<sq0arg> = fprint_sq0arg
@@ -96,8 +99,19 @@ fprint_val<ti0arg> = fprint_ti0arg
 (* ****** ****** *)
 //
 implement
-fprint_val<d0ecl> = fprint_d0ecl
+fprint_val<d0pat> = fprint_d0pat
 //
+implement
+fprint_val<f0arg> = fprint_f0arg
+//
+(* ****** ****** *)
+//
+implement
+fprint_val<d0exp> = fprint_d0exp
+//
+(* ****** ****** *)
+implement
+fprint_val<d0ecl> = fprint_d0ecl
 (* ****** ****** *)
 //
 implement
@@ -105,7 +119,14 @@ implement
 fprint_val<dl0abeled(a)> = fprint_dl0abeled<a>
 //
 (* ****** ****** *)
-
+//
+implement
+print_q0arg(x0) = 
+fprint_q0arg(stdout_ref, x0)
+implement
+prerr_q0arg(x0) = 
+fprint_q0arg(stderr_ref, x0)
+//
 implement
 fprint_q0arg
   (out, x0) =
@@ -113,15 +134,24 @@ fprint_q0arg
 //
 case+
 x0.node() of
+(*
 | Q0ARGnone(tok) =>
   fprint!(out, "Q0ARGnone(", tok, ")")
-| Q0ARGsome(ids, opt) =>
-  fprint!(out, "Q0ARGsome(", ids, "; ", opt, ")")
+*)
+| Q0ARGsome(sid, opt) =>
+  fprint!(out, "Q0ARGsome(", sid, "; ", opt, ")")
 //
 ) (* end of [fprint_q0arg] *)
-
+//
 (* ****** ****** *)
-
+//
+implement
+print_a0typ(x0) = 
+fprint_a0typ(stdout_ref, x0)
+implement
+prerr_a0typ(x0) = 
+fprint_a0typ(stderr_ref, x0)
+//
 implement
 fprint_a0typ
   (out, x0) =
@@ -136,7 +166,7 @@ case+ x0.node() of
   fprint!(out, "A0TYPsome(", s0e, "; ", opt, ")")
 //
 ) (* end of [fprint_a0typ] *)
-
+//
 (* ****** ****** *)
 
 local
@@ -189,29 +219,43 @@ end // end of [local]
 (* ****** ****** *)
 
 implement
-fprint_f0arg
+fprint_d0typ
   (out, x0) =
 (
-//
-case+
-x0.node() of
-| F0ARGnone(tok) =>
-  fprint!(out, "F0ARGnone(", tok, ")")
-| F0ARGsome_dyn(d0p) =>
-  fprint!(out, "F0ARGsome_dyn(", d0p, ")")
-| F0ARGsome_sta(tbeg, s0qs, tend) =>
+case+ x0.node() of
+|
+D0TYPnone
+( tok ) =>
+fprint!
+( out
+, "D0TYPnone(", tok, ")")
+|
+D0TYPsome
+( id0, opt ) =>
+(
+case+ opt of
+| None() =>
   fprint!
   ( out
-  , "F0ARGsome_sta(", tbeg, "; ", s0qs, "; ", tend, ")")
-| F0ARGsome_met(tbeg, s0es, tend) =>
+  , "D0TYPsome(", id0, ")")
+| Some(s0e) =>
   fprint!
   ( out
-  , "F0ARGsome_met(", tbeg, "; ", s0es, "; ", tend, ")")
-//
-) (* end of [fprint_f0arg] *)
+  , "D0TYPsome(", id0, ":", s0e, ")")
+)
+) (* end of [fprint_d0typ] *)
 
 (* ****** ****** *)
-
+//
+implement
+print_sq0arg(x0) = 
+fprint_sq0arg(stdout_ref, x0)
+implement
+prerr_sq0arg(x0) = 
+fprint_sq0arg(stderr_ref, x0)
+//
+(* ****** ****** *)
+//
 implement
 fprint_sq0arg
   (out, x0) =
@@ -221,15 +265,24 @@ case+
 x0.node() of
 | SQ0ARGnone(tok) =>
   fprint!(out, "SQ0ARGnone(", tok, ")")
-| SQ0ARGsome(tbeg, s0qs, tend) =>
+| SQ0ARGsome(tbeg, q0as, tend) =>
   fprint!
   ( out
-  , "SQ0ARGsome(", tbeg, "; ", s0qs, "; ", tend, ")")
+  , "SQ0ARGsome(", tbeg, "; ", q0as, "; ", tend, ")")
 //
 ) (* end of [fprint_sq0arg] *)
-
+//
 (* ****** ****** *)
-
+//
+implement
+print_tq0arg(x0) = 
+fprint_tq0arg(stdout_ref, x0)
+implement
+prerr_tq0arg(x0) = 
+fprint_tq0arg(stderr_ref, x0)
+//
+(* ****** ****** *)
+//
 implement
 fprint_tq0arg
   (out, x0) =
@@ -245,9 +298,18 @@ x0.node() of
   , "TQ0ARGsome(", tbeg, "; ", q0as, "; ", tend, ")")
 //
 ) (* end of [fprint_tq0arg] *)
-
+//
 (* ****** ****** *)
-
+//
+implement
+print_ti0arg(x0) = 
+fprint_ti0arg(stdout_ref, x0)
+implement
+prerr_ti0arg(x0) = 
+fprint_ti0arg(stderr_ref, x0)
+//
+(* ****** ****** *)
+//
 implement
 fprint_ti0arg
   (out, x0) =
@@ -265,7 +327,7 @@ x0.node() of
 ) (* end of [fprint_ti0arg] *)
 
 (* ****** ****** *)
-
+//
 implement
 {a}(*tmp*)
 fprint_dl0abeled
@@ -288,10 +350,14 @@ implement
 prerr_d0pat(x0) =
 fprint_d0pat(stderr_ref, x0)
 
+(* ****** ****** *)
+
 local
 
+(*
 implement
 fprint_val<d0pat> = fprint_d0pat
+*)
 
 in (* in-of-local *)
 
@@ -301,8 +367,8 @@ fprint_d0pat
 (
 case+ x0.node() of
 //
-| D0Pid(id) =>
-  fprint!(out, "D0Pid(", id, ")")
+| D0Pid0(id) =>
+  fprint!(out, "D0Pid0(", id, ")")
 //
 | D0Pint(i0) =>
   fprint!(out, "D0Pint(", i0, ")")
@@ -315,6 +381,13 @@ case+ x0.node() of
 //
 | D0Papps(d0ps) =>
   fprint!(out, "D0Papps(", d0ps, ")")
+//
+| D0Psqarg
+  (tbeg, s0as, tend) =>
+  fprint!
+  ( out
+  , "D0Psqarg("
+  , tbeg, "; ", s0as, "; ", tend, ")")
 //
 | D0Pparen
   (tbeg, d0ps, tend) =>
@@ -359,10 +432,14 @@ implement
 prerr_d0pat_RPAREN(x0) =
 fprint_d0pat_RPAREN(stderr_ref, x0)
 
+(* ****** ****** *)
+
 local
 
+(*
 implement
 fprint_val<d0pat> = fprint_d0pat
+*)
 
 in (* in-of-local *)
 
@@ -371,9 +448,9 @@ fprint_d0pat_RPAREN
   (out, x0) =
 (
 case+ x0 of
-| d0pat_RPAREN_cons0(tok) =>
+| d0pat_RPAREN_cons0(tok1) =>
   fprint!
-  (out, "d0pat_RPAREN_cons0(", tok, ")")
+  (out, "d0pat_RPAREN_cons0(", tok1, ")")
 | d0pat_RPAREN_cons1(tok1, d0ps, tok2) =>
   fprint!
   (out, "d0pat_RPAREN_cons1(", tok1, ", ", d0ps, ", ", tok2, ")")
@@ -390,10 +467,14 @@ implement
 prerr_labd0pat_RBRACE(x0) =
 fprint_labd0pat_RBRACE(stderr_ref, x0)
 
+(* ****** ****** *)
+
 local
 
+(*
 implement
 fprint_val<d0pat> = fprint_d0pat
+*)
 
 in (* in-of-local *)
 
@@ -402,16 +483,143 @@ fprint_labd0pat_RBRACE
   (out, x0) =
 (
 case+ x0 of
-| labd0pat_RBRACE_cons0(tok) =>
+| labd0pat_RBRACE_cons0
+  ( tok1 ) =>
   fprint!
-  (out, "labd0pat_RBRACE_cons0(", tok, ")")
-| labd0pat_RBRACE_cons1(tok1, ld0ps, tok2) =>
+  ( out
+  , "labd0pat_RBRACE_cons0(", tok1, ")")
+| labd0pat_RBRACE_cons1
+  ( tok1, ld0ps, tok2 ) =>
   fprint!
-  (out, "labd0pat_RBRACE_cons1(", tok1, ", ", ld0ps, ", ", tok2, ")")
+  ( out
+  , "labd0pat_RBRACE_cons1(", tok1, ", ", ld0ps, ", ", tok2, ")")
 ) (* end of [fprint_labd0pat_RBRACE] *)
 
 end // end of [local]
 
+(* ****** ****** *)
+//
+implement
+print_f0arg(x0) = 
+fprint_f0arg(stdout_ref, x0)
+implement
+prerr_f0arg(x0) = 
+fprint_f0arg(stderr_ref, x0)
+//
+implement
+fprint_f0arg
+  (out, x0) =
+(
+//
+case+
+x0.node() of
+| F0ARGnone(tok) =>
+  fprint!(out, "F0ARGnone(", tok, ")")
+| F0ARGsome_dyn(d0p) =>
+  fprint!(out, "F0ARGsome_dyn(", d0p, ")")
+| F0ARGsome_sta(tbeg, s0qs, tend) =>
+  fprint!
+  ( out
+  , "F0ARGsome_sta(", tbeg, "; ", s0qs, "; ", tend, ")")
+| F0ARGsome_met(tbeg, s0es, tend) =>
+  fprint!
+  ( out
+  , "F0ARGsome_met(", tbeg, "; ", s0es, "; ", tend, ")")
+//
+) (* end of [fprint_f0arg] *)
+//
+(* ****** ****** *)
+//
+implement
+print_st0inv
+  (x0) =
+fprint_st0inv(stdout_ref, x0)
+implement
+prerr_st0inv
+  (x0) =
+fprint_st0inv(stderr_ref, x0)
+//
+(* ****** ****** *)
+//
+implement
+fprint_st0qua
+( out, stq ) =
+(
+case+ stq of
+|
+ST0QUAnone(tok) =>
+fprint!
+( out
+, "ST0QUAnone(", tok, ")")
+|
+ST0QUAsome
+(tbeg, s0qs, tend) =>
+fprint!
+( out
+, "ST0QUAsome(", s0qs, ")")
+) (* end of [fprint_st0qua] *)
+//
+(* ****** ****** *)
+//
+local
+//
+implement
+fprint_val<d0typ> = fprint_d0typ
+//
+implement
+fprint_val<st0qua> = fprint_st0qua
+//
+in(*in-of-local*)
+//
+implement
+fprint_st0inv
+  (out, x0) =
+(
+case+ x0 of
+|
+ST0INVnone
+(stqs, terr) =>
+fprint!
+( out
+, "ST0INVnone("
+, stqs, "; ", terr, ")")
+|
+ST0INVsome
+(stqs, tbeg, d0ts, tend) =>
+fprint!
+( out
+, "ST0INVsome(", stqs, "; ", d0ts, ")")
+) (* end of [fprint_st0inv] *)
+//
+end // end of [local]
+//
+(* ****** ****** *)
+//
+implement
+print_endst0inv
+  (x0) =
+fprint_endst0inv(stdout_ref, x0)
+implement
+prerr_endst0inv
+  (x0) =
+fprint_endst0inv(stderr_ref, x0)
+//
+implement
+fprint_endst0inv
+  (out, x0) =
+(
+case+ x0 of
+|
+ENDST0INVnone
+( (*void*) ) => ()
+|
+ENDST0INVsome
+( tend, inv0 ) =>
+fprint!
+( out
+, "ST0INV(", tend, ";", inv0, ")")
+)
+//
 (* ****** ****** *)
 
 implement
@@ -421,10 +629,14 @@ implement
 prerr_d0exp(x0) =
 fprint_d0exp(stderr_ref, x0)
 
+(* ****** ****** *)
+
 local
 
+(*
 implement
 fprint_val<d0exp> = fprint_d0exp
+*)
 
 in (* in-of-local *)
 
@@ -434,8 +646,8 @@ fprint_d0exp
 (
 case+ x0.node() of
 //
-| D0Eid(id) =>
-  fprint!(out, "D0Eid(", id, ")")
+| D0Eid0(id) =>
+  fprint!(out, "D0Eid0(", id, ")")
 //
 | D0Eint(i0) =>
   fprint!(out, "D0Eint(", i0, ")")
@@ -445,6 +657,9 @@ case+ x0.node() of
   fprint!(out, "D0Eflt(", f0, ")")
 | D0Estr(s0) =>
   fprint!(out, "D0Estr(", s0, ")")
+//
+| D0Eopid(id) =>
+  fprint!(out, "D0Eopid(", id, ")")
 //
 | D0Eapps(d0es) =>
   fprint!(out, "D0Eapps(", d0es, ")")
@@ -476,60 +691,97 @@ case+ x0.node() of
   , "D0Etuple("
   , tbeg, "; ", topt, "; ", d0es, "; ", tend, ")")
 | D0Erecord
-  (tbeg, topt, ld0es, tend) =>
+  (tbeg, topt, ldes, tend) =>
   fprint!
   ( out
   , "D0Erecord("
-  , tbeg, "; ", topt, "; ", ld0es, "; ", tend, ")")
+  , tbeg, "; ", topt, "; ", ldes, "; ", tend, ")")
 //
 | D0Eif0
-  (tif0, d0e1, d0e2, d0e3, tend) =>
+  (tif0, d0e1, d0e2, d0e3) =>
   fprint!
   ( out
   , "D0Eif0(", tif0, "; "
-  , d0e1, "; ", d0e2, "; ", d0e3, "; ", tend, ")")
-//
-| D0Ecase
-  (tok0, d0e1, tof2, tbar, d0cs, tend) =>
+  , d0e1, "; ", d0e2, "; ", d0e3, ")")
+| D0Eif1
+  (tif0, d0e1, d0e2, d0e3, tinv) =>
   fprint!
   ( out
-  , "D0Ecase(", tok0, "; "
-  , d0e1, "; ", tof2, "; ", tbar, "; ", "...", "; ", tend)
+  , "D0Eif1(", tif0, "; "
+  , d0e1, "; ", d0e2, "; ", d0e3, "; ", tinv, ")")
+//
+| D0Ecas0
+  (tok0, d0e1, tof2, tbar, d0cs) =>
+  fprint!
+  ( out
+  , "D0Ecas0(", tok0, "; "
+  , d0e1, "; ", tof2, "; ", tbar, "; ", "...", ")")
+| D0Ecas1
+  (tok0, d0e1, tof2, tbar, d0cs, tinv) =>
+  fprint!
+  ( out
+  , "D0Ecas1(", tok0, "; "
+  , d0e1, "; ", tof2, "; ", tbar, "; ", "...", "; ", tinv, ")")
 //
 | D0Elet
-  (tok0, d0cs, tok1, d0es, tok2) =>
+  (tok0, d0cs, topt, d0es, tok2) =>
   fprint!
   ( out
   , "D0Elet(", tok0, "; "
-  , d0cs, "; ", tok1, "; ", d0es, "; ", tok2, ")")
+  , d0cs, "; ", topt, "; ", d0es, "; ", tok2, ")")
 //
 | D0Ewhere(d0e1, d0cs) =>
-  fprint!
-  ( out
-  , "D0Ewhere(", d0e1, "; ", d0cs, ")")
+  fprint!(out, "D0Ewhere(", d0e1, "; ", d0cs, ")")
 //
-| D0Edtsel
-  (tok, lab, arg) =>
+| D0Ebrack
+  (tbeg, d0es, tend) =>
   fprint!
   ( out
-  , "D0Edtsel(", tok, "; ", lab, "; ", arg)
+  , "D0Ebrack(", tbeg, "; ", d0es, "; ", tend, ")")
+| D0Edtsel
+  (tdot, lab1, arg2) =>
+  fprint!
+  ( out
+  , "D0Edtsel(", tdot, "; ", lab1, "; ", arg2, ")")
 //
 | D0Elam
-  (tok0, arg1, res2, farrw, fbody, tend) =>
+  ( tok0
+  , arg1, res2
+  , arrw, body, tend) =>
   fprint!
   ( out
   , "D0Elam(", tok0, "; "
-  , arg1, "; ", res2, "; ", farrw, "; ", fbody, "; ", tend, ")")
+  , arg1, "; ", res2, "; ", arrw, "; ", body, "; ", tend, ")")
+| D0Efix
+  ( tok0, fid0
+  , arg1, res2
+  , arrw, body, tend) =>
+  fprint!
+  ( out
+  , "D0Efix(", tok0, "; ", fid0, "; "
+  , arg1, "; ", res2, "; ", arrw, "; ", body, "; ", tend, ")")
+//
+| D0Etry0
+  (tok0, d0e1, twth, tbar, d0cs, tend) =>
+  fprint!
+  ( out
+  , "D0Etry0(", tok0, "; "
+  , d0e1, "; ", twth, "; ", tbar, "; ", "...", "; ", tend, ")")
 //
 | D0Eanno
-  (d0e, ann) =>
-  fprint!(out, "D0Eanno(", d0e, "; ", ann, ")")
+  (d0e1, s0e2) =>
+  fprint!(out, "D0Eanno(", d0e1, "; ", s0e2, ")")
 //
 | D0Equal
-  (tok, d0e) =>
-  fprint!(out, "D0Equal(", tok, "; ", d0e, ")")
+  (tok0, d0e1) =>
+  fprint!(out, "D0Equal(", tok0, "; ", d0e1, ")")
 //
-| D0Enone(tok) => fprint!(out, "D0Enone(", tok, ")")
+| D0Enone1(tok) => fprint!(out, "D0Enone1(", tok, ")")
+//
+| D0Eexname(g0e) => fprint!(out, "D0Eexname(", g0e, ")")
+| D0Eexists
+  (tok0, sqas, d0e1) =>
+  fprint!(out, "D0Eexists(", tok0, "; ", sqas, "; ", d0e1, ")")
 //
 ) (* end of [fprint_d0exp] *)
 
@@ -546,8 +798,10 @@ fprint_d0exp_RPAREN(stderr_ref, x0)
 
 local
 
+(*
 implement
 fprint_val<d0exp> = fprint_d0exp
+*)
 
 in (* in-of-local *)
 
@@ -580,8 +834,10 @@ fprint_labd0exp_RBRACE(stderr_ref, x0)
 
 local
 
+(*
 implement
 fprint_val<d0exp> = fprint_d0exp
+*)
 
 in (* in-of-local *)
 
@@ -704,27 +960,27 @@ case+ x0 of
 (* ****** ****** *)
 
 implement
-print_declmodopt(x0) =
-fprint_declmodopt(stdout_ref, x0)
+print_decmodopt(x0) =
+fprint_decmodopt(stdout_ref, x0)
 implement
-prerr_declmodopt(x0) =
-fprint_declmodopt(stderr_ref, x0)
+prerr_decmodopt(x0) =
+fprint_decmodopt(stderr_ref, x0)
 implement
-fprint_declmodopt
+fprint_decmodopt
   (out, x0) =
 (
 case+ x0 of
 //
-| DECLMODnone() =>
+| DECMODnone() =>
   fprint!
-  (out, "DECLMODnone(", ")")
+  (out, "DECMODnone(", ")")
 //
-| DECLMODsing(tok, id0) =>
+| DECMODsing(tok, id0) =>
   fprint!
-  (out, "DECLMODsing(", tok, "; ", id0, ")")
-| DECLMODlist(tok, tbeg, ids, tend) =>
+  (out, "DECMODsing(", tok, "; ", id0, ")")
+| DECMODlist(tok, tbeg, ids, tend) =>
   fprint!
-  ( out, "DECLMODlist("
+  ( out, "DECMODlist("
   , tok, "; ", tbeg, "; ", ids, "; ", tend, ")")
 )
 
@@ -780,18 +1036,23 @@ prerr_d0ecl(x0) =
 fprint_d0ecl(stderr_ref, x0)
 
 local
-
+//
+(*
 implement
 fprint_val<d0ecl> = fprint_d0ecl
+*)
+//
+implement
+fprint_val<g0marg> = fprint_g0marg
+implement
+fprint_val<f0undecl> = fprint_f0undecl
 implement
 fprint_val<v0aldecl> = fprint_v0aldecl
 implement
 fprint_val<v0ardecl> = fprint_v0ardecl
 implement
-fprint_val<f0undecl> = fprint_f0undecl
-implement
 fprint_val<d0cstdecl> = fprint_d0cstdecl
-
+//
 in (* in-of-local *)
 
 implement
@@ -821,13 +1082,33 @@ case+ x0.node() of
   fprint!
   (out, "D0Cextern(", tok, "; ", d0c, ")")
 //
-| D0Cinclude(tok, d0e) =>
+| D0Cdefine
+  (tok, gid, gmas, gdef) =>
   fprint!
-  (out, "D0Cinclude(", tok, "; ", d0e, ")")
+  ( out, "D0Cdefine("
+  , gid, "; ", gmas, "; ", gdef, ")")
 //
-| D0Cstaload(tok, d0e) =>
+| D0Cmacdef
+  (tok, gid, gmas, mdef) =>
   fprint!
-  (out, "D0Cstaload(", tok, "; ", d0e, ")")
+  ( out, "D0Cmacdef("
+  , gid, "; ", gmas, "; ", mdef, ")")
+//
+| D0Clocal
+  (tbeg, d0cs0, topt, d0cs1, tend) =>
+  fprint!
+  ( out
+  , "D0Clocal("
+  , tbeg, "; ", d0cs0, "; "
+  , topt, "; ", d0cs1, "; ", tend, ")")
+//
+| D0Cinclude(tok, g0e) =>
+  fprint!
+  (out, "D0Cinclude(", tok, "; ", g0e, ")")
+//
+| D0Cstaload(tok, g0e) =>
+  fprint!
+  (out, "D0Cstaload(", tok, "; ", g0e, ")")
 (*
 | D0Cdynload(tok, d0e) =>
   fprint!
@@ -864,30 +1145,36 @@ case+ x0.node() of
   ( out, "D0Cabstype("
   , tok, "; ", sid, "; ", arg, "; ", res, "; ", tdef, ")")
 //
+| D0Cabsopen(tok, sqid) =>
+  fprint!
+  ( out
+  , "D0Cabsopen(", tok, "; ", sqid, ")")
+//
 | D0Cabsimpl
   (tok, sqid, smas, res0, teq1, def2) =>
   fprint!
-  ( out, "D0Cabsimpl("
+  ( out
+  , "D0Cabsimpl("
   , tok, "; ", sqid, "; "
   , smas, "; ", res0, "; ", teq1, "; ", def2, ")")
-//
-| D0Cvaldecl
-  (tok, mopt, d0cs) =>
-  fprint!
-  ( out
-  , "D0Cvaldecl(", tok, "; ", mopt, "; ", d0cs)
-//
-| D0Cvardecl
-  (tok, d0cs) =>
-  (
-    fprint!(out, "D0Cvardecl(", tok, "; ", d0cs)
-  ) (*D0Cvardecl*)
 //
 | D0Cfundecl
   (tok, mopt, tqas, d0cs) =>
   fprint!
   ( out
-  , "D0Cfundecl(", tok, "; ", mopt, "; ", tqas, "; ", d0cs)
+  , "D0Cfundecl("
+  , tok, "; ", mopt, "; ", tqas, "; ", d0cs, ")")
+//
+| D0Cvaldecl
+  (tok, mopt, d0cs) =>
+  fprint!
+  ( out
+  , "D0Cvaldecl(", tok, "; ", mopt, "; ", d0cs, ")")
+| D0Cvardecl
+  (tok, mopt, d0cs) =>
+  fprint!
+  ( out
+  , "D0Cvardecl(", tok, "; ", mopt, "; ", d0cs, ")")
 //
 | D0Cimpdecl
   ( tok, mopt, sqas, tqas
@@ -908,6 +1195,10 @@ case+ x0.node() of
 | D0Cdatasort(tok, d0cs) =>
   fprint!(out, "D0Cdatasort(", tok, "; ", d0cs, ")")
 //
+| D0Cexcptcon(tok, d0cs) =>
+  fprint!
+  ( out
+  , "D0Cexcptcon(", tok, "; ", d0cs, ")")
 | D0Cdatatype(tok, d0cs, wopt) =>
   fprint!
   ( out
@@ -919,11 +1210,14 @@ case+ x0.node() of
   ( out
   , "D0Cdynconst(", tok, "; ", tqas, "; ", d0cs, ")")
 //
-| D0Clocal
-  (tok, d0cs0, tok1, d0cs1, tok2) =>
-  fprint!
-  ( out, "D0Clocal("
-  , tok, "; ", d0cs0, "; ", tok1, "; ", d0cs1, "; ", tok2, ")")
+| D0Celse(tok) =>
+  fprint!(out, "D0Celse(", tok, ")")
+| D0Cendif(tok) =>
+  fprint!(out, "D0Cendif(", tok, ")")
+| D0Cifdec(tok, g0e1, topt) =>
+  fprint!(out, "D0Cifdec(", tok, "; ", g0e1, "; ", topt, ")")
+| D0Celsif(tok, g0e1, topt) =>
+  fprint!(out, "D0Celsif(", tok, "; ", g0e1, "; ", topt, ")")
 //
 (*
 | _(*rest-of-d1ecl*) =>
@@ -994,8 +1288,9 @@ fprint_abstdf0
   (out, x0) =
 (
 case+ x0 of
-| ABSTDF0nil() =>
-  fprint(out, "ABSTDF0nil()")
+| ABSTDF0some() =>
+  fprint
+  (out, "ABSTDF0some()")
 | ABSTDF0lteq(tok, s0e) =>
   fprint!
   (out, "ABSTDF0lteq(", tok, "; ", s0e, ")")
@@ -1004,6 +1299,50 @@ case+ x0 of
   (out, "ABSTDF0eqeq(", tok, "; ", s0e, ")")
 ) (* end of [fprint_abstdf0] *)
 
+(* ****** ****** *)
+//
+implement
+print_g0expdef(x0) =
+fprint_g0expdef(stdout_ref, x0)
+implement
+prerr_g0expdef(x0) =
+fprint_g0expdef(stderr_ref, x0)
+//
+implement
+fprint_g0expdef
+  (out, x0) =
+(
+case+ x0 of
+| G0EDEFnone() =>
+  fprint!
+  (out, "G0EDEFnone(", ")")
+| G0EDEFsome(topt, g0e1) =>
+  fprint!
+  (out, "G0EDEFsome(", topt, "; ", g0e1, ")")
+)
+//
+(* ****** ****** *)
+//
+implement
+print_d0macdef(x0) =
+fprint_d0macdef(stdout_ref, x0)
+implement
+prerr_d0macdef(x0) =
+fprint_d0macdef(stderr_ref, x0)
+//
+implement
+fprint_d0macdef
+  (out, x0) =
+(
+case+ x0 of
+| D0MDEFnone() =>
+  fprint!
+  (out, "D0MDEFnone(", ")")
+| D0MDEFsome(topt, d0e1) =>
+  fprint!
+  (out, "D0MDEFsome(", topt, "; ", d0e1, ")")
+)
+//
 (* ****** ****** *)
 
 implement
@@ -1045,7 +1384,7 @@ in
   fprint!
   ( out
   , "V0ALDECL@{"
-  , ", pat=", rcd.pat, ", teq=", rcd.teq
+  , "pat=", rcd.pat, ", teq=", rcd.teq
   , ", def=", rcd.def, ", wtp=", rcd.wtp, "}")
 end // end of [fprint_v0aldecl]
 
@@ -1068,7 +1407,7 @@ in
   fprint!
   ( out
   , "V0ARDECL@{"
-  , ", nam=", rcd.nam
+  , "nam=", rcd.nam
   , ", wth=", rcd.wth
   , ", res=", rcd.res, ", ini=", rcd.ini, "}")
 end // end of [fprint_v0ardecl]
@@ -1092,7 +1431,7 @@ in
   fprint!
   ( out
   , "F0UNDECL@{"
-  , ", nam=", rcd.nam
+  , "nam=", rcd.nam
   , ", arg=", rcd.arg
   , ", res=", rcd.res, ", teq=", rcd.teq
   , ", def=", rcd.def, ", wtp=", rcd.wtp, "}")
@@ -1117,7 +1456,7 @@ in
   fprint!
   ( out
   , "D0CSTDECL@{"
-  , ", nam=", rcd.nam, ", arg=", rcd.arg
+  , "nam=", rcd.nam, ", arg=", rcd.arg
   , ", res=", rcd.res, ", def=", rcd.def, "}")
 end // end of [fprint_d0cstdecl]
 

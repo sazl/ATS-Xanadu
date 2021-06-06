@@ -34,15 +34,15 @@
 (* ****** ****** *)
 //
 #staload
-LAB = "./label0.sats"
+LAB = "./xlabel0.sats"
 #staload
-LOC = "./location.sats"
+LOC = "./locinfo.sats"
 //
   typedef label = $LAB.label
   typedef loc_t = $LOC.location
 //
-#staload LEX = "./lexing.sats"
-#staload SYM = "./symbol.sats"
+#staload SYM = "./xsymbol.sats"
+#staload LEX = "./lexing0.sats"
 //
   typedef token = $LEX.token
   typedef tokenlst = $LEX.tokenlst
@@ -87,6 +87,12 @@ typedef t0flt = t0flt_tbox
 typedef t0str = t0str_tbox
 //
 typedef i0dnt = i0dnt_tbox
+//
+(* ****** ****** *)
+//
+typedef g0nid = i0dnt_tbox
+//
+typedef g0eid = i0dnt_tbox
 //
 (* ****** ****** *)
 //
@@ -265,8 +271,8 @@ overload fprint with fprint_i0dnt
 //
 datatype
 l0abl_node =
-  | L0ABsome of label // valid
-  | L0ABnone of (token) // invalid
+  | L0ABLsome of label // valid
+  | L0ABLnone of (token) // invalid
 //
 fun
 l0abl_get_loc(l0abl): loc_t
@@ -311,7 +317,9 @@ s0ymb = s0ymb_tbox
 datatype
 s0ymb_node =
 | S0YMBi0dnt of (i0dnt)
+(*
 | S0YMBdtlab of (token, l0abl)
+*)
 | S0YMBbrack of (token, token)
 //
 fun
@@ -373,6 +381,16 @@ overload fprint with fprint_dq0eid
 //
 (* ****** ****** *)
 //
+abstbox g0nam_tbox = ptr
+//
+(* ****** ****** *)
+//
+abstbox g0exp_tbox = ptr
+//
+abstbox g0marg_tbox = ptr
+//
+(* ****** ****** *)
+//
 abstbox sort0_tbox = ptr
 abstbox s0exp_tbox = ptr
 //
@@ -381,6 +399,19 @@ abstbox s0marg_tbox = ptr
 //
 abstbox t0arg_tbox = ptr
 abstbox t0marg_tbox = ptr
+//
+(* ****** ****** *)
+
+typedef g0nam = g0nam_tbox
+typedef g0namlst = List0(g0nam)
+
+(* ****** ****** *)
+//
+typedef g0exp = g0exp_tbox
+typedef g0explst = List0(g0exp)
+//
+typedef g0marg = g0marg_tbox
+typedef g0marglst = List0(g0marg)
 //
 (* ****** ****** *)
 //
@@ -405,9 +436,168 @@ typedef t0marglst = List0(t0marg)
 (* ****** ****** *)
 //
 datatype
+g0nam_node =
+//
+| G0Nid0 of (g0nid)
+//
+| G0Nint of (t0int)
+| G0Nchr of (t0chr)
+| G0Nflt of (t0flt)
+| G0Nstr of (t0str)
+//
+| G0Nlist of
+  (token, g0namlst, token)
+//
+| G0Nnone0 of ()
+| G0Nnone1 of (token(*error*))
+//
+(* ****** ****** *)
+//
+fun
+g0nam_get_loc(g0nam): loc_t
+fun
+g0nam_get_node(g0nam): g0nam_node
+//
+overload .loc with g0nam_get_loc
+overload .node with g0nam_get_node
+//
+fun print_g0nam : print_type(g0nam)
+fun prerr_g0nam : prerr_type(g0nam)
+fun fprint_g0nam : fprint_type(g0nam)
+//
+overload print with print_g0nam
+overload prerr with prerr_g0nam
+overload fprint with fprint_g0nam
+//
+fun
+g0nam_make_node
+(loc: loc_t, node: g0nam_node): g0nam
+//
+(* ****** ****** *)
+//
+datatype
+g0exp_node =
+//
+| G0Eid0 of (g0eid)
+//
+| G0Eint of (t0int)
+| G0Echr of (t0chr)
+| G0Eflt of (t0flt)
+| G0Estr of (t0str)
+//
+| G0Eapps of g0explst
+| G0Elist of // temp
+  (token, g0explst, token)
+//
+| G0Eif0 of
+  ( token
+  , g0exp
+  , g0exp_THEN
+  , g0exp_ELSE, tokenopt)
+//
+| G0Enone1 of (token(*error*))
+//
+(* ****** ****** *)
+and
+g0exp_THEN =
+| g0exp_THEN of (token, g0exp)
+and
+g0exp_ELSE =
+| g0exp_ELSE of (token, g0exp)
+(* ****** ****** *)
+//
+fun
+g0exp_get_loc(g0exp): loc_t
+fun
+g0exp_get_node(g0exp): g0exp_node
+//
+overload .loc with g0exp_get_loc
+overload .node with g0exp_get_node
+//
+fun print_g0exp : print_type(g0exp)
+fun prerr_g0exp : prerr_type(g0exp)
+fun fprint_g0exp : fprint_type(g0exp)
+//
+overload print with print_g0exp
+overload prerr with prerr_g0exp
+overload fprint with fprint_g0exp
+//
+fun
+g0exp_make_node
+(loc: loc_t, node: g0exp_node): g0exp
+//
+(* ****** ****** *)
+//
+fun
+print_g0exp_THEN:
+  print_type(g0exp_THEN)
+fun
+prerr_g0exp_THEN:
+  prerr_type(g0exp_THEN)
+fun
+fprint_g0exp_THEN: fprint_type(g0exp_THEN)
+//
+overload print with print_g0exp_THEN
+overload prerr with prerr_g0exp_THEN
+overload fprint with fprint_g0exp_THEN
+//
+fun
+print_g0exp_ELSE:
+  print_type(g0exp_ELSE)
+fun
+prerr_g0exp_ELSE:
+  prerr_type(g0exp_ELSE)
+fun
+fprint_g0exp_ELSE: fprint_type(g0exp_ELSE)
+//
+overload print with print_g0exp_ELSE
+overload prerr with prerr_g0exp_ELSE
+overload fprint with fprint_g0exp_ELSE
+//
+(* ****** ****** *)
+//
+typedef g0arg = g0eid
+typedef g0arglst = List0(g0arg)
+//
+datatype
+g0marg_node =
+|
+G0MARGnone of (token)
+|
+G0MARGsarg of
+(token(*'{'*), g0arglst, token(*'}'*))
+|
+G0MARGdarg of
+(token(*'('*), g0arglst, token(*')'*))
+//
+(* ****** ****** *)
+//
+fun
+g0marg_get_loc(g0marg): loc_t
+fun
+g0marg_get_node(g0marg): g0marg_node
+//
+overload .loc with g0marg_get_loc
+overload .node with g0marg_get_node
+//
+fun print_g0marg : print_type(g0marg)
+fun prerr_g0marg : prerr_type(g0marg)
+fun fprint_g0marg : fprint_type(g0marg)
+//
+overload print with print_g0marg
+overload prerr with prerr_g0marg
+overload fprint with fprint_g0marg
+//
+fun
+g0marg_make_node
+(loc: loc_t, node: g0marg_node): g0marg
+//
+(* ****** ****** *)
+//
+datatype
 sort0_node =
 //
-| S0Tid of (s0tid)
+| S0Tid0 of (s0tid)
 //
 | S0Tint of (t0int)
 //
@@ -557,14 +747,15 @@ s0rtdef_make_node
 //
 datatype
 s0arg_node =
-  | S0ARGnone of token
-  | S0ARGsome of (s0eid, sort0opt)
+| S0ARGnone of token
+| S0ARGsome of (s0eid, sort0opt)
 //
 datatype
 s0marg_node =
-  | S0MARGnone of token
-  | S0MARGsing of (s0eid)
-  | S0MARGlist of (token, s0arglst, token)
+| S0MARGnone of token
+| S0MARGsing of (s0eid)
+| S0MARGlist of
+  (token(*LP*), s0arglst, token(*RP*))
 //
 (* ****** ****** *)
 //
@@ -614,10 +805,8 @@ s0marg_make_node
 //
 datatype
 t0arg_node =
-(*
-  | T0ARGnone of token
-*)
-  | T0ARGsome of (sort0, tokenopt)
+| T0ARGnone of token
+| T0ARGsome of (sort0, tokenopt)
 //
 datatype
 t0marg_node =
@@ -677,7 +866,7 @@ typedef s0qualst = List0(s0qua)
 //
 datatype
 s0qua_node =
-| S0QUAprop of s0exp
+| S0QUAprop of (s0exp)
 | S0QUAvars of (i0dntlst, sort0opt)
 //
 fun
@@ -741,7 +930,7 @@ typedef labs0explst = List0(labs0exp)
 datatype
 s0exp_node =
 //
-| S0Eid of (s0eid)
+| S0Eid0 of (s0eid)
 //
 | S0Eop1 of (token) // op_symid
 | S0Eop2 of (token, s0eid, token) // op(...)
@@ -784,7 +973,6 @@ s0exp_node =
   // end of [S0Equal]
 //
 | S0Enone of (token) // HX-2018-07-08: indicating error 
-// end of [s0exp_node]
 //
 and
 s0exp_RPAREN =
@@ -855,6 +1043,13 @@ overload fprint with fprint_labs0exp_RBRACE
 //
 (* ****** ****** *)
 //
+//
+// HX-2019-02-18:
+// There is no longer plan
+// to support effect-tracking!!!
+//
+(*
+//
 datatype
 s0eff =
 | S0EFFnone of
@@ -873,12 +1068,15 @@ overload print with print_s0eff
 overload prerr with prerr_s0eff
 overload fprint with fprint_s0eff
 //
-(* ****** ****** *)
+*)
 //
 datatype
 effs0expopt =
-| EFFS0EXPnone of ((*void*))
+| EFFS0EXPnone of ()
+| EFFS0EXPsome of (s0exp)
+(*
 | EFFS0EXPsome of (s0eff, s0exp)
+*)
 //
 fun
 print_effs0expopt:
@@ -939,11 +1137,12 @@ d0atypelst = List0(d0atype)
 //
 datatype
 d0atype_node =
-| D0ATYPE of
-  ( d0eid
-  , t0marglst
-  , sort0opt(*res*), token, d0atconlst)
-  // D0ATYPE
+|
+D0ATYPE of
+( d0eid
+, t0marglst
+, sort0opt(*res*), token, d0atconlst
+) (* D0ATYPE *)
 //
 fun
 d0atype_get_loc

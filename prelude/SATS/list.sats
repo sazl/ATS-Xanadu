@@ -6,7 +6,7 @@
 
 (*
 ** ATS/Xanadu - Unleashing the Potential of Types!
-** Copyright (C) 2018 Hongwei Xi, ATS Trustful Software, Inc.
+** Copyright (C) 2019 Hongwei Xi, ATS Trustful Software, Inc.
 ** All rights reserved
 **
 ** ATS is free software;  you can  redistribute it and/or modify it under
@@ -27,253 +27,332 @@
 
 (* ****** ****** *)
 //
+// For functional lists
+//
+(* ****** ****** *)
+//
 // Author: Hongwei Xi
-// Start Time: October, 2018
+// Start Time: September, 2019
 // Authoremail: gmhwxiATgmailDOTcom
 //
 (* ****** ****** *)
 //
-// HX-2018-10-01:
-//
-datatype
-list_type_int_tbox
-  (a:type+, int) =
-//
-// type+: covariant
-//
-| list_nil(a, 0) of ()
-| {n:int | n >= 0}
-  list_cons(a, n+1) of
-  (a, list_type_int_tbox(a, n))
-// end of [list_type_int_tbox]
-//
-sexpdef list = list_type_int_tbox
+fun<>
+list_nil_
+{a:t0}(): list(a, 0)
+fun
+<a:t0>
+list_cons_
+{n:i0}
+( x0: a
+, xs
+: list(a, n)): list(a, n+1)
 //
 (* ****** ****** *)
 //
-typedef
-List(a:type) = [n:int] list(a, n)
-//
-typedef
-List0(a:type) = [n:int | n >= 0] list(a, n)
-typedef
-List1(a:type) = [n:int | n >= 1] list(a, n)
-//
-typedef listLt
-  (a:type, n:int) = [k:nat | k < n] list(a, k)
-typedef listLte
-  (a:type, n:int) = [k:nat | k <= n] list(a, k)
-typedef listGt
-  (a:type, n:int) = [k:int | k > n] list(a, k)
-typedef listGte
-  (a:type, n:int) = [k:int | k >= n] list(a, k)
-typedef listBtw
-  (a:type, m:int, n:int) = [k:int | m <= k; k < n] list(a, k)
-typedef listBtwe
-  (a:type, m:int, n:int) = [k:int | m <= k; k <= n] list(a, k)
-//
-(* ****** ****** *)
-(*
-//
-#define nil list_nil
-//
-#define :: list_cons
-#define cons list_cons
-//
-*)
-(* ****** ****** *)
-//
-prfun
-lemma_list_param
-  {x:type}{n:int}
-  (xs: list(INV(x), n)): [n >= 0] void
-// end of [lemma_list_param]
-//
-(* ****** ****** *)
-//
-fun<a:type>
-list_tuple_0():<> list(a, 0)
-//
-fun<a:type>
-list_tuple_1(x0: a):<> list(a, 1)
-fun<a:type>
-list_tuple_2(x0: a, x1: a):<> list(a, 2)
-fun<a:type>
-list_tuple_3(x0: a, x1: a, x2: a):<> list(a, 3)
-//
-fun<a:type>
-list_tuple_4
-  (x0: a, x1: a, x2: a, x3: a):<> list(a, 4)
-fun<a:type>
-list_tuple_5
-  (x0: a, x1: a, x2: a, x3: a, x4: a):<> list(a, 5)
-fun<a:type>
-list_tuple_6
-  (x0: a, x1: a, x2: a, x3: a, x4: a, x5: a):<> list(a, 6)
-//
-(* ****** ****** *)
-//
-#symload
-list_tuple with list_tuple_0
-#symload
-list_tuple with list_tuple_1
-#symload
-list_tuple with list_tuple_2
-#symload
-list_tuple with list_tuple_3
-#symload
-list_tuple with list_tuple_4
-#symload
-list_tuple with list_tuple_5
-#symload
-list_tuple with list_tuple_6
+fun
+<a:t0>
+list_sing(x0: a): list(a, 1)
 //
 (* ****** ****** *)
 
 fun
-<x:type>
-list_make_sing(x):<wrt> list(x, 1)
+<a:t0>
+list_make_nval
+{n:nat}
+(n: int(n), x: a): list(a, n)
 fun
-<x:type>
-list_make_pair(x, x):<wrt> list(x, 2)
+<a:t0>
+list_make_nval_vt
+{n:nat}
+(n: int(n), x: a): list_vt(a, n)
 
 (* ****** ****** *)
 //
-fun
-<x:type>
-list_make_elt
-  {n:nat}
-  (n: int(n), x: x):<wrt> list(x, n)
-// end of [list_make_elt]
-//
-(* ****** ****** *)
-//
-fun
-<x:type>
-list_length{n:int}
-  (xs: list(x, n)):<> int(n)
-//
-(* ****** ****** *)
-//
 fun<>
-list_is_nil
-{x:type}{n:int}(xs: list(x, n)):<> bool(n=0)
+list_nilq
+{a:type}{n:int}
+(xs: list(a, n)): bool(n = 0)
 fun<>
-list_is_cons
-{x:type}{n:int}(xs: list(x, n)):<> bool(n>0)
-//
-fun
-<x:type>
-list_is_sing{n:int}(xs: list(x, n)):<> bool(n=1)
-fun
-<x:type>
-list_is_pair{n:int}(xs: list(x, n)):<> bool(n=2)
+list_consq
+{a:type}{n:int}
+(xs: list(a, n)): bool(n > 0)
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
+<a:t0>
 list_head
-  {n:pos}(xs: list(INV(x), n)):<> (x)
+{n:pos}(list(a, n)): a
 fun
-<x:type>
-list_head_exn
-  {n:int}(xs: list(INV(x), n)):<exn> (x)
+<a:t0>
+list_head_raw(xs: list(a)): a
+fun
+<a:t0>
+list_head_exn(xs: list(a)): a
+fun
+<a:t0>
+list_head_opt(xs: list(a)): optn_vt(a)
+//
+fun
+<a:t0>
+list_tail
+{n:pos}(list(a, n)): list(a, n-1)
+fun
+<a:t0>
+list_tail_raw(xs: list(a)): list(a)
+fun
+<a:t0>
+list_tail_exn(xs: list(a)): list(a)
+fun
+<a:t0>
+list_tail_opt(xs: list(a)): optn_vt(list(a))
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
-list_tail{n:pos}
-  (xs: SHARED(list(INV(x), n))):<> list(x, n-1)
-fun
-<x:type>
-list_tail_exn{n:int}
-  (xs: SHARED(list(INV(x), n))):<exn> list(x, n-1)
+<a:t0>
+list_length
+{n:int}(list(a, n)): int(n)
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
-<y:type>
-list_map{n:int}
-  (xs: list(x, n)): list(y, n)
-fun
-<x:type>
-<y:vtype>
-list_map_vt0{n:int}
-  (xs: list(x, n)): list_vt(y, n)
+<a:t0>
+list_get_at
+{n:int}
+(list(a, n), nintlt(n)): (a)
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
-list_forall(xs: list(x)): bool
-//
+<a:t0>
+list_extend
+{m:int}
+(list(a, m), a): list(a, m+1)
 fun
-<x:type>
-list_foreach(xs: list(x)): void
+<a:t0>
+list_append
+{m,n:int}
+( xs: list(a, m)
+, ys: list(a, n)): list(a, m+n)
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
-<y:type>
-list_imap{n:int}
-  (xs: list(x, n)): list(y, n)
-//
+<a:t0>
+list_concat
+(xss: list(list(a))): list(a)
 fun
-<x:type>
-list_iforall(xs: list(x)): bool
-//
-fun
-<x:type>
-list_iforeach(xs: list(x)): void
+<a:t0>
+list_concat_vt
+(xss: list(list(a))): list_vt(a)
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
-<y:type>
-list_zip
-  {m,n:int}
-( xs: list(x, m)
-, ys: list(y, n)
-) :<> list((x, y), min(m, n))
-fun
-<x:type>
-<y:type>
-list_zipeq
-  {n:int}
-( xs: list(x, n)
-, ys: list(y, n)):<> list((x, y), n)
+<a:t0>
+list_rappend
+{m,n:int}
+( xs: list(a, m)
+, ys: list(a, n)): list(a, m+n)
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
-<y:type>
-list_cross
-  {m,n:int}
-( xs: list(x, m)
-, ys: list(y, n)):<> list((x, y), m*n)
+<a:t0>
+list_rappend_vt
+{m,n:int}
+( xs: list(a, m)
+, ys: list_vt(a, n)): list_vt(a, m+n)
 //
 (* ****** ****** *)
 //
 fun
-<x:type>
-list_sort
-// based on mergesort
-  {n:int}(xs: list(x, n)): list(x, n)
+<a:t0>
+list_reverse
+{n:int}(list(a, n)): list(a, n)
+//
+(* ****** ****** *)
+
 fun
-<x:type>
-list_quicksort
-  {n:int}(xs: list(x, n)): list(x, n)
+<x0:t0>
+list_forall
+{n:int}(xs: list(x0, n)): bool
 fun
-<x:type>
+<x0:t0>
+list_foreach
+{n:int}(xs: list(x0, n)): void
+
+(* ****** ****** *)
+//
+fun
+<x0:t0>
+list_listize
+{n:int}
+(xs: list(x0, n)): list_vt(x0, n)
+fun
+<x0:t0>
+list_rlistize
+{n:int}
+(xs: list(x0, n)): list_vt(x0, n)
+fun
+<x0:t0>
+list_streamize(list(x0)): stream_vt(x0)
+//
+(* ****** ****** *)
+//
+(*
+list_map: map$for
+list_map_vt: map$for
+*)
+//
+fun
+<x0:t0>
+<y0:t0>
+list_map
+{n:int}(list(x0, n)): list(y0, n)
+fun
+<x0:t0>
+<y0:vt>
+list_map_vt
+{n:int}(list(x0, n)): list_vt(y0, n)
+//
+(* ****** ****** *)
+//
+(*
+list_maprev: map$for
+list_maprev_vt: map$for
+*)
+//
+fun
+<x0:t0>
+<y0:t0>
+list_maprev
+{n:int}(list(x0, n)): list(y0, n)
+fun
+<x0:t0>
+<y0:vt>
+list_maprev_vt
+{n:int}(list(x0, n)): list_vt(y0, n)
+//
+(* ****** ****** *)
+//
+fun
+<a:t0>
+list_copy_vt
+{n:int}(xs: list(a, n)): list_vt(a, n)
+fun
+<a:t0>
+list_rcopy_vt
+{n:int}(xs: list(a, n)): list_vt(a, n)
+//
+(* ****** ****** *)
+//
+fun
+<a:t0>
+<n:i0>
+list_tabulate(n0: int(n)): list(a, n)
+fun
+<a:t0>
+list_tabulate_cfr
+{n:nat}
+( n0: int(n)
+, f0: nintlt(n) -<cfr> a): list(a, n)
+//
+(* ****** ****** *)
+//
+fun
+<a:t0>
 list_mergesort
-  {n:int}(xs: list(x, n)): list(x, n)
+  {n:int}(xs: list(a, n)): list(a, n)
+fun
+<a:t0>
+list_mergesort_vt
+  {n:int}(xs: list(a, n)): list_vt(a, n)
 //
+(* ****** ****** *)
+//
+fun
+<a:t0>
+list_subsetize_vt
+{n:int}
+(xs: list(a, n)): stream_vt(listlte_vt(a, n))
+//
+(* ****** ****** *)
+//
+// HX-2020-05-30:
+// symbol overloading for list
+//
+(* ****** ****** *)
+//
+#symload
+nil with list_nil of 000
+#symload
+cons with list_cons of 000
+//
+(* ****** ****** *)
+//
+#symload nilq with list_nilq of 1000
+#symload eqzq with list_nilq of 1000
+#symload consq with list_consq of 1000
+#symload neqzq with list_consq of 1000
+//
+(* ****** ****** *)
+//
+#symload [] with list_head of 1000
+#symload head with list_head of 1000
+//
+#symload tail with list_tail of 1000
+//
+(* ****** ****** *)
+
+#symload [] with list_get_at of 1000
+#symload get_at with list_get_at of 1000
+
+(* ****** ****** *)
+//
+#symload length with list_length of 1000
+//
+(* ****** ****** *)
+//
+#symload append with list_append of 1000
+//
+#symload concat with list_concat of 1000
+//
+(* ****** ****** *)
+//
+#symload reverse with list_reverse of 1000
+#symload rappend with list_rappend of 1000
+//
+(* ****** ****** *)
+//
+#symload copy_vt with list_copy_vt of 1000
+#symload rcopy_vt with list_rcopy_vt of 1000
+//
+(* ****** ****** *)
+
+#symload forall with list_forall of 1000
+#symload foreach with list_foreach of 1000
+
+(* ****** ****** *)
+
+#symload listize with list_listize of 1000
+#symload rlistize with list_rlistize of 1000
+#symload streamize with list_streamize of 1000
+
+(* ****** ****** *)
+
+#symload map with list_map of 1000
+#symload map_vt with list_map_vt of 1000
+#symload maprev with list_maprev of 1000
+#symload maprev_vt with list_maprev_vt of 1000
+
+(* ****** ****** *)
+
+#symload mergesort with list_mergesort of 1000
+#symload mergesort_vt with list_mergesort_vt of 1000
+
 (* ****** ****** *)
 
 (* end of [list.sats] *)

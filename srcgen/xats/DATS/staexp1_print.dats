@@ -40,10 +40,14 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/symbol.sats"
+#staload "./../SATS/xsymbol.sats"
 //
-#staload "./../SATS/label0.sats"
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/xlabel0.sats"
+#staload "./../SATS/lexing0.sats"
+//
+#staload "./../SATS/locinfo.sats"
+//
+#staload "./../SATS/staexp0.sats"
 //
 #staload "./../SATS/staexp1.sats"
 //
@@ -56,6 +60,20 @@ _(*TMP*) = "./../DATS/staexp0_print.dats"
 //
 implement
 fprint_val<token> = fprint_token
+//
+(* ****** ****** *)
+//
+implement
+fprint_val<g1nam> = fprint_g1nam
+implement
+fprint_val<g1exp> = fprint_g1exp
+//
+(*
+implement
+fprint_val<g1arg> = fprint_g1arg
+*)
+implement
+fprint_val<g1marg> = fprint_g1marg
 //
 (* ****** ****** *)
 
@@ -105,6 +123,157 @@ fprint_val<d1atcon> = fprint_d1atcon
 (* ****** ****** *)
 
 implement
+print_g1nam(x0) =
+fprint_g1nam(stdout_ref, x0)
+implement
+prerr_g1nam(x0) =
+fprint_g1nam(stderr_ref, x0)
+
+implement
+fprint_g1nam
+  (out, gnm0) =
+(
+case+ gnm0 of
+|
+G1Nnil() =>
+fprint!
+(out, "G1Nnil(", ")")
+|
+G1Nid0(sym) =>
+fprint!
+(out, "G1Nid0(", sym, ")")
+|
+G1Nint(tok) =>
+fprint!
+(out, "G1Nint(", tok, ")")
+|
+G1Nflt(tok) =>
+fprint!
+(out, "G1Nflt(", tok, ")")
+|
+G1Nstr(tok) =>
+fprint!
+(out, "G1Nstr(", tok, ")")
+//
+|
+G1Nlist(gnms) =>
+fprint!
+(out, "G1Nlist(", gnms, ")")
+|
+G1Nnone0() =>
+fprint!(out, "G1Nnone0(", ")")
+|
+G1Nnone1(tok) =>
+fprint!(out, "G1Nnone1(", tok, ")")
+//
+) (* end of [fprint_g1nam] *)
+
+(* ****** ****** *)
+
+implement
+print_g1exp(x0) =
+fprint_g1exp(stdout_ref, x0)
+implement
+prerr_g1exp(x0) =
+fprint_g1exp(stderr_ref, x0)
+
+local
+
+implement
+fprint_val<g1exp> = fprint_g1exp
+
+in (* in-of-local *)
+
+implement
+fprint_g1exp
+  (out, x0) =
+(
+case+ x0.node() of
+//
+| G1Eid0(gid) =>
+  fprint!(out, "G1Eid0(", gid, ")")
+//
+| G1Eint(int) =>
+  fprint!(out, "G1Eint(", int, ")")
+| G1Echr(chr) =>
+  fprint!(out, "G1Echr(", chr, ")")
+| G1Eflt(flt) =>
+  fprint!(out, "G1Eflt(", flt, ")")
+| G1Estr(str) =>
+  fprint!(out, "G1Estr(", str, ")")
+//
+| G1Eif0
+  ( g1e1
+  , g1e2, g1e3) =>
+  fprint!
+  ( out
+  , "G1Eif0("
+  , g1e1, "; ", g1e2, "; ", g1e3, ")")
+//
+| G1Eapp() =>
+  fprint!(out, "G1Eapp()")
+//
+| G1Eapp1
+  (g1e0, g1e1) =>
+  fprint!
+  ( out
+  , "G1Eapp1(", g1e0, "; ", g1e1, ")")
+| G1Eapp2
+  (g1e0, g1e1, g1e2) =>
+  fprint!
+  ( out
+  , "G1Eapp2("
+  , g1e0, "; ", g1e1, "; ", g1e2, ")")
+//
+| G1Elist(g1es) =>
+  fprint!( out, "G1Elist(", g1es, ")")
+//
+| G1Enone0() =>
+  (
+    fprint!(out, "G1Enone0(", ")")
+  )
+| G1Enone1(g0e1) =>
+  (
+    fprint!(out, "G1Enone1(", g0e1, ")")
+  )
+//
+) (* fprint_g1exp *) end // end of [local]
+
+(* ****** ****** *)
+
+implement
+print_g1marg(x0) =
+fprint_g1marg(stdout_ref, x0)
+implement
+prerr_g1marg(x0) =
+fprint_g1marg(stderr_ref, x0)
+
+local
+
+implement
+fprint_val<g1arg> = fprint_token
+
+in(* in-of-local *)
+
+implement
+fprint_g1marg
+  (out, x0) =
+(
+case+
+x0.node() of
+|
+G1MARGsarg(g1as) =>
+fprint!(out, "G1MARGsarg(", g1as, ")")
+|
+G1MARGdarg(g1as) =>
+fprint!(out, "G1MARGdarg(", g1as, ")")
+) (* end of [fprint_g1marg] *)
+
+end // end of [local]
+
+(* ****** ****** *)
+
+implement
 print_sort1(x0) =
 fprint_sort1(stdout_ref, x0)
 implement
@@ -118,20 +287,21 @@ fprint_val<sort1> = fprint_sort1
 
 in (* in-of-local *)
 
+(* ****** ****** *)
+
 implement
 fprint_sort1
   (out, x0) =
 (
 case+ x0.node() of
 //
-| S1Tid(id) =>
-  fprint!(out, "S1Tid(", id, ")")
+| S1Tid0(id0) =>
+  fprint!(out, "S1Tid0(", id0, ")")
 //
 | S1Tint(int) =>
   fprint!(out, "S1Tint(", int, ")")
 //
-| S1Tapp() =>
-  fprint!(out, "S1Tapp()")
+| S1Tapp() => fprint!(out, "S1Tapp()")
 //
 (*
 | S1Ttype(knd) =>
@@ -145,24 +315,35 @@ case+ x0.node() of
 *)
 //
 | S1Tapp1
-  (s1t0, s1t1) =>
+  (s1t1, s1t2) =>
   fprint!
-  (out, "S1Tapp1(", s1t0, "; ", s1t1, ")")
+  ( out
+  , "S1Tapp1(", s1t1, "; ", s1t2, ")")
 | S1Tapp2
-  (s1t0, s1t1, s1t2) =>
+  (s1t1, s1t2, s1t3) =>
   fprint!
-  (out, "S1Tapp2(", s1t0, "; ", s1t1, "; ", s1t2, ")")
+  ( out
+  , "S1Tapp2("
+  , s1t1, "; ", s1t2, "; ", s1t3, ")" )
 //
 | S1Tlist(s1ts) =>
-  fprint!(out, "S1Tlist(", s1ts, ")")
+  fprint!
+  ( out, "S1Tlist(", s1ts, ")" )
 //
 | S1Tqual(tok0, s1t1) =>
   fprint!
-  (out, "S1Tqual(", tok0, "; ", s1t1, ")")
+  ( out, "S1Tqual(", tok0, "; ", s1t1, ")" )
 //
 | S1Tnone((*void*)) => fprint!(out, "S1Tnone(", ")")
 //
-) (* end of [fprint_sort1] *)
+(*
+| _ (* else-of-S1T... *) =>
+  fprint!(out, "S1T...(", "...", ")")
+*)
+//
+) (* case *) // end of [fprint_sort1]
+
+(* ****** ****** *)
 
 end // end of [local]
 
@@ -391,9 +572,9 @@ fprint_s1exp
 (
 case+ x0.node() of
 //
-| S1Eid(sid) =>
+| S1Eid0(sid) =>
   fprint!
-  (out, "S1Eid(", sid, ")")
+  (out, "S1Eid0(", sid, ")")
 //
 | S1Eint(tok) =>
   fprint!
@@ -435,7 +616,8 @@ case+ x0.node() of
 *)
 //
 | S1Elist(s1es) =>
-  fprint!(out, "S1Elist1(", s1es, ")")
+  fprint!
+  (out, "S1Elist1(", s1es, ")")
 | S1Elist(s1es1, s1es2) =>
   fprint!
   (out, "S1Elist2(", s1es1, "; ", s1es2, ")")
@@ -471,7 +653,7 @@ case+ x0.node() of
   fprint!
   (out, "S1Equal(", tok, "; ", s1e, ")")
 //
-| S1Enone((*void*)) => fprint!(out, "S1Enone(", ")")
+| S1Enone(loc) => fprint!(out, "S1Enone(", ")")
 //
 ) (* fprint_s0exp *)
 
@@ -479,6 +661,25 @@ end // end of [local]
 
 (* ****** ****** *)
 
+implement
+print_f1unarrow(x0) =
+fprint_f1unarrow(stdout_ref, x0)
+implement
+prerr_f1unarrow(x0) =
+fprint_f1unarrow(stderr_ref, x0)
+implement
+fprint_f1unarrow(out, x0) =
+(
+case+ x0 of
+| F1UNARROWdflt() =>
+  fprint!(out, "F1UNARROWdflt(", ")")
+| F1UNARROWlist(s1es) =>
+  fprint!(out, "F1UNARROWlist(", s1es, ")")
+) (* end of [fprint_f1unarrow] *)
+
+(* ****** ****** *)
+
+(*
 implement
 print_s1eff(x0) =
 fprint_s1eff(stdout_ref, x0)
@@ -494,7 +695,8 @@ case+ x0 of
   fprint!(out, "S1EFFnone(", ")")
 | S1EFFsome(s1es) =>
   fprint!(out, "S1EFFsome(", s1es, ")")
-)
+) (* end of [fprint_s1eff] *)
+*)
 
 (* ****** ****** *)
 
@@ -511,10 +713,14 @@ fprint_effs1expopt
 case+ x0 of
 | EFFS1EXPnone() =>
   fprint!(out, "EFFS1EXPnone(", ")")
+| EFFS1EXPsome(s1e) =>
+  fprint!(out, "EFFS1EXPsome(", s1e, ")")
+(*
 | EFFS1EXPsome(s1f, s1e) =>
   fprint!
   ( out
   , "EFFS1EXPsome(", s1f, "; ", s1e, ")")
+*)
 ) (* end of [fprint_effs1expopt] *)
 
 (* ****** ****** *)
@@ -553,7 +759,8 @@ case+ x0.node() of
 | D1ATCON(s1us, tok, s1is, argopt) =>
   fprint!
   ( out
-  , "D1ATCON(", s1us, "; ", tok, "; ", s1is, "; ", argopt, ")")
+  , "D1ATCON("
+  , s1us, "; ", tok, "; ", s1is, "; ", argopt, ")")
 ) (* end of [fprint_d1atcon] *)
 
 (* ****** ****** *)

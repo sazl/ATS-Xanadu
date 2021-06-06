@@ -40,13 +40,13 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/symbol.sats"
+#staload "./../SATS/xsymbol.sats"
 //
-#staload "./../SATS/location.sats"
+#staload "./../SATS/locinfo.sats"
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/lexing0.sats"
 #staload "./../SATS/staexp0.sats"
 //
 #staload "./../SATS/synread.sats"
@@ -58,7 +58,13 @@ extern
 val K_EQ: tkind
 and K_LT: tkind
 and K_GT: tkind
+and K_LTGT: tkind
+//
 and K_BAR: tkind
+and K_CLN: tkind
+and K_DOT: tkind
+//
+and K_SMCLN: tkind
 //
 and K_EQLT: tkind
 and K_EQGT: tkind
@@ -68,6 +74,9 @@ and K_MSLT: tkind
 and K_MSGT: tkind
 *)
 //
+and K_DOTLT: tkind
+and K_GTDOT: tkind
+//
 and K_LPAREN: tkind
 and K_RPAREN: tkind
 and K_LBRACE: tkind
@@ -76,9 +85,16 @@ and K_LBRACK: tkind
 and K_RBRACK: tkind
 //
 implement K_EQ = K_SYMBOL(EQ_symbol)
+//
 implement K_LT = K_SYMBOL(LT_symbol)
 implement K_GT = K_SYMBOL(GT_symbol)
+implement K_LTGT = K_SYMBOL(LTGT_symbol)
+//
 implement K_BAR = K_SYMBOL(BAR_symbol)
+implement K_CLN = K_SYMBOL(CLN_symbol)
+implement K_DOT = K_SYMBOL(DOT_symbol)
+//
+implement K_SMCLN = K_SYMBOL(SMCLN_symbol)
 //
 implement K_EQLT = K_SYMBOL(EQLT_symbol)
 implement K_EQGT = K_SYMBOL(EQGT_symbol)
@@ -88,6 +104,9 @@ implement K_MSLT = K_SYMBOL(MSLT_symbol)
 implement K_MSGT = K_SYMBOL(MSGT_symbol)
 *)
 //
+implement K_DOTLT = K_SYMBOL(DOTLT_symbol)
+implement K_GTDOT = K_SYMBOL(GTDOT_symbol)
+//
 implement K_LPAREN = K_SYMBOL(LPAREN_symbol)
 implement K_RPAREN = K_SYMBOL(RPAREN_symbol)
 implement K_LBRACK = K_SYMBOL(LBRACK_symbol)
@@ -96,15 +115,9 @@ implement K_LBRACE = K_SYMBOL(LBRACE_symbol)
 implement K_RBRACE = K_SYMBOL(RBRACE_symbol)
 //
 (* ****** ****** *)
-//
-implement
-{}(*tmp*)
-synerr_add(xerr) = ()
-//
-(* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_INT1
   (tok) =
 (
@@ -125,7 +138,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_CHAR
   (tok) =
 (
@@ -196,7 +209,7 @@ string_last
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_STRING
   (tok) =
 (
@@ -230,7 +243,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_EQ
   (tok) =
 (
@@ -251,7 +264,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_LT
   (tok) =
 (
@@ -272,7 +285,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_GT
   (tok) =
 (
@@ -293,7 +306,60 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
+synread_LTGT
+  (tok) =
+(
+case+
+tok.node() of
+| T_LTGT() => ()
+| _(*non-LTGT*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_LTGT, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(LTGT): ", tok);
+  end // end of [let]
+) (* end of [synread_LTGT] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
+synread_LT_GT
+(tbeg, tend) =
+(
+case+
+tbeg.node() of
+| T_LT() =>
+  {
+    val () = synread_GT(tend)
+  }
+| T_LTGT() =>
+  {
+    val () = synread_LTGT(tbeg)
+  }
+| _(*non-LT-LTGT*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_LT, tbeg))
+  in
+    prerrln!
+    (tbeg.loc(), ": SYNERR(LT_GT): ", tbeg);
+(*
+    prerrln!
+    (tend.loc(), ": SYNERR(LT_GT): ", tend);
+*)
+  end // end of [let]
+) (* end of [synread_LT_GT] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
 synread_BAR
   (tok) =
 (
@@ -314,7 +380,70 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
+synread_CLN
+  (tok) =
+(
+case+
+tok.node() of
+| T_CLN() => ()
+| _(*non-CLN*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_CLN, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(CLN): ", tok);
+  end // end of [let]
+) (* end of [synread_CLN] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
+synread_DOT
+  (tok) =
+(
+case+
+tok.node() of
+| T_DOT() => ()
+| _(*non-DOT*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_DOT, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(DOT): ", tok);
+  end // end of [let]
+) (* end of [synread_DOT] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
+synread_SMCLN
+  (tok) =
+(
+case+
+tok.node() of
+| T_SMCLN() => ()
+| _(*non-SMCLN*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_SMCLN, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(SMCLN): ", tok);
+  end // end of [let]
+) (* end of [synread_SMCLN] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
 synread_EQLT
   (tok) =
 (
@@ -335,7 +464,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_EQGT
   (tok) =
 (
@@ -356,7 +485,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_MSLT
   (tok) =
 (
@@ -378,7 +507,7 @@ tok.node() of
 
 (*
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_MSGT
   (tok) =
 (
@@ -400,7 +529,47 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
+synread_DOTLT
+  (tok) =
+(
+case+
+tok.node() of
+| T_DOTLT(_) => ()
+| _(*non-DOTLT*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_DOTLT, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(DOTLT): ", tok)
+  end // end of [let]
+) (* end of [synread_DOTLT] *)
+
+implement
+//{}(*tmp*)
+synread_GTDOT
+  (tok) =
+(
+case+
+tok.node() of
+| T_GTDOT( ) => ()
+| _(*non-GTDOT*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_GTDOT, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(GTDOT): ", tok)
+  end // end of [let]
+) (* end of [synread_GTDOT] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
 synread_LPAREN
   (tok) =
 (
@@ -421,7 +590,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_RPAREN
   (tok) =
 (
@@ -442,7 +611,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_LBRACE
   (tok) =
 (
@@ -463,7 +632,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_RBRACE
   (tok) =
 (
@@ -484,7 +653,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_LBRACK
   (tok) =
 (
@@ -505,7 +674,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_RBRACK
   (tok) =
 (
@@ -526,7 +695,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_EXISTS
   (tok) =
 (
@@ -547,7 +716,47 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
+synread_AS
+  (tok) =
+(
+case+
+tok.node() of
+| T_AS _ => ()
+| _(*non-AS*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_AS, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(AS): ", tok)
+  end // end of [let]
+) (* end of [synread_AS] *)
+
+implement
+//{}(*tmp*)
+synread_OF
+  (tok) =
+(
+case+
+tok.node() of
+| T_OF _ => ()
+| _(*non-OF*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_OF, tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(OF): ", tok)
+  end // end of [let]
+) (* end of [synread_OF] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
 synread_LAM
   (tok) =
 (
@@ -568,8 +777,8 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
-synread_ENDLAM
+//{}(*tmp*)
+synread_ENDLAM_opt
   (opt) =
 (
 case+ opt of
@@ -589,12 +798,12 @@ case+ opt of
       prerrln!(": SYNERR(ENDLAM): ", tok)
     end // end of [let]
   )
-) (* end of [synread_ENDLAM] *)
+) (* end of [synread_ENDLAM_opt] *)
 
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_LET
   (tok) =
 (
@@ -612,10 +821,8 @@ tok.node() of
   end // end of [let]
 ) (* end of [synread_LET] *)
 
-(* ****** ****** *)
-
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_ENDLET
   (tok) =
 ( case+
@@ -635,7 +842,140 @@ synread_ENDLET
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
+synread_TRY
+  (tok) =
+(
+case+
+tok.node() of
+| T_TRY _ => ()
+| _(*non-TRY*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_TRY(), tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(TRY): ", tok)
+  end // end of [let]
+) (* end of [synread_TRY] *)
+
+implement
+//{}(*tmp*)
+synread_ENDTRY
+  (tok) =
+( case+
+  tok.node() of
+  | T_END _ => ()
+  | T_ENDTRY _ => ()
+  | _(*non-ENDTRY*) => let
+      val () =
+      synerr_add
+      (SYNERRtoken(K_ENDTRY, tok))
+    in
+      prerr(tok.loc());
+      prerrln!(": SYNERR(ENDTRY): ", tok)
+    end // end of [let]
+) (* end of [synread_ENDTRY] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
+synread_WHERE
+  (tok) =
+(
+case+
+tok.node() of
+| T_WHERE _ => ()
+| _(*non-WHERE*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_WHERE(), tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(WHERE): ", tok)
+  end // end of [let]
+) (* end of [synread_WHERE] *)
+
+(* ****** ****** *)
+//
+implement
+//{}(*tmp*)
+synread_ENDWHERE
+  (tok) =
+(
+case+
+tok.node() of
+| T_END _ => ()
+| T_ENDWHERE _ => ()
+| _(*non-ENDWHERE*) => let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_ENDWHERE, tok))
+  in
+    prerr(tok.loc());
+    prerrln!(": SYNERR(ENDWHERE): ", tok)
+  end // end of [let]
+)
+//
+implement
+//{}(*tmp*)
+synread_ENDWHERE_opt
+  (opt) =
+(
+case+ opt of
+| None() => ()
+| Some(tok) => synread_ENDWHERE(tok)
+) (* end of [synread_ENDWHERE_opt] *)
+//
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
+synread_WHEN
+  (tok) =
+(
+case+
+tok.node() of
+| T_WHEN _ => ()
+| _(*non-WHEN*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_WHEN(), tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(WHEN): ", tok)
+  end // end of [let]
+) (* end of [synread_WHEN] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
+synread_WITH
+  (tok) =
+(
+case+
+tok.node() of
+| T_WITH _ => ()
+| _(*non-WITH*) =>
+  let
+    val () =
+    synerr_add
+    (SYNERRtoken(K_WITH(), tok))
+  in
+    prerrln!
+    (tok.loc(), ": SYNERR(WITH): ", tok)
+  end // end of [let]
+) (* end of [synread_WITH] *)
+
+(* ****** ****** *)
+
+implement
+//{}(*tmp*)
 synread_LOCAL
   (tok) =
 (
@@ -656,7 +996,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_ENDLOCAL
   (tok) =
 ( case+
@@ -676,7 +1016,7 @@ synread_ENDLOCAL
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_TUPLE
   (tok) =
 (
@@ -697,7 +1037,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_RECORD
   (tok) =
 (
@@ -718,7 +1058,7 @@ tok.node() of
 (* ****** ****** *)
 
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_IDENT_qual
   (tok) =
 (
@@ -740,7 +1080,7 @@ tok.node() of
 
 (*
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_SORTDEF
   (tok) =
 (
@@ -763,7 +1103,7 @@ tok.node() of
 
 (*
 implement
-{}(*tmp*)
+//{}(*tmp*)
 synread_SEXPDEF
   (tok) =
 (

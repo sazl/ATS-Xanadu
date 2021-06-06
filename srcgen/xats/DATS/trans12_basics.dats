@@ -40,12 +40,74 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 //
+#staload
+SYM = "./../SATS/xsymbol.sats"
+//
+  overload
+  = with $SYM.eq_symbol_symbol
+//
+(* ****** ****** *)
+
+#staload "./../SATS/lexing0.sats"
+
+(* ****** ****** *)
+
+#staload "./../SATS/staexp1.sats"
+#staload "./../SATS/dynexp1.sats"
+
+(* ****** ****** *)
+//
 #staload "./../SATS/staexp2.sats"
+#staload "./../SATS/dynexp2.sats"
 //
 (* ****** ****** *)
 //
 #staload "./../SATS/trans12.sats"
 //
+(* ****** ****** *)
+//
+// HX-2019-02:
+// Please note that
+// a non-functional s2cst is
+// preferred over the functional ones
+//
+implement
+s2cst_select_any
+(s2cs) =
+(
+  test1(s2cs)
+) where
+{
+//
+fun
+test1
+(
+xs: s2cstlst
+) : s2cstopt_vt =
+(
+case+ xs of
+| list_nil() =>
+  (
+    test2(s2cs)
+  )
+| list_cons(x0, xs) =>
+  if
+  sort2_is_fun(x0.sort())
+  then test1(xs) else Some_vt(x0) 
+)
+and
+test2
+(
+xs: s2cstlst
+) : s2cstopt_vt =
+(
+case+ xs of
+| list_nil() => None_vt()
+| list_cons(x0, xs) => Some_vt(x0)
+)
+//
+} (* end of [s2cst_select_any] *)
+
 (* ****** ****** *)
 
 implement
@@ -153,4 +215,90 @@ list_find$pred<s2cst>
 
 (* ****** ****** *)
 
-(* end of [trans12_basics.dats] *)
+local
+//
+fun
+DLR
+( nm
+: string): string =
+strptr2string
+(string0_append("$", nm))
+//
+fun
+iseq
+(x0: g1exp): bool =
+(
+case+
+x0.node() of
+| G1Eid0(sym) =>
+  (sym = $SYM.EQ_symbol)
+| _(*non-G1Eid0*) => false
+)
+in (* in-of-local *)
+//
+implement
+g1exp_nmspace
+  (g1e0) =
+(
+case+
+g1e0.node() of
+|
+G1Eapp2
+(x0, x1, x2) =>
+(
+ifcase
+|
+iseq(x0) =>
+(
+case+
+x1.node() of
+|
+G1Eid0(sym) =>
+let
+val nm0 = sym.name()
+in
+Some_vt
+(
+  $SYM.symbol_make(DLR(nm0))
+)
+end
+| _ (* else *) => None_vt(*void*)
+)
+| _ (* else *) => None_vt(*void*)
+)
+| _ (* else *) => None_vt(*void*)
+)
+//
+end // end of [local]
+
+(* ****** ****** *)
+//
+implement
+trans12_tag_d2conlst
+  (s2c0, d2cs) =
+(
+  auxlst(d2cs, 0(*i0*))
+) where
+{
+//
+fun
+auxlst
+( d2cs
+: d2conlst, i0: int): void =
+(
+case+ d2cs of
+| list_nil() => ()
+| list_cons(d2c1, d2cs) =>
+  (
+    auxlst(d2cs, i0 + 1)
+  ) where
+  {
+    val () = d2con_set_tag(d2c1, i0)
+  }
+) (* end of [auxlst] *)
+//
+} (* end of [trans12_tag_d2conlst] *)
+//
+(* ****** ****** *)
+
+(* end of [xats_trans12_basics.dats] *)

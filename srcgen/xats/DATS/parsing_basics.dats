@@ -40,7 +40,11 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/filpath.sats"
+
+(* ****** ****** *)
+
+#staload "./../SATS/lexing0.sats"
 #staload "./../SATS/parsing.sats"
 
 (* ****** ****** *)
@@ -108,6 +112,22 @@ end // end of [p_BAR]
 (* ****** ****** *)
 
 implement
+p_CLN
+  (buf, err) = let
+  val e0 = err
+  val tok = buf.get0()
+in
+  case+
+  tok.node() of
+  | T_CLN() =>
+    let val () = buf.incby1() in tok end
+  | _ (* non-COLON *) =>
+    let val ( ) = (err := e0 + 1) in tok end
+end // end of [p_CLN]
+
+(* ****** ****** *)
+
+implement
 p_EQGT
   (buf, err) = let
   val e0 = err
@@ -120,22 +140,6 @@ in
   | _ (* non-EQ *) =>
     let val ( ) = (err := e0 + 1) in tok end
 end // end of [p_EQGT]
-
-(* ****** ****** *)
-
-implement
-p_COLON
-  (buf, err) = let
-  val e0 = err
-  val tok = buf.get0()
-in
-  case+
-  tok.node() of
-  | T_COLON() =>
-    let val () = buf.incby1() in tok end
-  | _ (* non-COLON *) =>
-    let val ( ) = (err := e0 + 1) in tok end
-end // end of [p_COLON]
 
 (* ****** ****** *)
 
@@ -183,7 +187,7 @@ in
 end // end of [p_RPAREN]
 
 (* ****** ****** *)
-
+//
 implement
 p_LBRACE
   (buf, err) = let
@@ -195,8 +199,9 @@ in
   | T_LBRACE() =>
     let val () = buf.incby1() in tok end
   | _ (* non-RLRACE *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_LBRACE]
+//
 implement
 p_RBRACE
   (buf, err) = let
@@ -208,11 +213,11 @@ in
   | T_RBRACE() =>
     let val () = buf.incby1() in tok end
   | _ (* non-RBRACE *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_RBRACE]
-
+//
 (* ****** ****** *)
-
+//
 implement
 p_LBRACK
   (buf, err) = let
@@ -224,8 +229,9 @@ in
   | T_LBRACK() =>
     let val () = buf.incby1() in tok end
   | _ (* non-LBRACK *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_LBRACK]
+//
 implement
 p_RBRACK
   (buf, err) = let
@@ -237,11 +243,11 @@ in
   | T_RBRACK() =>
     let val () = buf.incby1() in tok end
   | _ (* non-RBRACK *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_RBRACK]
-
+//
 (* ****** ****** *)
-
+//
 implement
 p_OF(buf, err) = let
   val e0 = err
@@ -252,9 +258,9 @@ in
   | T_OF() =>
     let val () = buf.incby1() in tok end
   | _ (* non-OF *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_OF]
-
+//
 (* ****** ****** *)
 
 implement
@@ -267,7 +273,7 @@ in
   | T_IN() =>
     let val () = buf.incby1() in tok end
   | _ (* non-IN *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_IN]
 
 (* ****** ****** *)
@@ -282,7 +288,7 @@ in
   | T_WITH() =>
     let val () = buf.incby1() in tok end
   | _ (* non-WITH *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_WITH]
 
 (* ****** ****** *)
@@ -297,8 +303,10 @@ in
   | T_END() =>
     let val () = buf.incby1() in tok end
   | _ (* non-END *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_END]
+
+(* ****** ****** *)
 
 implement
 p_ENDLET(buf, err) = let
@@ -312,10 +320,23 @@ in
   | T_ENDLET() =>
     let val () = buf.incby1() in tok end
   | _ (* non-END *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_ENDLET]
 
-(* ****** ****** *)
+implement
+p_ENDTRY(buf, err) = let
+  val e0 = err
+  val tok = buf.get0()
+in
+  case+
+  tok.node() of
+  | T_END() =>
+    let val () = buf.incby1() in tok end
+  | T_ENDTRY() =>
+    let val () = buf.incby1() in tok end
+  | _ (* non-END *) =>
+    let val () = (err := e0 + 1) in tok end
+end // end of [p_ENDTRY]
 
 implement
 p_ENDLOCAL(buf, err) = let
@@ -329,8 +350,46 @@ in
   | T_ENDLOCAL() =>
     let val () = buf.incby1() in tok end
   | _ (* non-END *) =>
-    let val ( ) = (err := e0 + 1) in tok end
+    let val () = (err := e0 + 1) in tok end
 end // end of [p_ENDLOCAL]
+
+(* ****** ****** *)
+
+implement
+popt_EQ
+  (buf, err) = let
+//
+  val tok = buf.get0()
+//
+in
+  case+
+  tok.node() of
+  | T_EQ() =>
+    Some(tok) where
+    {
+      val () = buf.incby1()
+    } (* T_EQ *)
+  | _ (* non-EQ *) => None(*void*)
+end // end of [popt_EQ]
+
+(* ****** ****** *)
+
+implement
+popt_IN
+  (buf, err) = let
+//
+  val tok = buf.get0()
+//
+in
+  case+
+  tok.node() of
+  | T_IN() =>
+    Some(tok) where
+    {
+      val () = buf.incby1()
+    } (* T_IN *)
+  | _ (* non-IN *) => None(*void*)
+end // end of [popt_IN]
 
 (* ****** ****** *)
 
@@ -354,6 +413,25 @@ end // end of [popt_BAR]
 (* ****** ****** *)
 
 implement
+popt_SMCLN
+  (buf, err) = let
+//
+  val tok = buf.get0()
+//
+in
+  case+
+  tok.node() of
+  | T_SMCLN() =>
+    Some(tok) where
+    {
+      val () = buf.incby1()
+    } (* T_SMCLN *)
+  | _ (* non-SMCLN *) => None(*void*)
+end // end of [popt_SMCLN]
+
+(* ****** ****** *)
+
+implement
 popt_LBRACE
   (buf, err) = let
 //
@@ -371,26 +449,7 @@ in
 end // end of [popt_LBRACE]
 
 (* ****** ****** *)
-
-implement
-popt_SEMICOLON
-  (buf, err) = let
-//
-  val tok = buf.get0()
-//
-in
-  case+
-  tok.node() of
-  | T_SEMICOLON() =>
-    Some(tok) where
-    {
-      val () = buf.incby1()
-    } (* T_SEMICOLON *)
-  | _ (* non-SEMICOLON *) => None(*void*)
-end // end of [popt_SEMICOLON]
-
-(* ****** ****** *)
-
+(*
 implement
 popt_ENDIF
   (buf, err) = let
@@ -400,19 +459,22 @@ popt_ENDIF
 in
   case+
   tok.node() of
+(*
   | T_END() =>
     Some(tok) where
     {
       val () = buf.incby1()
     } (* T_END *)
+*)
   | T_ENDIF() =>
     Some(tok) where
     {
       val () = buf.incby1()
     } (* T_ENDIF *)
-  | _ (* non-BAR *) => None(*void*)
+  | _ (* non-END *) => None(*void*)
 end // end of [popt_ENDIF]
-
+*)
+(*
 implement
 popt_ENDCASE
   (buf, err) = let
@@ -422,19 +484,21 @@ popt_ENDCASE
 in
   case+
   tok.node() of
+(*
   | T_END() =>
     Some(tok) where
     {
       val () = buf.incby1()
     } (* T_END *)
+*)
   | T_ENDCASE() =>
     Some(tok) where
     {
       val () = buf.incby1()
     } (* T_ENDCASE *)
-  | _ (* non-BAR *) => None(*void*)
+  | _ (* non-END *) => None(*void*)
 end // end of [popt_ENDCASE]
-
+*)
 (* ****** ****** *)
 
 implement
@@ -446,18 +510,39 @@ popt_ENDLAM
 in
   case+
   tok.node() of
+(*
   | T_END() =>
     Some(tok) where
     {
       val () = buf.incby1()
     } (* T_END *)
+*)
   | T_ENDLAM() =>
     Some(tok) where
     {
       val () = buf.incby1()
-    } (* T_ENDCASE *)
-  | _ (* non-BAR *) => None(*void*)
+    } (* T_ENDLAM *)
+  | _ (* non-END *) => None(*void*)
 end // end of [popt_ENDLAM]
+
+(* ****** ****** *)
+
+implement
+popt_SRP_THEN
+  (buf, err) = let
+//
+  val tok = buf.get0()
+//
+in
+  case+
+  tok.node() of
+  | T_SRP_THEN() =>
+    Some(tok) where
+    {
+      val () = buf.incby1()
+    } (* T_ENDLAM *)
+  | _ (* non-END *) => None(*void*)
+end // end of [popt_SRP_THEN]
 
 (* ****** ****** *)
 //
@@ -620,28 +705,29 @@ pstar_sep_fun
 (* ****** ****** *)
 //
 implement
-pstar_BARSEMI_fun
+pstar_SMCLN_fun
   {a}
 (
   buf, err, fpar
 ) = (
 //
 pstar_sep_fun
-(buf, err, tnode_is_BARSEMI, fpar)
+(buf, err, tnode_is_SMCLN, fpar)
 //
-) (* end of [pstar_BARSEMI_fun] *)
+) (* end of [pstar_SMCLN_fun] *)
 //
 implement
-pstar_SEMICOLON_fun
+pstar_BARSMCLN_fun
   {a}
 (
   buf, err, fpar
 ) = (
 //
 pstar_sep_fun
-(buf, err, tnode_is_SEMICOLON, fpar)
+(buf, err, tnode_is_BARSMCLN, fpar)
 //
-) (* end of [pstar_SEMICOLON_fun] *)
+) (* end of [pstar_BARSMCLN_fun] *)
+//
 //
 (* ****** ****** *)
 //
@@ -651,7 +737,14 @@ pstar_sep_fun
 implement
 parse_from_stdin_toplevel
   (stadyn) =
-  parse_from_fileref_toplevel(stadyn, stdin_ref)
+let
+  val inp = stdin_ref
+in
+//
+parse_from_fileref_toplevel
+  (stadyn, inp)
+//
+end
 // end of [parser_from_stdin_toplevel]
 //
 implement
@@ -666,6 +759,7 @@ toks =
 list_vt2t
 (lexing_preprocess_tokenlst(toks))
 //
+(*
 val _(*ntok*) =
 list_iforeach<token>(toks) where
 {
@@ -676,6 +770,7 @@ list_iforeach$fwork<token><env>
   println!("TOKEN(", i, ") = ", x)
 //
 } // end of [where] // end of [val]
+*)
 //
 in
 //
@@ -690,6 +785,70 @@ end
 //
 end // end of [parse_from_fileref_toplevel]
 //
+(* ****** ****** *)
+
+local
+#staload
+"./../SATS/dynexp0.sats"
+in//in-of-local
+implement
+parse_from_filpath_toplevel
+  (knd, fp0) =
+(
+//
+ifcase
+|
+filpath_is_stdin(fp0) =>
+let
+val
+d0cs =
+parse_from_stdin_toplevel
+  (knd(*stadyn*))
+in
+D0PARSED@{
+  stadyn=knd
+, source=fp0, parsed=Some(d0cs) }
+end //filpath_is_stdin
+//
+| _ (*filename: given*) =>
+let
+//
+val
+fnm =
+fp0.full1()
+val
+opt =
+fileref_open_opt
+(fnm(*source*), file_mode_r)
+//
+in
+//
+case+ opt of
+| ~
+None_vt() =>
+D0PARSED@{
+  stadyn=knd
+, source=fp0, parsed=None() }
+//
+| ~
+Some_vt(inp) =>
+let
+  val
+  d0cs =
+  parse_from_fileref_toplevel
+    (knd, inp)
+  val () = fileref_close(inp)
+in
+D0PARSED@{
+  stadyn=knd
+, source=fp0, parsed=Some(d0cs) }
+end // end of [Some_vt]
+//
+end // for [filename: given]
+//
+) (* parser_from_filpath_toplevel *)
+end // end of [local]
+
 (* ****** ****** *)
 
 (* end of [xats_parsing_basics.dats] *)

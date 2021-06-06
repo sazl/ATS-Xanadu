@@ -39,7 +39,7 @@ UN =
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/lexing0.sats"
 //
 #staload "./../SATS/staexp0.sats"
 #staload "./../SATS/dynexp0.sats"
@@ -244,9 +244,9 @@ end // end of [local]
 local
 
 absimpl
-f1arg_tbox = $rec{
-  f1arg_loc= loc_t
-, f1arg_node= f1arg_node
+d1typ_tbox = $rec{
+  d1typ_loc= loc_t
+, d1typ_node= d1typ_node
 }
 
 in (* in-of-local *)
@@ -254,18 +254,18 @@ in (* in-of-local *)
 (* ****** ****** *)
 
 implement
-f1arg_get_loc(x0) = x0.f1arg_loc
+d1typ_get_loc(x0) = x0.d1typ_loc
 implement
-f1arg_get_node(x0) = x0.f1arg_node
+d1typ_get_node(x0) = x0.d1typ_node
 
 (* ****** ****** *)
 
 implement
-f1arg_make_node
+d1typ_make_node
 (loc, node) = $rec
 {
-  f1arg_loc= loc, f1arg_node= node
-} (* end of [f1arg_make_node] *)
+  d1typ_loc= loc, d1typ_node= node
+} (* end of [d1typ_make_node] *)
 
 (* ****** ****** *)
 
@@ -302,6 +302,38 @@ d1pat_make_node
 {
   d1pat_loc= loc, d1pat_node= node
 } (* end of [d1pat_make_node] *)
+
+(* ****** ****** *)
+
+end // end of [local]
+
+(* ****** ****** *)
+
+local
+
+absimpl
+f1arg_tbox = $rec{
+  f1arg_loc= loc_t
+, f1arg_node= f1arg_node
+} (* f1arg_tbox *)
+
+in (* in-of-local *)
+
+(* ****** ****** *)
+
+implement
+f1arg_get_loc(x0) = x0.f1arg_loc
+implement
+f1arg_get_node(x0) = x0.f1arg_node
+
+(* ****** ****** *)
+
+implement
+f1arg_make_node
+(loc, node) = $rec
+{
+  f1arg_loc= loc, f1arg_node= node
+} (* end of [f1arg_make_node] *)
 
 (* ****** ****** *)
 
@@ -374,24 +406,24 @@ end // end of [local]
 local
 
 absimpl
-dg1pat_tbox = $rec{
-  dg1pat_loc= loc_t
-, dg1pat_node= dg1pat_node
+d1gpat_tbox = $rec{
+  d1gpat_loc= loc_t
+, d1gpat_node= d1gpat_node
 } (* end of [absimpl] *)
 
 in (* in-of-local *)
 
 implement
-dg1pat_get_loc(x0) = x0.dg1pat_loc
+d1gpat_get_loc(x0) = x0.d1gpat_loc
 implement
-dg1pat_get_node(x0) = x0.dg1pat_node
+d1gpat_get_node(x0) = x0.d1gpat_node
 
 implement
-dg1pat_make_node
+d1gpat_make_node
 (loc, node) = $rec
 {
-  dg1pat_loc= loc, dg1pat_node= node
-} (* end of [dg1pat_make_node] *)
+  d1gpat_loc= loc, d1gpat_node= node
+} (* end of [d1gpat_make_node] *)
 
 end // end of [local]
 
@@ -447,14 +479,14 @@ d1ecl_none0
 (loc) =
 d1ecl_make_node
 ( loc
-, D1Cnone()
+, D1Cnone0()
 )
 implement
 d1ecl_none1
 (d0c) =
 d1ecl_make_node
 ( loc
-, D1Cnone(d0c)
+, D1Cnone1(d0c)
 ) where
 {
   val loc = d0c.loc()
@@ -470,6 +502,81 @@ d1ecl_make_node
 (* ****** ****** *)
 
 end // end of [local]
+
+(* ****** ****** *)
+
+implement
+f1undecl_get_loc
+  (f1d0) = let
+//
+val+
+F1UNDECL(rcd) = f1d0 in rcd.loc
+//
+end // end of [f1undecl_get_loc]
+
+(* ****** ****** *)
+
+implement
+v1aldecl_get_loc
+  (v1d0) = let
+//
+val+
+V1ALDECL(rcd) = v1d0 in rcd.loc
+//
+end // end of [v1aldecl_get_loc]
+
+(* ****** ****** *)
+
+implement
+d1cstdecl_get_loc
+  (d1c0) = let
+//
+val+
+D1CSTDECL(rcd) = d1c0 in rcd.loc
+//
+end // end of [d1cstdecl_get_loc]
+
+(* ****** ****** *)
+
+(*
+implement
+f1undecl_classify
+  (f1d0) = let
+//
+val+
+F1UNDECL(rcd) = f1d0
+//
+in
+//
+(
+case+ dopt of
+| None() => 0 | Some(d1e) => 1
+) where
+{
+  val dopt = rcd.def
+}
+//
+end // end of [f1undecl_classify]
+
+implement
+v1aldecl_classify
+  (v1d0) = let
+//
+val+
+V1ALDECL(rcd) = v1d0
+//
+in
+//
+(
+case+ dopt of
+| None() => 0 | Some(d1e) => 1
+) where
+{
+  val dopt = rcd.def
+}
+//
+end // end of [v1aldecl_classify]
+*)
 
 (* ****** ****** *)
 

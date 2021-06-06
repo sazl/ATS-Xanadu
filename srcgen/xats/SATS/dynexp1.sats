@@ -33,8 +33,18 @@
 //
 (* ****** ****** *)
 
-#staload "./basics.sats"
+#staload "./xbasics.sats"
 
+(* ****** ****** *)
+//
+#staload
+  FP0 = "./filpath.sats"
+//
+typedef
+filpath = $FP0.filpath
+typedef
+filpathopt = $FP0.filpathopt
+//
 (* ****** ****** *)
 
 #staload "./staexp0.sats"
@@ -44,6 +54,13 @@
 
 #staload "./staexp1.sats"
 
+(* ****** ****** *)
+//
+// HX-2019-01-13:
+// declared in dynexp0.sats
+//
+typedef decmodopt = decmodopt
+//
 (* ****** ****** *)
 //
 abstype d1pat_tbox = ptr
@@ -59,6 +76,8 @@ abstype d1exp_tbox = ptr
 typedef d1exp = d1exp_tbox
 typedef d1explst = List0(d1exp)
 typedef d1expopt = Option(d1exp)
+typedef labd1exp = dl0abeled(d1exp)
+typedef labd1explst = List0(labd1exp)
 
 (* ****** ****** *)
 //
@@ -66,8 +85,8 @@ abstbox d1gua_tbox = ptr
 typedef d1gua = d1gua_tbox
 typedef d1gualst = List0(d1gua)
 //
-abstbox dg1pat_tbox = ptr
-typedef dg1pat = dg1pat_tbox
+abstbox d1gpat_tbox = ptr
+typedef d1gpat = d1gpat_tbox
 //
 abstbox d1clau_tbox = ptr
 typedef d1clau = d1clau_tbox
@@ -80,6 +99,8 @@ typedef d1ecl = d1ecl_tbox
 typedef d1eclist = List0(d1ecl)
 typedef d1eclopt = Option(d1ecl)
 //
+typedef d1eclistopt = Option(d1eclist)
+//
 vtypedef d1eclist_vt = List0_vt(d1ecl)
 //
 (* ****** ****** *)
@@ -88,13 +109,15 @@ abstype q1arg_tbox = ptr
 typedef q1arg = q1arg_tbox
 typedef q1arglst = List0(q1arg)
 //
+(* ****** ****** *)
+//
 datatype
 q1arg_node =
 (*
 | Q1ARGnone of token
 *)
 | Q1ARGsome of
-  (tokenlst(*ids*), sort1opt)
+  (token(*sid*), sort1opt)
 //
 fun
 q1arg_get_loc(q1arg): loc_t
@@ -129,7 +152,7 @@ typedef sq1arglst = List0(sq1arg)
 datatype
 sq1arg_node =
   | SQ1ARGnone of token
-  | SQ1ARGsome of (s1qualst)
+  | SQ1ARGsome of (q1arglst)
 //
 fun
 sq1arg_get_loc(sq1arg): loc_t
@@ -256,18 +279,22 @@ abstbox d1arg_tbox = ptr
 typedef d1arg = d1arg_tbox
 typedef d1arglst = List0(d1arg)
 //
+(* ****** ****** *)
+//
 datatype
 d1arg_node =
 (*
 | D1ARGnone of token
 *)
 //
-| D1ARGsome_sta of (s1qualst)
-  // D1ARGsome_sta
+|
+D1ARGsome_sta of (s1qualst)
 //
-| D1ARGsome_dyn1 of token // s0eid
-| D1ARGsome_dyn2 of
-  (a1typlst(*arg0*), a1typlstopt(*opt1*))
+|
+D1ARGsome_dyn1 of token // s0eid
+|
+D1ARGsome_dyn2 of
+(a1typlst(*arg0*), a1typlstopt(*opt1*))
 //
 fun
 d1arg_get_loc(d1arg): loc_t
@@ -277,9 +304,14 @@ d1arg_get_node(d1arg): d1arg_node
 overload .loc with d1arg_get_loc
 overload .node with d1arg_get_node
 //
-fun print_d1arg : print_type(d1arg)
-fun prerr_d1arg : prerr_type(d1arg)
-fun fprint_d1arg : fprint_type(d1arg)
+(* ****** ****** *)
+//
+fun
+print_d1arg : print_type(d1arg)
+fun
+prerr_d1arg : prerr_type(d1arg)
+fun
+fprint_d1arg : fprint_type(d1arg)
 //
 overload print with print_d1arg
 overload prerr with prerr_d1arg
@@ -291,45 +323,92 @@ d1arg_make_node
 //
 (* ****** ****** *)
 //
-abstbox f1arg_tbox = ptr
-typedef f1arg = f1arg_tbox
-typedef f1arglst = List0(f1arg)
+abstbox d1typ_tbox = ptr
+typedef d1typ = d1typ_tbox
+typedef d1typlst = List0(d1typ)
+//
+(* ****** ****** *)
 //
 datatype
-f1arg_node =
+d1typ_node =
 (*
-| F1ARGnone of (token)
+|
+D1TYPnone of token
 *)
-| F1ARGsome_dyn of (d1pat)
-| F1ARGsome_sta of (s1qualst)
-| F1ARGsome_met of (s1explst)
+|
+D1TYPsome of
+( token(*id*), s1expopt )
 //
 fun
-f1arg_get_loc(f1arg): loc_t
+d1typ_get_loc(d1typ): loc_t
 fun
-f1arg_get_node(f1arg): f1arg_node
+d1typ_get_node(d1typ): d1typ_node
 //
-overload .loc with f1arg_get_loc
-overload .node with f1arg_get_node
+overload .loc with d1typ_get_loc
+overload .node with d1typ_get_node
 //
-fun print_f1arg : print_type(f1arg)
-fun prerr_f1arg : prerr_type(f1arg)
-fun fprint_f1arg : fprint_type(f1arg)
-//
-overload print with print_f1arg
-overload prerr with prerr_f1arg
-overload fprint with fprint_f1arg
+(* ****** ****** *)
 //
 fun
-f1arg_make_node
-(loc: loc_t, node: f1arg_node): f1arg
+print_d1typ : print_type(d1typ)
+fun
+prerr_d1typ : prerr_type(d1typ)
+fun
+fprint_d1typ : fprint_type(d1typ)
+//
+overload print with print_d1typ
+overload prerr with prerr_d1typ
+overload fprint with fprint_d1typ
+//
+fun
+d1typ_make_node
+(loc: loc_t, node: d1typ_node): d1typ
+//
+(* ****** ****** *)
+//
+datatype
+st1qua =
+|
+ST1QUAsome of
+(loc_t, s1qualst)
+where
+st1qualst = List0(st1qua)
+datatype
+st1inv =
+| ST1INVsome of
+  (loc_t, st1qualst, d1typlst)
+//
+(* ****** ****** *)
+//
+fun
+st1inv_get_loc(st1inv): loc_t
+//
+overload .loc with st1inv_get_loc
+//
+(* ****** ****** *)
+//
+fun
+print_st1inv: print_type(st1inv)
+fun
+prerr_st1inv: prerr_type(st1inv)
+//
+overload print with print_st1inv
+overload prerr with prerr_st1inv
+//
+fun
+fprint_st1qua: fprint_type(st1qua)
+fun
+fprint_st1inv: fprint_type(st1inv)
+//
+overload fprint with fprint_st1qua
+overload fprint with fprint_st1inv
 //
 (* ****** ****** *)
 //
 datatype
 d1pat_node =
 //
-| D1Pid of token
+| D1Pid0 of token
 //
 | D1Pint of token
 | D1Pchr of token
@@ -341,7 +420,17 @@ d1pat_node =
 | D1Pbs0 of () // backslash
 | D1Pbs1 of d1pat // backslash
 //
-| D1Papps of (d1pat, d1patlst)
+(*
+| D1Papps of
+  (d1pat, d1patlst) // apply
+*)
+| D1Papp1 of
+  (d1pat(*fun*), d1pat)
+| D1Papp2 of
+  (d1pat(*fun*), d1pat, d1pat)
+//
+| D1Psarg of
+  (s1arglst(*static*))
 //
 | D1Plist of d1patlst // temp.
 | D1Plist of
@@ -351,6 +440,11 @@ d1pat_node =
   (token, d1patlst)
 | D1Ptuple of
   (token, d1patlst, d1patlst)
+//
+| D1Precord of
+  (token, labd1patlst)
+| D1Precord of
+  (token, labd1patlst, labd1patlst)
 //
 | D1Panno of (d1pat, s1exp)
 //
@@ -383,73 +477,45 @@ d1pat_make_node
 //
 (* ****** ****** *)
 //
+abstbox f1arg_tbox = ptr
+typedef f1arg = f1arg_tbox
+typedef f1arglst = List0(f1arg)
+//
+(* ****** ****** *)
+//
 datatype
-d1exp_node =
-//
-| D1Eid of token
-//
-| D1Eint of token
-| D1Echr of token
-| D1Eflt of token
-| D1Estr of token
-//
-| D1Eapp of () // apply
-//
-| D1Ebs0 of () // backslash
-| D1Ebs1 of d1exp // backslash
-//
-| D1Eapps of
-    (d1exp, d1explst)
-  // D1Eapps
-//
-| D1Esqarg of s1explst
-| D1Etqarg of s1explst
-//
-| D1Elist of d1explst // temp.
-| D1Elist of
-  (d1explst, d1explst) // temp.
-//
-| D1Eseqn of
-  (d1explst, d1explst) // temp.
-//
-| D1Etuple of
-  (token, d1explst)
-| D1Etuple of
-  (token, d1explst, d1explst)
-//
-| D1Eif0 of
-  ( d1exp(*cond*)
-  , d1exp(*then*), d1expopt(*else*))
-//
-| D1Ecase of
-    (token, d1exp, d1claulst)
-  // D1Ecase
-//
-| D1Elet of
-  (d1eclist, d1explst(*semi*))
-| D1Ewhere of (d1exp, d1eclist)
-//
-| D1Edtsel of (label, d1expopt)
-//
-| D1Elam of
-  ( f1arglst
-  , effs1expopt, f1unarrow, d1exp(*body*))
-//
-| D1Eanno of (d1exp, s1exp) // type-annotation
-//
-| D1Equal of (token(*qual*), d1exp) // qualified
-//
-| D1Enone of () // HX-2018-09-25: indicating error 
-// end of [d1exp_node]
-//
-and
-f1unarrow =
+f1arg_node =
 (*
-| F1UNARROWnone of
-  (token(*error*))
+| F1ARGnone of (token)
 *)
-| F1UNARROWdflt of ()
-| F1UNARROWlist of (s1explst)
+| F1ARGsome_dyn of (d1pat)
+| F1ARGsome_sta of (s1qualst)
+| F1ARGsome_met of (s1explst)
+//
+(* ****** ****** *)
+//
+fun
+f1arg_get_loc(f1arg): loc_t
+fun
+f1arg_get_node(f1arg): f1arg_node
+//
+overload .loc with f1arg_get_loc
+overload .node with f1arg_get_node
+//
+fun
+print_f1arg : print_type(f1arg)
+fun
+prerr_f1arg : prerr_type(f1arg)
+fun
+fprint_f1arg : fprint_type(f1arg)
+//
+overload print with print_f1arg
+overload prerr with prerr_f1arg
+overload fprint with fprint_f1arg
+//
+fun
+f1arg_make_node
+(loc: loc_t, node: f1arg_node): f1arg
 //
 (* ****** ****** *)
 //
@@ -482,12 +548,12 @@ d1gua_make_node
 //
 datatype
 d1clau_node =
-| D1CLAUgpat of (dg1pat)
-| D1CLAUclau of (dg1pat, d1exp)
+| D1CLAUgpat of d1gpat
+| D1CLAUclau of (d1gpat, d1exp)
 and
-dg1pat_node =
-| DG1PATpat of (d1pat)
-| DG1PATgua of (d1pat, d1gualst)
+d1gpat_node =
+| D1GPATpat of (d1pat)
+| D1GPATgua of (d1pat, d1gualst)
 //
 fun
 d1clau_get_loc(d1clau): loc_t
@@ -498,19 +564,145 @@ overload .loc with d1clau_get_loc
 overload .node with d1clau_get_node
 //
 fun
-dg1pat_get_loc(dg1pat): loc_t
+d1gpat_get_loc(d1gpat): loc_t
 fun
-dg1pat_get_node(dg1pat): dg1pat_node
+d1gpat_get_node(d1gpat): d1gpat_node
 //
-overload .loc with dg1pat_get_loc
-overload .node with dg1pat_get_node
+overload .loc with d1gpat_get_loc
+overload .node with d1gpat_get_node
+//
+fun
+print_d1clau : (d1clau) -> void
+fun
+prerr_d1clau : (d1clau) -> void
+fun
+fprint_d1clau : fprint_type(d1clau)
+//
+overload print with print_d1clau
+overload prerr with prerr_d1clau
+overload fprint with fprint_d1clau
+//
+fun
+print_d1gpat : (d1gpat) -> void
+fun
+prerr_d1gpat : (d1gpat) -> void
+fun
+fprint_d1gpat : fprint_type(d1gpat)
+//
+overload print with print_d1gpat
+overload prerr with prerr_d1gpat
+overload fprint with fprint_d1gpat
 //
 fun
 d1clau_make_node
 (loc: loc_t, node: d1clau_node): d1clau
 fun
-dg1pat_make_node
-(loc: loc_t, node: dg1pat_node): dg1pat
+d1gpat_make_node
+(loc: loc_t, node: d1gpat_node): d1gpat
+//
+(* ****** ****** *)
+//
+datatype
+d1exp_node =
+//
+| D1Eid0 of token
+//
+| D1Eint of token
+| D1Echr of token
+| D1Eflt of token
+| D1Estr of token
+//
+| D1Eapp of () // apply
+//
+| D1Ebs0 of () // backslash
+| D1Ebs1 of d1exp // backslash
+//
+(*
+| D1Eapps of
+  (d1exp, d1explst) // apply
+*)
+| D1Eapp1 of
+  (d1exp(*fun*), d1exp)
+| D1Eapp2 of
+  (d1exp(*fun*), d1exp, d1exp)
+//
+| D1Esqarg of s1explst
+| D1Etqarg of s1explst
+//
+| D1Elist of d1explst // temp.
+| D1Elist of
+  (d1explst, d1explst) // temp.
+//
+| D1Enone of ()//HX:for emptiness
+//
+| D1Eseqn of
+  (d1explst, d1explst)//sequencing
+//
+| D1Etuple of
+  (token, d1explst)
+| D1Etuple of
+  (token, d1explst, d1explst)
+//
+| D1Erecord of
+  (token, labd1explst)
+| D1Erecord of
+  (token, labd1explst, labd1explst)
+//
+| D1Ebrack of (d1explst)
+| D1Edtsel of (label, d1expopt)
+//
+| D1Elet of
+  (d1eclist, d1explst(*semi*))
+| D1Ewhere of (d1exp, d1eclist)
+//
+| D1Eif0 of
+  ( d1exp(*cond*)
+  , d1exp(*then*), d1expopt(*else*))
+| D1Eif1 of
+  ( d1exp(*cond*)
+  , d1exp(*then*), d1expopt(*else*), st1inv)
+//
+| D1Ecas0 of
+  ( token(*+/0/-*)
+  , d1exp(*value*), d1claulst(*clses*))
+| D1Ecas1 of
+  ( token(*+/0/-*)
+  , d1exp(*value*), d1claulst(*clses*), st1inv)
+//
+| D1Elam of
+  ( token(*LAM*)
+  , f1arglst(*arg*)
+  , effs1expopt, f1unarrow, d1exp(*body*))
+| D1Efix of
+  ( token(*FIX*)
+  , token(*fid*)
+  , f1arglst(*arg*)
+  , effs1expopt, f1unarrow, d1exp(*body*))
+//
+| D1Etry0 of
+  ( token(*TRY*)
+  , d1exp(*value*), d1claulst(*clauses*) )
+  // D1Etry0
+//
+| D1Eanno of
+  ( d1exp
+  , s1exp(*anno*) ) // HX: type-annotation
+//
+| D1Equal of
+  ( token(*qual*)
+  , d1exp(*deid*) ) // HX: qualified expression
+//
+(*
+|
+D1Eexist of // HX-2021-01-14: for
+(s1explstlst, d1exp) // existential introduction
+*)
+//
+| D1Eexname of (g1nam) // HX: for specifying names
+| D1Eexists of // HX-2021-01-14: $exist{..}..{..}
+  (token, d1explst(*D1Esqarglst*), d1exp) // (d1exp)
+//
+// end of [d1exp_node]
 //
 (* ****** ****** *)
 //
@@ -535,21 +727,6 @@ d1exp_none(loc: loc_t): d1exp
 fun
 d1exp_make_node
 (loc: loc_t, node: d1exp_node): d1exp
-//
-(* ****** ****** *)
-//
-fun
-print_f1unarrow:
-  print_type(f1unarrow)
-fun
-prerr_f1unarrow:
-  prerr_type(f1unarrow)
-fun
-fprint_f1unarrow: fprint_type(f1unarrow)
-//
-overload print with print_f1unarrow
-overload prerr with prerr_f1unarrow
-overload fprint with fprint_f1unarrow
 //
 (* ****** ****** *)
 //
@@ -597,8 +774,8 @@ v1aldecl =
 V1ALDECL of @{
   loc= loc_t
 , pat= d1pat
-, teq= token
-, def= d1exp
+, teq= tokenopt
+, def= d1expopt
 , wtp= wths1expopt
 }
 //
@@ -659,8 +836,8 @@ F1UNDECL of @{
 , nam= token
 , arg= f1arglst
 , res= effs1expopt
-, teq= token
-, def= d1exp
+, teq= tokenopt
+, def= d1expopt
 , wtp= wths1expopt
 }
 //
@@ -717,10 +894,24 @@ overload fprint with fprint_d1cstdecl
 (* ****** ****** *)
 //
 datatype
+d1transd =
+D1TRANSD of @{
+  stadyn= int
+, source= filpath
+, transd=
+  Option(d1eclist)
+} where
+  filpath= $FP0.filpath
+//
+(* ****** ****** *)
+//
+datatype
 d1ecl_node =
 //
-| D1Cnone of ()
-| D1Cnone of (d0ecl)
+| D1Cnone0 of ()
+| D1Cnone1 of (d0ecl)
+//
+| D1Cd0ecl of (d0ecl)
 //
 (*
 | D1Cfixity of (d0ecl)
@@ -734,10 +925,29 @@ d1ecl_node =
 | D1Cextern of
   (token, d1ecl) // globally
 //
+| D1Cdefine of
+  ( token
+  , token(*g0eid*)
+  , g1marglst(*arg*), g1expopt)
+| D1Cmacdef of
+  ( token
+  , token(*g0eid*)
+  , g1marglst(*arg*), d1expopt)
+//
 | D1Cinclude of
-  (token, d1exp) // file inclusion
+  ( token
+  , g1exp // src
+  , int(*knd*) // sta/dyn: 0/1
+  , filpathopt
+  , d1eclistopt) // file including
+//
 | D1Cstaload of
-  (token, d1exp) // file staloading
+  ( token
+  , g1exp // src
+  , int(*knd*) // sta/dyn: 0/1
+  , filpathopt
+  , int(*shared*)
+  , d1eclistopt) // file nampspacing
 //
 | D1Cabssort of
   (token, token(*s0tid*))
@@ -761,33 +971,42 @@ d1ecl_node =
   , token(*s0eid*)
   , t1marglst, sort1opt, abstdf1)
 //
+| D1Cabsopen of
+  (token(*ABSOPEN*), sq0eid(*qualid*))
+  // D1Cabsopen
 | D1Cabsimpl of
   ( token(*kind*)
   , sq0eid, s1marglst, sort1opt, s1exp)
   // D1Cabsimpl
 //
-| D1Cvaldecl of
-  ( token(*valkind*)
-  , declmodopt(*rec/prf/...*), v1aldeclist)
-//
-| D1Cvardecl of (token(*VAR*), v1ardeclist)
-//
 | D1Cfundecl of
   ( token(*funkind*)
-  , declmodopt, tq1arglst(*tmpargs*), f1undeclist)
+  , decmodopt
+  , tq1arglst(*tmpargs*), f1undeclist)
+//
+| D1Cvaldecl of
+  ( token(*valkind*)
+  , decmodopt(*rec/prf/...*), v1aldeclist)
+| D1Cvardecl of
+  ( token(*varkind*), decmodopt, v1ardeclist)
 //
 | D1Cimpdecl of
   ( token(*impkind*)
-  , declmodopt, sq1arglst, tq1arglst
+  , decmodopt, sq1arglst, tq1arglst
   , dq0eid, ti1arglst, f1arglst, effs1expopt, token, d1exp)
 //
 | D1Csymload of
-  ( token(*symload*)
-  , s0ymb, dq0eid, t0intopt)
+  ( token(*#symload*)
+  , s0ymb(*overloaded*)
+  , dq0eid, t0intopt(*precedence*))
 //
 | D1Cdatasort of
     (token(*datasort*), d1tsortlst)
   // D1Cdatasort
+//
+| D1Cexcptcon of
+    (token(*excptcon*), d1atconlst)
+  // D1Cexcptcon
 //
 // dataprop/dataview // proofs
 // datatype/datavtype // programs
@@ -800,11 +1019,16 @@ d1ecl_node =
 //
 | D1Clocal of (d1eclist(*head*), d1eclist(*body*))
 //
+| D1Celse of (token) // opt
+| D1Cendif of (token) // req
+| D1Cifdec of (token, g1exp, tokenopt) // #if(exp)
+| D1Celsif of (token, g1exp, tokenopt) // #elsif(exp)
+//
 | D1Ctokerr of (d0ecl) // HX: for error indication
 //
 and
 abstdf1 =
-  | ABSTDF1nil of () // unspecified
+  | ABSTDF1some of () // unspecified
   | ABSTDF1lteq of s1exp // erasure
   | ABSTDF1eqeq of s1exp // definition
 //
@@ -864,6 +1088,27 @@ fprint_wd1eclseq : fprint_type(wd1eclseq)
 overload print with print_wd1eclseq
 overload prerr with prerr_wd1eclseq
 overload fprint with fprint_wd1eclseq
+//
+(* ****** ****** *)
+//
+(*
+//
+// HX-2019-07-22:
+// Should this be done
+// at level-2?
+//
+(*
+// HX-2019-01-15:
+// kind=0: interface only
+// kind=1: interface+definition
+*)
+fun
+f1undecl_classify(f1d0: f1undecl): int
+//
+fun
+v1aldecl_classify(v1d0: v1aldecl): int
+//
+*)
 //
 (* ****** ****** *)
 

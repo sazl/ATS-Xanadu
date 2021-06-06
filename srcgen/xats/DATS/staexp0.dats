@@ -41,11 +41,11 @@ UN = "prelude/SATS/unsafe.sats"
 (* ****** ****** *)
 //
 #staload
-"./../SATS/label0.sats"
+"./../SATS/xlabel0.sats"
 #staload
-"./../SATS/location.sats"
+"./../SATS/locinfo.sats"
 //
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/lexing0.sats"
 #staload "./../SATS/staexp0.sats"
 //
 (* ****** ****** *)
@@ -264,7 +264,7 @@ val lab = label_make_int(i0)
 in
 //
 l0abl_make_node
-  (tok.loc(), L0ABsome(lab))
+  (tok.loc(), L0ABLsome(lab))
 //
 end // end of [l0abl_make_int1]
 
@@ -280,7 +280,7 @@ val lab = label_make_name(s0)
 in
 //
 l0abl_make_node
-  (tok.loc(), L0ABsome(lab))
+  (tok.loc(), L0ABLsome(lab))
 //
 end // end of [l0abl_make_name]
 
@@ -290,7 +290,7 @@ l0abl_make_none
 (
 //
 l0abl_make_node
-  (tok.loc(), L0ABnone(tok))
+  (tok.loc(), L0ABLnone(tok))
 //
 ) (* end of [l0abl_make_none] *)
 
@@ -347,6 +347,98 @@ case+ x0 of
 | DQ0EIDsome(tok, id0) => tok.loc()+id0.loc()
 )
 //
+(* ****** ****** *)
+
+local
+
+absimpl
+g0nam_tbox = $rec{
+  g0nam_loc= loc_t
+, g0nam_node= g0nam_node
+} (* end of [absimpl] *)
+
+in (* in-of-local *)
+
+implement
+g0nam_get_loc(x0) = x0.g0nam_loc
+implement
+g0nam_get_node(x0) = x0.g0nam_node
+
+(* ****** ****** *)
+
+implement
+g0nam_make_node
+(loc, node) = $rec
+{
+  g0nam_loc= loc, g0nam_node= node
+} (* end of [g0nam_make_node] *)
+
+(* ****** ****** *)
+
+end // end of [local]
+
+(* ****** ****** *)
+
+local
+
+absimpl
+g0exp_tbox = $rec{
+  g0exp_loc= loc_t
+, g0exp_node= g0exp_node
+} (* end of [absimpl] *)
+
+in (* in-of-local *)
+
+implement
+g0exp_get_loc(x0) = x0.g0exp_loc
+implement
+g0exp_get_node(x0) = x0.g0exp_node
+
+(* ****** ****** *)
+
+implement
+g0exp_make_node
+(loc, node) = $rec
+{
+  g0exp_loc= loc, g0exp_node= node
+} (* end of [g0exp_make_node] *)
+
+(* ****** ****** *)
+
+end // end of [local]
+
+(* ****** ****** *)
+
+local
+
+absimpl
+g0marg_tbox = $rec{
+  g0marg_loc= loc_t
+, g0marg_node= g0marg_node
+}
+
+in (* in-of-local *)
+
+(* ****** ****** *)
+
+implement
+g0marg_get_loc(x0) = x0.g0marg_loc
+implement
+g0marg_get_node(x0) = x0.g0marg_node
+
+(* ****** ****** *)
+
+implement
+g0marg_make_node
+(loc, node) = $rec
+{
+  g0marg_loc= loc, g0marg_node= node
+} (* end of [g0marg_make_node] *)
+
+(* ****** ****** *)
+
+end // end of [local]
+
 (* ****** ****** *)
 
 local

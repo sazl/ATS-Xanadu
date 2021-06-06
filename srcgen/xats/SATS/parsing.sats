@@ -46,16 +46,19 @@
 (* ****** ****** *)
 //
 #staload
-SYM = "./symbol.sats"
+SYM = "./xsymbol.sats"
 typedef kword = $SYM.symbol
 #staload
-LOC = "./location.sats"
+LOC = "./locinfo.sats"
 typedef loc_t = $LOC.location
+#staload
+FP0 = "./filpath.sats"
+typedef filpath = $FP0.filpath
 //
 (* ****** ****** *)
 //
 #staload
-LEXING = "./lexing.sats"
+LEXING = "./lexing0.sats"
 //
   typedef tnode = $LEXING.tnode
   typedef token = $LEXING.token
@@ -76,10 +79,16 @@ STAEXP0 = "./staexp0.sats"
   typedef l0abl = $STAEXP0.l0abl
   typedef s0ymb = $STAEXP0.s0ymb
 //
+  typedef g0nid = $STAEXP0.g0nid
+  typedef g0eid = $STAEXP0.g0eid
+//
   typedef s0tid = $STAEXP0.s0tid
   typedef s0eid = $STAEXP0.s0eid
   typedef d0pid = $STAEXP0.d0pid
   typedef d0eid = $STAEXP0.d0eid
+//
+  typedef g0nam = $STAEXP0.g0nam
+  typedef g0exp = $STAEXP0.g0exp
 //
   typedef sort0 = $STAEXP0.sort0
   typedef s0exp = $STAEXP0.s0exp
@@ -95,14 +104,17 @@ STAEXP0 = "./staexp0.sats"
   typedef d0tsort = $STAEXP0.d0tsort
   typedef s0rtdef = $STAEXP0.s0rtdef
 //
+  typedef d0atcon = $STAEXP0.d0atcon
   typedef d0atype = $STAEXP0.d0atype
 //
   typedef labs0exp = $STAEXP0.labs0exp
 //
   typedef s0explst = $STAEXP0.s0explst
+  typedef s0arglst = $STAEXP0.s0arglst
   typedef s0qualst = $STAEXP0.s0qualst
   typedef s0unilst = $STAEXP0.s0unilst
   typedef d0tsortlst = $STAEXP0.d0tsortlst
+  typedef d0atconlst = $STAEXP0.d0atconlst
   typedef d0atypelst = $STAEXP0.d0atypelst
 //
   typedef effs0expopt = $STAEXP0.effs0expopt
@@ -130,14 +142,15 @@ DYNEXP0 = "./dynexp0.sats"
 //
   typedef d0ecl = $DYNEXP0.d0ecl
   typedef d0eclist = $DYNEXP0.d0eclist
+  typedef d0parsed = $DYNEXP0.d0parsed
 //
 (* ****** ****** *)
 //
-abstflat
-tokbuf_tflat =
+abstflt
+tokbuf_tflt =
 $extype"xats_tokbuf_struct"
 //
-  typedef tokbuf = tokbuf_tflat
+  typedef tokbuf = tokbuf_tflt
 //
 (* ****** ****** *)
 //
@@ -199,20 +212,22 @@ parser(res:t@ype) =
 (&tokbuf >> _, &int >> _) -> res
 //
 (* ****** ****** *)
-
+//
 fun
 p_EQ: parser(token)
 fun
 p_GT: parser(token)
+//
 fun
 p_BAR: parser(token)
 fun
+p_CLN: parser(token)
+//
+fun
 p_EQGT: parser(token)
 fun
-p_COLON: parser(token)
-fun
 p_GTDOT: parser(token)
-
+//
 (* ****** ****** *)
 
 fun
@@ -243,32 +258,52 @@ p_WITH: parser(token)
 //
 fun
 p_END: parser(token)
+//
 fun
 p_ENDLET: parser(token)
+fun
+p_ENDTRY: parser(token)
 fun
 p_ENDLOCAL: parser(token)
 //
 (* ****** ****** *)
 //
 fun
+popt_EQ: parser(tokenopt)
+//
+fun
+popt_IN: parser(tokenopt)
+//
+fun
 popt_BAR: parser(tokenopt)
+//
+fun
+popt_SMCLN: parser(tokenopt)
+//
 fun
 popt_LBRACE: parser(tokenopt)
-fun
-popt_SEMICOLON: parser(tokenopt)
 //
 (* ****** ****** *)
 //
+(*
 fun
 popt_ENDIF: parser(tokenopt)
 fun
 popt_ENDCASE: parser(tokenopt)
+*)
 //
 (* ****** ****** *)
 //
 fun
 popt_ENDLAM: parser(tokenopt)
+fun
+popt_ENDFIX: parser(tokenopt)
 //
+(* ****** ****** *)
+
+fun
+popt_SRP_THEN: parser(tokenopt)
+
 (* ****** ****** *)
 //
 fun t_t0int(tnode): bool
@@ -294,6 +329,16 @@ fun p_l0abl: parser(l0abl)
 fun p_s0ymb: parser(s0ymb)
 
 (* ****** ****** *)
+
+fun t_g0nid(tnode): bool
+fun p_g0nid: parser(g0nid)
+
+(* ****** ****** *)
+
+fun t_g0eid(tnode): bool
+fun p_g0eid: parser(g0eid)
+
+(* ****** ****** *)
 //
 fun t_s0tid(tnode): bool
 fun t_s0aid(tnode): bool
@@ -317,6 +362,22 @@ fun p_sq0eid: parser(sq0eid) // qualid
 fun p_dq0eid: parser(dq0eid) // qualid
 //
 (* ****** ****** *)
+
+fun p_g0nam : parser(g0nam)
+fun p_g0exp : parser(g0exp)
+
+(* ****** ****** *)
+//
+typedef
+g0marg = $STAEXP0.g0marg
+typedef
+g0marglst = $STAEXP0.g0marglst
+fun
+p_g0marg: parser(g0marg)
+fun
+p_g0margseq: parser(g0marglst)
+//
+(* ****** ****** *)
 //
 (*
 sort0 ::= {atmsort0}+
@@ -330,6 +391,8 @@ s0arg ::
 | s0aid [COLON sort0]
 *)
 fun p_s0arg: parser(s0arg)
+fun
+p_s0argseq_COMMA: parser(s0arglst)
 //
 (* ****** ****** *)
 //
@@ -348,7 +411,7 @@ p_d0tsortseq_AND: parser(d0tsortlst)
 s0rtdef ::=
 | sort0
 | LBRACE
-  s0arg BAR s0expseq_SEMICOLON
+  s0arg BAR s0expseq_SMCLN
   RBRACE
 *)
 fun
@@ -411,7 +474,7 @@ popt_idsort0_anno: parser(sort0opt)
 fun
 p_s0qua: parser(s0qua)
 fun
-p_s0quaseq_BARSEMI: parser(s0qualst)
+p_s0quaseq_BARSMCLN: parser(s0qualst)
 //
 (* ****** ****** *)
 
@@ -419,12 +482,12 @@ fun p_s0uni: parser(s0uni)
 fun p_s0uniseq: parser(s0unilst)
 
 (* ****** ****** *)
-
+//
 typedef
 s0expopt = $STAEXP0.s0expopt
 fun
 popt_s0exp_anno: parser(s0expopt)
-
+//
 (* ****** ****** *)
 //
 fun // EQ excluded
@@ -448,10 +511,17 @@ d0atype ::=
 | s0eid s0marg EQ d0atconseq_BAR
 *)
 //
-fun p_d0atype: parser(d0atype)
-fun p_d0atypeseq_AND: parser(d0atypelst)
+fun
+p_d0atcon: parser(d0atcon)
+fun
+p_d0atype: parser(d0atype)
+fun
+p_d0atconseq_BAR: parser(d0atconlst)
+fun
+p_d0atypeseq_AND: parser(d0atypelst)
 //
-fun p_WHERE_sexpdefseq: parser(d0eclist)
+fun
+p_WHERE_sexpdefseq: parser(d0eclist)
 //
 (* ****** ****** *)
 
@@ -477,6 +547,20 @@ fun p_d0exp : parser(d0exp)
 labd0exp ::= l0abl EQ d0exp
 *)
 fun p_labd0exp : parser(labd0exp)
+//
+(* ****** ****** *)
+//
+// HX-2021-03-22:
+//
+typedef
+st0inv = $DYNEXP0.st0inv
+typedef
+endst0inv = $DYNEXP0.endst0inv
+//
+fun
+p_st0inv: parser(st0inv)
+fun
+popt_endst0inv: parser(endst0inv)
 //
 (* ****** ****** *)
 
@@ -569,17 +653,18 @@ pstar_COMMA_fun
 ) : List0_vt(a) // end of [pstar_COMMA_fun]
 //
 fun
-pstar_BARSEMI_fun
+pstar_SMCLN_fun
   {a:type}
 (
   buf: &tokbuf >> _, err: &int >> _, fpar: parser(a)
-) : List0_vt(a) // end of [pstar_BARSEMI_fun]
+) : List0_vt(a) // end of [pstar_SMCLN_fun]
+//
 fun
-pstar_SEMICOLON_fun
+pstar_BARSMCLN_fun
   {a:type}
 (
   buf: &tokbuf >> _, err: &int >> _, fpar: parser(a)
-) : List0_vt(a) // end of [pstar_SEMICOLON_fun]
+) : List0_vt(a) // end of [pstar_BARSMCLN_fun]
 //
 (* ****** ****** *)
 
@@ -610,6 +695,12 @@ fun
 parse_from_fileref_toplevel
   (stadyn: int, inp: FILEref): d0eclist
 // end of [parse_from_fileref_toplevel]
+//
+(* ****** ****** *)
+//
+fun
+parse_from_filpath_toplevel
+  (stadyn: int, inp: filpath): d0parsed
 //
 (* ****** ****** *)
 

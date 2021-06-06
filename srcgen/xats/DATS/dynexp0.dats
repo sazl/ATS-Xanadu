@@ -40,12 +40,12 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/label0.sats"
-#staload "./../SATS/location.sats"
+#staload "./../SATS/xlabel0.sats"
+#staload "./../SATS/locinfo.sats"
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/lexing0.sats"
 //
 #staload "./../SATS/staexp0.sats"
 //
@@ -248,9 +248,9 @@ end // end of [local]
 local
 
 absimpl
-f0arg_tbox = $rec{
-  f0arg_loc= loc_t
-, f0arg_node= f0arg_node
+d0typ_tbox = $rec{
+  d0typ_loc= loc_t
+, d0typ_node= d0typ_node
 }
 
 in (* in-of-local *)
@@ -258,23 +258,79 @@ in (* in-of-local *)
 (* ****** ****** *)
 
 implement
-f0arg_get_loc(x0) = x0.f0arg_loc
+d0typ_get_loc(x0) = x0.d0typ_loc
 implement
-f0arg_get_node(x0) = x0.f0arg_node
+d0typ_get_node(x0) = x0.d0typ_node
 
 (* ****** ****** *)
 
 implement
-f0arg_make_node
+d0typ_make_node
 (loc, node) = $rec
 {
-  f0arg_loc= loc, f0arg_node= node
-} (* end of [f0arg_make_node] *)
+  d0typ_loc= loc, d0typ_node= node
+} (* end of [d0typ_make_node] *)
 
 (* ****** ****** *)
 
 end // end of [local]
 
+(* ****** ****** *)
+//
+implement
+st0qua_get_loc
+  (stqa) =
+(
+case+ stqa of
+|
+ST0QUAnone
+( terr ) => terr.loc()
+|
+ST0QUAsome
+( tbeg, _, tend ) =>
+(
+  tbeg.loc() + tend.loc()
+)
+) (* end of [st0qua_get_loc] *)
+//
+implement
+st0inv_get_loc
+  (inv0) =
+(
+case+ inv0 of
+|
+ST0INVnone
+(stqs, terr) =>
+(
+  auxlst(stqs, terr.loc())
+)
+|
+ST0INVsome
+( stqs
+, tbeg, _, tend) =>
+(
+  auxlst(stqs, tend.loc())
+)
+) where
+{
+fun
+auxlst
+( stqs
+: st0qualst
+, loc1: loc_t): loc_t =
+(
+case+ stqs of
+|
+list_nil() => loc1
+|
+list_cons _ =>
+let
+val
+stqa = list_last(stqs) in stqa.loc() + loc1
+end
+)
+} (*where*) // end of [st0inv_get_loc]
+//
 (* ****** ****** *)
 
 local
@@ -333,6 +389,38 @@ case+ x0 of
   // d0pat_RPAREN_cons1
 )  
 //
+(* ****** ****** *)
+
+local
+
+absimpl
+f0arg_tbox = $rec{
+  f0arg_loc= loc_t
+, f0arg_node= f0arg_node
+}
+
+in (* in-of-local *)
+
+(* ****** ****** *)
+
+implement
+f0arg_get_loc(x0) = x0.f0arg_loc
+implement
+f0arg_get_node(x0) = x0.f0arg_node
+
+(* ****** ****** *)
+
+implement
+f0arg_make_node
+(loc, node) = $rec
+{
+  f0arg_loc= loc, f0arg_node= node
+} (* end of [f0arg_make_node] *)
+
+(* ****** ****** *)
+
+end // end of [local]
+
 (* ****** ****** *)
 
 local
@@ -439,24 +527,24 @@ end // end of [local]
 local
 
 absimpl
-dg0pat_tbox = $rec{
-  dg0pat_loc= loc_t
-, dg0pat_node= dg0pat_node
+d0gpat_tbox = $rec{
+  d0gpat_loc= loc_t
+, d0gpat_node= d0gpat_node
 } (* end of [absimpl] *)
 
 in (* in-of-local *)
 
 implement
-dg0pat_get_loc(x0) = x0.dg0pat_loc
+d0gpat_get_loc(x0) = x0.d0gpat_loc
 implement
-dg0pat_get_node(x0) = x0.dg0pat_node
+d0gpat_get_node(x0) = x0.d0gpat_node
 
 implement
-dg0pat_make_node
+d0gpat_make_node
 (loc, node) = $rec
 {
-  dg0pat_loc= loc, dg0pat_node= node
-} (* end of [dg0pat_make_node] *)
+  d0gpat_loc= loc, d0gpat_node= node
+} (* end of [d0gpat_make_node] *)
 
 end // end of [local]
 
@@ -485,6 +573,17 @@ d0clau_make_node
 } (* end of [d0clau_make_node] *)
 
 end // end of [local]
+
+(* ****** ****** *)
+
+implement
+d0parsed_get_parsed
+  (p0kg) =
+(
+case+ p0kg of
+|
+D0PARSED(rcd) => rcd.parsed
+)
 
 (* ****** ****** *)
 
@@ -560,6 +659,67 @@ case+ x0 of
     | Some(tok2) => tok1.loc() + tok2.loc()
   )
 ) (* end of [endwhere_get_loc] *)
+
+(* ****** ****** *)
+
+implement
+decmodopt_rec
+  (mopt) =
+(
+case+ mopt of
+| DECMODnone() => 0 
+| DECMODsing
+  (_, id) => auxid(id)
+| DECMODlist
+  (_, _, ids, _) => auxids(0, ids)
+) where
+{
+fun
+auxid(id: i0dnt): int =
+(
+case+
+id.node() of
+| I0DNTnone(_) => 0
+| I0DNTsome(tok) => auxtok(tok)
+)
+and
+auxtok
+(tok: token): int =
+(
+case+
+tok.node() of
+| T_IDENT_alp(nam) =>
+  (
+  ifcase
+//
+  | nam = "rec" => 1
+//
+  | nam = "nrc" => ~1
+  | nam = "nrec" => ~1
+  | nam = "nonrec" => ~1
+//
+  | _ (* else *) => 0
+  )
+| _(* non-ident *) => 0
+
+)
+and
+auxids
+(k0: int, ids: i0dntlst): int =
+(
+case+ ids of
+| list_nil() => k0
+| list_cons(id, ids) =>
+  (
+    auxids(k0, ids)
+  ) where
+  {
+    val k1 = auxid(id)
+    val k0 =
+    (if k1 = 0 then k0 else k1): int
+  }
+)
+} (* end of [decmodopt_rec] *)
 
 (* ****** ****** *)
 

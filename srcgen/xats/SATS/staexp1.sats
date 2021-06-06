@@ -34,28 +34,184 @@
 (* ****** ****** *)
 //
 #staload
-LAB = "./label0.sats"
+LAB = "./xlabel0.sats"
 #staload
-LOC = "./location.sats"
+LOC = "./locinfo.sats"
 //
 typedef label = $LAB.label
 typedef loc_t = $LOC.location
 //
 #staload
-SYM = "./symbol.sats"
+SYM = "./xsymbol.sats"
 typedef sym_t = $SYM.sym_t
 //
 #staload
-LEX = "./lexing.sats"
+LEX = "./lexing0.sats"
 typedef token = $LEX.token
 typedef tokenopt = $LEX.tokenopt
 typedef tokenlst = $LEX.tokenlst
 //
 (* ****** ****** *)
-
-#staload
-S0E = "./staexp0.sats"
-
+#staload S0E = "./staexp0.sats"
+(* ****** ****** *)
+//
+datatype g1nam =
+//
+| G1Nnil of ()
+//
+| G1Nid0 of sym_t
+//
+| G1Nint of (int)
+| G1Nflt of double
+| G1Nstr of string
+//
+| G1Nlist of (g1namlst)
+//
+| G1Nnone0 of () // HX: EMPTY
+| G1Nnone1 of (g0nam) // ERROR!
+//
+where
+g0nam = $S0E.g0nam
+and
+g1namlst = List0(g1nam)
+and
+g1namopt = Option(g1nam)
+//
+(* ****** ****** *)
+abstbox g1exp_tbox = ptr
+abstype g1mac_tbox = ptr
+(* ****** ****** *)
+abstbox g1marg_tbox = ptr
+(* ****** ****** *)
+//
+typedef g0exp = $S0E.g0exp
+//
+typedef g1exp = g1exp_tbox
+typedef g1mac = g1mac_tbox
+typedef g1arg = token(*sym*)
+typedef g1marg = g1marg_tbox
+//
+typedef g1explst = List0(g1exp)
+typedef g1expopt = Option(g1exp)
+//
+typedef g1arglst = List0(g1arg)
+typedef g1marglst = List0(g1marg)
+//
+(* ****** ****** *)
+//
+datatype
+g1exp_node =
+//
+| G1Eid0 of (sym_t)
+//
+| G1Eint of (token)
+| G1Echr of (token)
+| G1Eflt of (token)
+| G1Estr of (token)
+//
+| G1Eif0 of
+  ( g1exp(* cond *)
+  , g1exp(* then *)
+  , g1exp(* else *) )
+//
+| G1Eapp of ((*void*))
+//
+| G1Eapp1 of
+  (g1exp(*fun*), g1exp)
+| G1Eapp2 of
+  (g1exp(*fun*), g1exp, g1exp)
+//
+| G1Elist of g1explst (*temp*)
+//
+| G1Enone0 of () // HX: EMPTY
+| G1Enone1 of (g0exp) // ERROR!
+//
+(* ****** ****** *)
+//
+fun
+print_g1nam : print_type(g1nam)
+fun
+prerr_g1nam : prerr_type(g1nam)
+fun
+fprint_g1nam : fprint_type(g1nam)
+//
+overload print with print_g1nam
+overload prerr with prerr_g1nam
+overload fprint with fprint_g1nam
+//
+(* ****** ****** *)
+//
+fun
+g1exp_get_loc(g1exp): loc_t
+fun
+g1exp_get_node(g1exp): g1exp_node
+//
+overload .loc with g1exp_get_loc
+overload .node with g1exp_get_node
+//
+fun
+print_g1exp : print_type(g1exp)
+fun
+prerr_g1exp : prerr_type(g1exp)
+fun
+fprint_g1exp : fprint_type(g1exp)
+//
+overload print with print_g1exp
+overload prerr with prerr_g1exp
+overload fprint with fprint_g1exp
+//
+fun
+print_g1mac : print_type(g1mac)
+fun
+prerr_g1mac : prerr_type(g1mac)
+fun
+fprint_g1mac : fprint_type(g1mac)
+//
+overload print with print_g1mac
+overload prerr with prerr_g1mac
+overload fprint with fprint_g1mac
+//
+(* ****** ****** *)
+fun
+g1exp_none(loc: loc_t): g1exp
+fun
+g1exp_make_node
+(loc: loc_t, node: g1exp_node): g1exp
+(* ****** ****** *)
+//
+datatype
+g1marg_node =
+(*
+| G1MARGnone of ((*void*))
+*)
+| G1MARGsarg of (g1arglst)
+| G1MARGdarg of (g1arglst)
+//
+(* ****** ****** *)
+//
+fun
+g1marg_get_loc(g1marg): loc_t
+fun
+g1marg_get_node(g1marg): g1marg_node
+//
+overload .loc with g1marg_get_loc
+overload .node with g1marg_get_node
+//
+fun
+print_g1marg : print_type(g1marg)
+fun
+prerr_g1marg : prerr_type(g1marg)
+fun
+fprint_g1marg : fprint_type(g1marg)
+//
+overload print with print_g1marg
+overload prerr with prerr_g1marg
+overload fprint with fprint_g1marg
+//
+fun
+g1marg_make_node
+(loc: loc_t, node: g1marg_node): g1marg
+//
 (* ****** ****** *)
 //
 abstbox sort1_tbox = ptr
@@ -76,7 +232,7 @@ typedef s1expopt = Option(s1exp)
 datatype
 sort1_node =
 //
-  | S1Tid of sym_t
+  | S1Tid0 of sym_t
 //
   | S1Tint of token
 //
@@ -424,7 +580,7 @@ typedef labs1explst = List0(labs1exp)
 datatype
 s1exp_node =
 //
-| S1Eid of sym_t
+| S1Eid0 of sym_t
 //
 | S1Eint of token
 | S1Echr of token
@@ -442,7 +598,7 @@ s1exp_node =
   (s1explst) // imply
 //
 (*
-| S1Eapp of
+| S1Eapps of
   (s1exp, s1explst) // apply
 *)
 | S1Eapp1 of
@@ -468,13 +624,13 @@ s1exp_node =
 | S1Eexists of (int(*#*), s1qualst)
 //
 | S1Elam of
-  (s1marglst(*arg*), sort1opt(*res*), s1exp)
+  (s1marglst, sort1opt(*res*), s1exp(*body*))
 //
 | S1Eanno of (s1exp, sort1)
 //
 | S1Equal of (token(*module*), s1exp)
 //
-| S1Enone of ((*for-error-indication*))
+| S1Enone of (loc_t) // HX: for error indication
 // end of [s1exp_node]
 
 (* ****** ****** *)
@@ -487,9 +643,12 @@ s1exp_get_node(s1exp): s1exp_node
 overload .loc with s1exp_get_loc
 overload .node with s1exp_get_node
 //
-fun print_s1exp : print_type(s1exp)
-fun prerr_s1exp : prerr_type(s1exp)
-fun fprint_s1exp : fprint_type(s1exp)
+fun
+print_s1exp : print_type(s1exp)
+fun
+prerr_s1exp : prerr_type(s1exp)
+fun
+fprint_s1exp : fprint_type(s1exp)
 //
 overload print with print_s1exp
 overload prerr with prerr_s1exp
@@ -502,6 +661,38 @@ s1exp_make_node
 (loc: loc_t, node: s1exp_node): s1exp
 //
 (* ****** ****** *)
+//
+datatype
+f1unarrow =
+(*
+| F1UNARROWnone of
+  (token(*error*))
+*)
+| F1UNARROWdflt // default
+| F1UNARROWlist of (s1explst)
+//
+(* ****** ****** *)
+//
+fun
+print_f1unarrow:
+  print_type(f1unarrow)
+fun
+prerr_f1unarrow:
+  prerr_type(f1unarrow)
+fun
+fprint_f1unarrow: fprint_type(f1unarrow)
+//
+overload print with print_f1unarrow
+overload prerr with prerr_f1unarrow
+overload fprint with fprint_f1unarrow
+//
+(* ****** ****** *)
+//
+// HX-2019-02-18:
+// There is no longer plan
+// to support effect-tracking!!!
+//
+(*
 //
 datatype
 s1eff =
@@ -519,12 +710,15 @@ overload print with print_s1eff
 overload prerr with prerr_s1eff
 overload fprint with fprint_s1eff
 //
-(* ****** ****** *)
+*)
 //
 datatype
 effs1expopt =
-| EFFS1EXPnone of ((*void*))
+| EFFS1EXPnone of ()
+| EFFS1EXPsome of (s1exp)
+(*
 | EFFS1EXPsome of (s1eff, s1exp)
+*)
 //
 fun
 print_effs1expopt:

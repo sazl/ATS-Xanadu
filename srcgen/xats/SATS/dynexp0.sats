@@ -32,9 +32,12 @@
 // Authoremail: gmhwxiATgmailDOTcom
 //
 (* ****** ****** *)
-
+//
+#staload
+FP0 = "./filpath.sats"
+//
+(* ****** ****** *)
 #staload "./staexp0.sats"
-
 (* ****** ****** *)
 //
 typedef
@@ -76,8 +79,8 @@ abstbox d0gua_tbox = ptr
 typedef d0gua = d0gua_tbox
 typedef d0gualst = List0(d0gua)
 //
-abstbox dg0pat_tbox = ptr
-typedef dg0pat = dg0pat_tbox
+abstbox d0gpat_tbox = ptr
+typedef d0gpat = d0gpat_tbox
 //
 abstbox d0clau_tbox = ptr
 typedef d0clau = d0clau_tbox
@@ -100,8 +103,10 @@ typedef q0arglst = List0(q0arg)
 //
 datatype
 q0arg_node =
+(*
 | Q0ARGnone of token
-| Q0ARGsome of (i0dntlst, sort0opt)
+*)
+| Q0ARGsome of (i0dnt, sort0opt)
 //
 fun
 q0arg_get_loc(q0arg): loc_t
@@ -135,9 +140,9 @@ typedef sq0arglst = List0(sq0arg)
 //
 datatype
 sq0arg_node =
-  | SQ0ARGnone of token
-  | SQ0ARGsome of
-    (token(*'{'*), s0qualst, token(*'}'*))
+| SQ0ARGnone of token
+| SQ0ARGsome of
+  (token(*'{'*), q0arglst, token(*'}'*))
 //
 fun
 sq0arg_get_loc(sq0arg): loc_t
@@ -147,9 +152,12 @@ sq0arg_get_node(sq0arg): sq0arg_node
 overload .loc with sq0arg_get_loc
 overload .node with sq0arg_get_node
 //
-fun print_sq0arg : print_type(sq0arg)
-fun prerr_sq0arg : prerr_type(sq0arg)
-fun fprint_sq0arg : fprint_type(sq0arg)
+fun
+print_sq0arg : print_type(sq0arg)
+fun
+prerr_sq0arg : prerr_type(sq0arg)
+fun
+fprint_sq0arg : fprint_type(sq0arg)
 //
 overload print with print_sq0arg
 overload prerr with prerr_sq0arg
@@ -168,9 +176,9 @@ typedef tq0arglst = List0(tq0arg)
 //
 datatype
 tq0arg_node =
-  | TQ0ARGnone of token
-  | TQ0ARGsome of
-    (token(*'<'*), q0arglst, token(*'>'*))
+| TQ0ARGnone of token
+| TQ0ARGsome of
+  (token(*'<'*), q0arglst, token(*'>'*))
 //
 fun
 tq0arg_get_loc(tq0arg): loc_t
@@ -195,15 +203,16 @@ tq0arg_make_node
 (* ****** ****** *)
 //
 abstbox ti0arg_tbox = ptr
-//
 typedef ti0arg = ti0arg_tbox
 typedef ti0arglst = List0(ti0arg)
 //
 datatype
 ti0arg_node =
-  | TI0ARGnone of token
-  | TI0ARGsome of
-    (token(*'<'*), s0explst, token(*'>'*))
+|
+TI0ARGnone of token
+|
+TI0ARGsome of
+(token(*'<'*), s0explst, token(*'>'*))
 //
 fun
 ti0arg_get_loc(ti0arg): loc_t
@@ -233,12 +242,18 @@ typedef a0typlst = List0(a0typ)
 typedef a0typopt = Option(a0typ)
 typedef a0typlstopt = Option(a0typlst)
 //
+(* ****** ****** *)
+//
 datatype
 a0typ_node =
 (*
-  | A0TYPnone of token
+|
+A0TYPnone of token
 *)
-  | A0TYPsome of (s0exp, tokenopt)
+|
+A0TYPsome of
+( s0exp
+, tokenopt(*comment*))
 //
 fun
 a0typ_get_loc(a0typ): loc_t
@@ -248,9 +263,12 @@ a0typ_get_node(a0typ): a0typ_node
 overload .loc with a0typ_get_loc
 overload .node with a0typ_get_node
 //
-fun print_a0typ : print_type(a0typ)
-fun prerr_a0typ : prerr_type(a0typ)
-fun fprint_a0typ : fprint_type(a0typ)
+fun
+print_a0typ : print_type(a0typ)
+fun
+prerr_a0typ : prerr_type(a0typ)
+fun
+fprint_a0typ : fprint_type(a0typ)
 //
 overload print with print_a0typ
 overload prerr with prerr_a0typ
@@ -266,14 +284,20 @@ abstbox d0arg_tbox = ptr
 typedef d0arg = d0arg_tbox
 typedef d0arglst = List0(d0arg)
 //
+(* ****** ****** *)
+//
 datatype
 d0arg_node =
-| D0ARGnone of token
-| D0ARGsome_sta of
-  (token, s0qualst, token)
-| D0ARGsome_dyn1 of s0eid
-| D0ARGsome_dyn2 of
-  (token, a0typlst, a0typlstopt, token)
+|
+D0ARGnone of token
+|
+D0ARGsome_sta of
+(token, s0qualst, token)
+|
+D0ARGsome_dyn1 of (s0eid)
+|
+D0ARGsome_dyn2 of
+(token, a0typlst, a0typlstopt, token)
 //
 fun
 d0arg_get_loc(d0arg): loc_t
@@ -283,9 +307,12 @@ d0arg_get_node(d0arg): d0arg_node
 overload .loc with d0arg_get_loc
 overload .node with d0arg_get_node
 //
-fun print_d0arg : print_type(d0arg)
-fun prerr_d0arg : prerr_type(d0arg)
-fun fprint_d0arg : fprint_type(d0arg)
+fun
+print_d0arg : print_type(d0arg)
+fun
+prerr_d0arg : prerr_type(d0arg)
+fun
+fprint_d0arg : fprint_type(d0arg)
 //
 overload print with print_d0arg
 overload prerr with prerr_d0arg
@@ -297,43 +324,48 @@ d0arg_make_node
 //
 (* ****** ****** *)
 //
-abstbox f0arg_tbox = ptr
-typedef f0arg = f0arg_tbox
-typedef f0arglst = List0(f0arg)
+abstbox d0typ_tbox = ptr
+typedef d0typ = d0typ_tbox
+typedef d0typlst = List0(d0typ)
+//
+(* ****** ****** *)
 //
 datatype
-f0arg_node =
-| F0ARGnone of (token)
-| F0ARGsome_dyn of (d0pat)
-| F0ARGsome_sta of (token, s0qualst, token)
-| F0ARGsome_met of (token, s0explst, token)
+d0typ_node =
+|
+D0TYPnone of token
+|
+D0TYPsome of
+( i0dnt, s0expopt )
 //
 fun
-f0arg_get_loc(f0arg): loc_t
+d0typ_get_loc(d0typ): loc_t
 fun
-f0arg_get_node(f0arg): f0arg_node
+d0typ_get_node(d0typ): d0typ_node
 //
-overload .loc with f0arg_get_loc
-overload .node with f0arg_get_node
+overload .loc with d0typ_get_loc
+overload .node with d0typ_get_node
 //
-fun print_f0arg : print_type(f0arg)
-fun prerr_f0arg : prerr_type(f0arg)
-fun fprint_f0arg : fprint_type(f0arg)
+(* ****** ****** *)
 //
-overload print with print_f0arg
-overload prerr with prerr_f0arg
-overload fprint with fprint_f0arg
+fun print_d0typ : print_type(d0typ)
+fun prerr_d0typ : prerr_type(d0typ)
+fun fprint_d0typ : fprint_type(d0typ)
+//
+overload print with print_d0typ
+overload prerr with prerr_d0typ
+overload fprint with fprint_d0typ
 //
 fun
-f0arg_make_node
-(loc: loc_t, node: f0arg_node): f0arg
+d0typ_make_node
+(loc: loc_t, node: d0typ_node): d0typ
 //
 (* ****** ****** *)
 
 datatype
 d0pat_node =
 //
-| D0Pid of d0pid
+| D0Pid0 of d0pid
 //
 | D0Pint of t0int
 | D0Pchr of t0chr
@@ -341,6 +373,10 @@ d0pat_node =
 | D0Pstr of t0str
 //
 | D0Papps of d0patlst
+//
+| D0Psqarg of//sqparg
+    (token, s0arglst, token)
+  // end of [D0Psqarg]
 //
 | D0Pparen of
     (token, d0patlst, d0pat_RPAREN)
@@ -428,16 +464,126 @@ overload prerr with prerr_labd0pat_RBRACE
 overload fprint with fprint_labd0pat_RBRACE
 //
 (* ****** ****** *)
+//
+abstbox f0arg_tbox = ptr
+typedef f0arg = f0arg_tbox
+typedef f0arglst = List0(f0arg)
+//
+(* ****** ****** *)
+//
+datatype
+f0arg_node =
+| F0ARGnone of (token)
+| F0ARGsome_dyn of (d0pat)
+| F0ARGsome_sta of (token, s0qualst, token)
+| F0ARGsome_met of (token, s0explst, token)
+//
+fun
+f0arg_get_loc(f0arg): loc_t
+fun
+f0arg_get_node(f0arg): f0arg_node
+//
+overload .loc with f0arg_get_loc
+overload .node with f0arg_get_node
+//
+fun print_f0arg : print_type(f0arg)
+fun prerr_f0arg : prerr_type(f0arg)
+fun fprint_f0arg : fprint_type(f0arg)
+//
+overload print with print_f0arg
+overload prerr with prerr_f0arg
+overload fprint with fprint_f0arg
+//
+fun
+f0arg_make_node
+(loc: loc_t, node: f0arg_node): f0arg
+//
+(* ****** ****** *)
+//
+datatype
+st0qua =
+|
+ST0QUAnone of
+( token )
+|
+ST0QUAsome of
+(token, s0qualst, token)
+where st0qualst = List0(st0qua)
+//
+datatype
+st0inv =
+|
+ST0INVnone of
+( st0qualst, token )
+|
+ST0INVsome of
+( st0qualst
+, token, d0typlst, token)
+//
+fun
+st0qua_get_loc(st0qua): loc_t
+fun
+st0inv_get_loc(st0inv): loc_t
+//
+overload .loc with st0qua_get_loc
+overload .loc with st0inv_get_loc
+//
+(* ****** ****** *)
+//
+fun
+print_st0inv: print_type(st0inv)
+fun
+prerr_st0inv: prerr_type(st0inv)
+//
+overload print with print_st0inv
+overload prerr with prerr_st0inv
+//
+fun
+fprint_st0qua: fprint_type(st0qua)
+fun
+fprint_st0inv: fprint_type(st0inv)
+//
+overload fprint with fprint_st0qua
+overload fprint with fprint_st0inv
+//
+(* ****** ****** *)
+//
+datatype
+endst0inv =
+|
+ENDST0INVnone of ()
+|
+ENDST0INVsome of (token, st0inv)
+//
+(* ****** ****** *)
+//
+fun
+print_endst0inv:
+print_type(endst0inv)
+fun
+prerr_endst0inv:
+prerr_type(endst0inv)
+fun
+fprint_endst0inv:
+fprint_type(endst0inv)
+//
+overload print with print_endst0inv
+overload prerr with prerr_endst0inv
+overload fprint with fprint_endst0inv
+//
+(* ****** ****** *)
 
 datatype
 d0exp_node =
 //
-| D0Eid of d0eid
+| D0Eid0 of d0eid
 //
 | D0Eint of t0int
 | D0Echr of t0chr
 | D0Eflt of t0flt
 | D0Estr of t0str
+//
+| D0Eopid of d0eid
 //
 | D0Eapps of d0explst
 //
@@ -462,32 +608,72 @@ d0exp_node =
 | D0Eif0 of
   ( token
   , d0exp
-  , d0exp_THEN, d0exp_ELSE, tokenopt)
+  , d0exp_THEN, d0exp_ELSE)
+| D0Eif1 of
+  ( token
+  , d0exp
+  , d0exp_THEN, d0exp_ELSE, st0inv)
 //
-| D0Ecase of
+| D0Ecas0 of
   ( token
   , d0exp
   , token(*OF*)
-  , tokenopt(*BAR*), d0claulst, tokenopt)
+  , tokenopt(*BAR*), d0claulst)
+| D0Ecas1 of
+  ( token
+  , d0exp
+  , token(*OF*)
+  , tokenopt(*BAR*), d0claulst, st0inv)
 //
 | D0Elet of
   ( token
-  , d0eclist, token, d0explst, token)
+  , d0eclist
+  , tokenopt(*IN*), d0explst, token(*END*))
 //
 | D0Ewhere of (d0exp, d0eclseq_WHERE)
 //
+| D0Ebrack of (token, d0explst, token)
 | D0Edtsel of (token, l0abl, d0expopt)
 //
 | D0Elam of
   ( token(*lam/lam@*)
   , f0arglst(*arglst*)
   , effs0expopt, f0unarrow, d0exp, tokenopt)
+| D0Efix of
+  ( token(*fix/fix@*)
+  , d0eid(*fixed-pnt*)
+  , f0arglst(*arglst*)
+  , effs0expopt, f0unarrow, d0exp, tokenopt)
 //
-| D0Eanno of (d0exp, s0exp)
+| D0Etry0 of
+  ( token
+  , d0exp
+  , token(*WITH*)
+  , tokenopt(*BAR*), d0claulst, token(*END*))
 //
-| D0Equal of (token, d0exp) // qualified
+(*
+| D0Elexn of
+  (token(*break/continue*))
+| D0Efrlp of
+  ( token
+  , d0exp(*semi*), d0exp(*body*))
+| D0Ewhlp of
+  ( token
+  , d0exp(*test*), d0exp(*body*))
+*)
 //
-| D0Enone of (token) // HX-2018-07-08: indicating error 
+| D0Eanno of (d0exp, s0exp(*anno*))
+//
+| D0Equal of (token(*qual*), d0exp) // qualified
+//
+| D0Enone1 of (token) // HX: for error indication
+//
+// HX-2020-11-04:
+| D0Eexname of (g0nam) // HX: for specifying names
+// HX-2021-01-14:
+| D0Eexists of // HX-2021-01-14: $exist{..}..{..}
+  (token, d0explst(*D0Esqarglst*), d0exp) // (d0exp)
+//
 // end of [d0exp_node]
 
 (* ****** ****** *)
@@ -566,6 +752,34 @@ d0exp_make_node
 (* ****** ****** *)
 //
 fun
+print_d0exp_THEN:
+  print_type(d0exp_THEN)
+fun
+prerr_d0exp_THEN:
+  prerr_type(d0exp_THEN)
+fun
+fprint_d0exp_THEN: fprint_type(d0exp_THEN)
+//
+overload print with print_d0exp_THEN
+overload prerr with prerr_d0exp_THEN
+overload fprint with fprint_d0exp_THEN
+//
+fun
+print_d0exp_ELSE:
+  print_type(d0exp_ELSE)
+fun
+prerr_d0exp_ELSE:
+  prerr_type(d0exp_ELSE)
+fun
+fprint_d0exp_ELSE: fprint_type(d0exp_ELSE)
+//
+overload print with print_d0exp_ELSE
+overload prerr with prerr_d0exp_ELSE
+overload fprint with fprint_d0exp_ELSE
+//
+(* ****** ****** *)
+//
+fun
 d0exp_RPAREN_loc
 (x0: d0exp_RPAREN): loc_t
 //
@@ -600,34 +814,6 @@ fprint_labd0exp_RBRACE: fprint_type(labd0exp_RBRACE)
 overload print with print_labd0exp_RBRACE
 overload prerr with prerr_labd0exp_RBRACE
 overload fprint with fprint_labd0exp_RBRACE
-//
-(* ****** ****** *)
-//
-fun
-print_d0exp_THEN:
-  print_type(d0exp_THEN)
-fun
-prerr_d0exp_THEN:
-  prerr_type(d0exp_THEN)
-fun
-fprint_d0exp_THEN: fprint_type(d0exp_THEN)
-//
-overload print with print_d0exp_THEN
-overload prerr with prerr_d0exp_THEN
-overload fprint with fprint_d0exp_THEN
-//
-fun
-print_d0exp_ELSE:
-  print_type(d0exp_ELSE)
-fun
-prerr_d0exp_ELSE:
-  prerr_type(d0exp_ELSE)
-fun
-fprint_d0exp_ELSE: fprint_type(d0exp_ELSE)
-//
-overload print with print_d0exp_ELSE
-overload prerr with prerr_d0exp_ELSE
-overload fprint with fprint_d0exp_ELSE
 //
 (* ****** ****** *)
 //
@@ -716,13 +902,13 @@ d0gua_make_node
 //
 datatype
 d0clau_node =
-| D0CLAUgpat of (dg0pat)
+| D0CLAUgpat of d0gpat
 | D0CLAUclau of
-  (dg0pat, token(*EQGT*), d0exp)
+  (d0gpat, token(*EQGT*), d0exp)
 and
-dg0pat_node =
-| DG0PATpat of (d0pat)
-| DG0PATgua of
+d0gpat_node =
+| D0GPATpat of (d0pat)
+| D0GPATgua of
   (d0pat, token(*WHEN*), d0gualst)
 //
 fun
@@ -734,44 +920,57 @@ overload .loc with d0clau_get_loc
 overload .node with d0clau_get_node
 //
 fun
-dg0pat_get_loc(dg0pat): loc_t
+d0gpat_get_loc(d0gpat): loc_t
 fun
-dg0pat_get_node(dg0pat): dg0pat_node
+d0gpat_get_node(d0gpat): d0gpat_node
 //
-overload .loc with dg0pat_get_loc
-overload .node with dg0pat_get_node
+overload .loc with d0gpat_get_loc
+overload .node with d0gpat_get_node
 //
 fun
 d0clau_make_node
 (loc: loc_t, node: d0clau_node): d0clau
 fun
-dg0pat_make_node
-(loc: loc_t, node: dg0pat_node): dg0pat
+d0gpat_make_node
+(loc: loc_t, node: d0gpat_node): d0gpat
 //
 (* ****** ****** *)
 //
 datatype
-declmodopt =
-| DECLMODnone of
+decmodopt =
+| DECMODnone of
     ((*void*))
-  // end of [DECLMODnone]
-| DECLMODsing of
+  // end of [DECMODnone]
+| DECMODsing of
     (token(*COLON*), i0dnt)
-  // end of [DECLMODsing]
-| DECLMODlist of
-    (token(*COLON*), token, i0dntlst(*ids*), token)
-  // end of [DECLMODlist]
+  // end of [DECMODsing]
+| DECMODlist of
+  ( token(*COLON*)
+  , token(*'('*), i0dntlst, token(*')'*))
+  // end of [DECMODlist]
+//
+(* ****** ****** *)
 //
 fun
-print_declmodopt: print_type(declmodopt)
+decmodopt_rec(decmodopt): int
 fun
-prerr_declmodopt: prerr_type(declmodopt)
-fun
-fprint_declmodopt: fprint_type(declmodopt)
+decmodopt_tlrec(decmodopt): int
 //
-overload print with print_declmodopt
-overload prerr with prerr_declmodopt
-overload fprint with fprint_declmodopt
+(* ****** ****** *)
+//
+fun
+print_decmodopt:
+print_type(decmodopt)
+fun
+prerr_decmodopt:
+prerr_type(decmodopt)
+fun
+fprint_decmodopt:
+fprint_type(decmodopt)
+//
+overload print with print_decmodopt
+overload prerr with prerr_decmodopt
+overload fprint with fprint_decmodopt
 //
 (* ****** ****** *)
 //
@@ -819,8 +1018,8 @@ v0aldecl =
 V0ALDECL of @{
   loc= loc_t
 , pat= d0pat
-, teq= token
-, def= d0exp
+, teq= tokenopt
+, def= d0expopt
 , wtp= wths0expopt
 }
 //
@@ -887,8 +1086,8 @@ F0UNDECL of @{
 , nam= d0pid
 , arg= f0arglst
 , res= effs0expopt
-, teq= token
-, def= d0exp
+, teq= tokenopt
+, def= d0expopt
 , wtp= wths0expopt
 } (* f0undecl *)
 //
@@ -941,6 +1140,29 @@ overload prerr with prerr_d0cstdecl
 overload fprint with fprint_d0cstdecl
 //
 (* ****** ****** *)
+//
+datatype
+d0parsed =
+D0PARSED of @{
+  stadyn= int
+, source= filpath
+, parsed=
+  Option(d0eclist)
+} where
+  filpath= $FP0.filpath
+//
+(* ****** ****** *)
+//
+fun
+d0parsed_get_parsed
+( p0kg
+: d0parsed): Option(d0eclist)
+//
+overload
+.parsed with
+d0parsed_get_parsed
+//
+(* ****** ****** *)
 
 datatype
 d0ecl_node =
@@ -948,15 +1170,21 @@ d0ecl_node =
 indicating error
 *)
 | D0Cnone of token
+//
 (*
-for skipping error
+HX-2019:
+for skipping synerr:
 *)
-| D0Ctokerr of token // error
+| D0Ctokerr of (token)
+//
+(*
+| D0Cthen of (token) // opt
+*)
 //
 // HX: delete fixity
 //
 | D0Cnonfix of
-  (token, i0dntlst)
+    (token, i0dntlst)
 //
 // HX: attach fixity
 //
@@ -974,18 +1202,34 @@ for skipping error
     (token(*EXTERN*), d0ecl)
   // end of [D0Cextern]
 //
+| D0Cdefine of
+  ( token
+  , g0eid(*fun*)
+  , g0marglst(*arg*), g0expdef(*opt*))
+| D0Cmacdef of
+  ( token
+  , g0eid(*fun*)
+  , g0marglst(*arg*), d0macdef(*d0exp*))
+  // end of [D0Cmacdef]
+//
+| D0Clocal of
+  ( token(*LOCAL*)
+  , d0eclist(*head*)
+  , tokenopt(*IN*)
+  , d0eclist(*body*), token(*END*))
+//
 | D0Cinclude of
-    (token(*INCLUDE*), d0exp)
+    (token(*INCLUDE*), g0exp(*src*))
   // HX: for file inclusion
 //
 // HX: for static loading
 //
 | D0Cstaload of
-    (token(*STALOAD*), d0exp)
+    (token(*#STALOAD*), g0exp(*src*))
   // end of [D0Cstaload]
 (*
 | D0Cdynload of
-    (token(*STALOAD*), d0exp)
+    (token(*#DYNLOAD*), g0exp(*src*))
   // end of [D0Cdynload]
 *)
 //
@@ -1006,48 +1250,53 @@ for skipping error
   ( token
   , s0eid, t0marglst, sort0opt, abstdf0)
 //
+| D0Cabsopen of
+  ( token(*ABSOPEN*), sq0eid(*qualid*) )
+//
 | D0Cabsimpl of
   ( token
   , sq0eid
   , s0marglst, sort0opt, token(*EQ*), s0exp)
   // D0Cabsimpl
 //
-| D0Cvaldecl of
-  ( token(*valkind*)
-  , declmodopt, v0aldeclist)
-//
-| D0Cvardecl of
-    (token(*varkind*), v0ardeclist)
-  // end of [D0Cvardecl]
-//
 | D0Cfundecl of
-  ( token(*funkind*)
-  , declmodopt, tq0arglst, f0undeclist)
+  ( token(*kind*)
+  , decmodopt, tq0arglst, f0undeclist)
+//
+| D0Cvaldecl of
+  ( token(*kind*), decmodopt, v0aldeclist)
+| D0Cvardecl of
+  ( token(*kind*), decmodopt, v0ardeclist)
 //
 | D0Cimpdecl of
   ( token(*impkind*)
-  , declmodopt//modifier
+  , decmodopt//modifier
   , sq0arglst, tq0arglst
-  , dq0eid, ti0arglst, f0arglst, effs0expopt, token, d0exp)
+  , dq0eid, ti0arglst, f0arglst
+  , effs0expopt, token(*EQ*), d0exp(*body*))
 //
 | D0Csymload of
-  ( token(*SYMLOAD*)
-  , s0ymb, token, dq0eid, t0intopt)
+  ( token(*symload*)
+  , s0ymb(*overloaded*)
+  , token(*WITH*), dq0eid, t0intopt(*precedence*))
 //
 | D0Cdatasort of
-    (token(*datasort*), d0tsortlst)
-  // D0Cdatasort
+  (token(*DATASORT*), d0tsortlst)
+//
+| D0Cexcptcon of
+  (token(*EXCPTCON*), d0atconlst)
 //
 | D0Cdatatype of
-    (token(*datatype*), d0atypelst, wd0eclseq)
+  (token(*DATATYPE*), d0atypelst, wd0eclseq)
   // D0Cdatatype
 //
 | D0Cdynconst of
-    (token(*dyncstkind*), tq0arglst, d0cstdeclist)
+  (token(*dyncstkind*), tq0arglst, d0cstdeclist)
 //
-| D0Clocal of
-    ( token(*LOCAL*)
-    , d0eclist, token(*IN*), d0eclist, token(*END*))
+| D0Celse of (token) // opt
+| D0Cendif of (token) // req
+| D0Cifdec of (token, g0exp, tokenopt) // # if(gexp) ...
+| D0Celsif of (token, g0exp, tokenopt) // # elsif(gexp) ...
 //
 // end of [d0ecl_node]
 //
@@ -1073,9 +1322,21 @@ signint =
 
 and
 abstdf0 =
-| ABSTDF0nil of () // unspecified
+| ABSTDF0some of () // unspecified
 | ABSTDF0lteq of (token(*"<="*), s0exp)
 | ABSTDF0eqeq of (token(*"=="*), s0exp)
+
+(* ****** ****** *)
+
+and
+g0expdef =
+| G0EDEFnone of ()
+| G0EDEFsome of (tokenopt, g0exp(*def*))
+
+and
+d0macdef =
+| D0MDEFnone of ()
+| D0MDEFsome of (tokenopt, d0exp(*def*))
 
 (* ****** ****** *)
 
@@ -1139,6 +1400,32 @@ fprint_abstdf0 : fprint_type(abstdf0)
 overload print with print_abstdf0
 overload prerr with prerr_abstdf0
 overload fprint with fprint_abstdf0
+//
+(* ****** ****** *)
+//
+fun
+print_g0expdef : (g0expdef) -> void
+fun
+prerr_g0expdef : (g0expdef) -> void
+fun
+fprint_g0expdef : fprint_type(g0expdef)
+//
+overload print with print_g0expdef
+overload prerr with prerr_g0expdef
+overload fprint with fprint_g0expdef
+//
+(* ****** ****** *)
+//
+fun
+print_d0macdef : (d0macdef) -> void
+fun
+prerr_d0macdef : (d0macdef) -> void
+fun
+fprint_d0macdef : fprint_type(d0macdef)
+//
+overload print with print_d0macdef
+overload prerr with prerr_d0macdef
+overload fprint with fprint_d0macdef
 //
 (* ****** ****** *)
 //

@@ -40,8 +40,8 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 //
-#staload "./../SATS/label0.sats"
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/xlabel0.sats"
+#staload "./../SATS/lexing0.sats"
 #staload "./../SATS/staexp0.sats"
 //
 (* ****** ****** *)
@@ -67,6 +67,13 @@ fprint_val<l0abl> = fprint_l0abl
 implement
 fprint_val<s0ymb> = fprint_s0ymb
 //
+(* ****** ****** *)
+
+implement
+fprint_val<g0nam> = fprint_g0nam
+implement
+fprint_val<g0exp> = fprint_g0exp
+
 (* ****** ****** *)
 
 implement
@@ -231,10 +238,10 @@ fprint_l0abl
 (
 case+
 l0.node() of
-| L0ABsome(lab) =>
-  fprint!(out, "L0ABsome(", lab, ")")
-| L0ABnone(tok) =>
-  fprint!(out, "L0ABnone(", tok, ")")
+| L0ABLsome(lab) =>
+  fprint!(out, "L0ABLsome(", lab, ")")
+| L0ABLnone(tok) =>
+  fprint!(out, "L0ABLnone(", tok, ")")
 )
 //
 (* ****** ****** *)
@@ -257,10 +264,12 @@ x0.node() of
   fprint!
   (out, "S0YMBi0dnt(", id0, ")")
 //
+(*
 | S0YMBdtlab(dot1, lab2) =>
   fprint!
   ( out
   , "S0YMBdtlab(", dot1, "; ", lab2, ")")
+*)
 | S0YMBbrack(tok1, tok2) =>
   fprint!
   ( out
@@ -315,6 +324,189 @@ case+ x0 of
 (* ****** ****** *)
 
 implement
+print_g0nam(x0) =
+fprint_g0nam(stdout_ref, x0)
+implement
+prerr_g0nam(x0) =
+fprint_g0nam(stderr_ref, x0)
+
+(* ****** ****** *)
+
+local
+
+implement
+fprint_val<g0nam> = fprint_g0nam
+
+in (* in-of-local *)
+
+implement
+fprint_g0nam
+  (out, x0) =
+(
+case+ x0.node() of
+|
+G0Nid0(tok) =>
+fprint!(out, "G0Nid0(", tok, ")")
+|
+G0Nint(tok) =>
+fprint!(out, "G0Nint(", tok, ")")
+|
+G0Nchr(tok) =>
+fprint!(out, "G0Nchr(", tok, ")")
+|
+G0Nflt(tok) =>
+fprint!(out, "G0Nflt(", tok, ")")
+|
+G0Nstr(tok) =>
+fprint!(out, "G0Nstr(", tok, ")")
+|
+G0Nlist
+(tbeg, gnms, tend) =>
+fprint!
+( out
+, "G0Nlist("
+, tbeg, "; ", gnms, "; ", tend, ")")
+//
+| G0Nnone0() =>
+  fprint!(out, "G0Nnone0(", ")")
+| G0Nnone1(tok) =>
+  fprint!(out, "G0Nnone1(", tok, ")")
+)
+//
+end // end of [local]
+
+(* ****** ****** *)
+
+implement
+print_g0exp(x0) =
+fprint_g0exp(stdout_ref, x0)
+implement
+prerr_g0exp(x0) =
+fprint_g0exp(stderr_ref, x0)
+
+local
+
+implement
+fprint_val<g0exp> = fprint_g0exp
+
+in (* in-of-local *)
+
+implement
+fprint_g0exp
+  (out, x0) =
+(
+case+ x0.node() of
+//
+| G0Eid0(gid) =>
+  fprint!(out, "G0Eid0(", gid, ")")
+//
+| G0Eint(int) =>
+  fprint!(out, "G0Eint(", int, ")")
+| G0Echr(chr) =>
+  fprint!(out, "G0Echr(", chr, ")")
+| G0Eflt(flt) =>
+  fprint!(out, "G0Eflt(", flt, ")")
+| G0Estr(str) =>
+  fprint!(out, "G0Estr(", str, ")")
+//
+| G0Eif0
+  ( tif0
+  , g0e1
+  , g0e2
+  , g0e3, topt) =>
+  fprint!
+  ( out
+  , "G0Eif0(", tif0
+  , g0e1, "; ", g0e2, "; ", g0e3, ")" )
+//
+| G0Eapps(s0ts) =>
+  fprint!( out, "G0Eapps(", s0ts, ")" )
+//
+| G0Elist
+  ( tbeg
+  , g0es, tend) =>
+  fprint!
+  ( out
+  , "G0Elist("
+  , tbeg, "; ", g0es, "; ", tend, ")" )
+//
+| G0Enone1(tok) =>
+  (
+    fprint!( out, "G0Enone1(", tok, ")" )
+  ) // end of [G0Enone]
+//
+) (* end of [fprint_g0exp] *)
+
+end // end of [local]
+
+(* ****** ****** *)
+
+implement
+print_g0exp_THEN(x0) =
+fprint_g0exp_THEN(stdout_ref, x0)
+implement
+prerr_g0exp_THEN(x0) =
+fprint_g0exp_THEN(stderr_ref, x0)
+implement
+fprint_g0exp_THEN(out, x0) =
+(
+case+ x0 of
+| g0exp_THEN(tok, g0e) =>
+  fprint!(out, "g0exp_THEN(", tok, "; ", g0e, ")")
+) (* end of [fprint_g0exp_THEN] *)
+
+implement
+print_g0exp_ELSE(x0) =
+fprint_g0exp_ELSE(stdout_ref, x0)
+implement
+prerr_g0exp_ELSE(x0) =
+fprint_g0exp_ELSE(stderr_ref, x0)
+implement
+fprint_g0exp_ELSE(out, x0) =
+(
+case+ x0 of
+| g0exp_ELSE(tok, g0e) =>
+  fprint!(out, "g0exp_ELSE(", tok, "; ", g0e, ")")
+) (* end of [fprint_g0exp_ELSE] *)
+
+(* ****** ****** *)
+
+implement
+print_g0marg(x0) =
+fprint_g0marg(stdout_ref, x0)
+implement
+prerr_g0marg(x0) =
+fprint_g0marg(stderr_ref, x0)
+
+local
+
+implement
+fprint_val<g0eid> = fprint_i0dnt
+
+in (* in-of-local *)
+
+implement
+fprint_g0marg
+  (out, x0) =
+(
+case+
+x0.node() of
+| G0MARGnone(tok) =>
+  fprint!
+  (out, "G0MARGnone(", tok, ")")
+| G0MARGsarg(tbeg, g0as, tend) =>
+  fprint!
+  (out, "G0MARGsarg(", tbeg, "; ", g0as, "; ", tend, ")")
+| G0MARGdarg(tbeg, g0as, tend) =>
+  fprint!
+  (out, "G0MARGdarg(", tbeg, "; ", g0as, "; ", tend, ")")
+) (* fprint_g0marg *)
+
+end // end of [local]
+
+(* ****** ****** *)
+
+implement
 print_sort0(x0) =
 fprint_sort0(stdout_ref, x0)
 implement
@@ -334,8 +526,8 @@ fprint_sort0
 (
 case+ x0.node() of
 //
-| S0Tid(tid) =>
-  fprint!(out, "S0Tid(", tid, ")")
+| S0Tid0(tid) =>
+  fprint!(out, "S0Tid0(", tid, ")")
 //
 | S0Tint(int) =>
   fprint!(out, "S0Tint(", int, ")")
@@ -352,8 +544,7 @@ case+ x0.node() of
   (out, "S0Tqid(", q0, ", ", s0t, ")")
 //
 | S0Tnone(tok) =>
-    fprint!(out, "S0Tnone(", tok, ")")
-  // end of [S0Tnone]
+  fprint!( out, "S0Tnone(", tok, ")" )
 //
 ) (* end of [fprint_sort0] *)
 
@@ -485,6 +676,9 @@ fprint_t0arg
 (
 case+
 x0.node() of
+| T0ARGnone(tok) =>
+  fprint!
+  (out, "T0ARGnone(", tok, ")")
 | T0ARGsome(s0t, opt) =>
   fprint!
   (out
@@ -583,8 +777,8 @@ fprint_s0exp
 (
 case+ x0.node() of
 //
-| S0Eid(sid) =>
-  fprint!(out, "S0Eid(", sid, ")")
+| S0Eid0(sid) =>
+  fprint!(out, "S0Eid0(", sid, ")")
 //
 | S0Eop1(opid) =>
   fprint!(out, "S0Eop1(", opid, ")")
@@ -654,7 +848,7 @@ case+ x0.node() of
   (tok, s0e) =>
   fprint!(out, "S0Equal(", tok, "; ", s0e, ")")
 //
-| S0Enone(token) => fprint!(out, "S0Enone(", token, ")")
+| S0Enone(tok) => fprint!(out, "S0Enone(", tok, ")")
 //
 ) (* end of [fprint_s0exp] *)
 
@@ -724,6 +918,7 @@ end // end of [local]
 
 (* ****** ****** *)
 
+(*
 implement
 print_s0eff(x0) =
 fprint_s0eff(stdout_ref, x0)
@@ -744,7 +939,8 @@ case+ x0 of
   ( out
   , "S0EFFsome("
   , tbeg, "; ", s0es, "; ", tend, ")")
-)
+) (* end of [fprint_s0eff] *)
+*)
 
 (* ****** ****** *)
 
@@ -761,10 +957,14 @@ fprint_effs0expopt
 case+ x0 of
 | EFFS0EXPnone() =>
   fprint!(out, "EFFS0EXPnone(", ")")
+| EFFS0EXPsome(s0e) =>
+  fprint!(out, "EFFS0EXPsome(", s0e, ")")
+(*
 | EFFS0EXPsome(s0f, s0e) =>
   fprint!
   ( out
   , "EFFS0EXPsome(", s0f, "; ", s0e, ")")
+*)
 ) (* end of [fprint_effs0expopt] *)
 
 (* ****** ****** *)

@@ -40,18 +40,29 @@ FatalErrorExn_interr of ()
 //
 (* ****** ****** *)
 //
-exception XATSOPT_FIXITY_EXN of ()
+exception
+XATSOPT_FIXITY_EXN of ((*void*))
 //
 (* ****** ****** *)
 //
-exception XATSOPT_SYNERR_EXN of ()
+exception
+XATSOPT_SYNERR_EXN of ((*void*))
 //
 (* ****** ****** *)
 //
-exception XATSOPT_TRANS01_EXN of ()
-exception XATSOPT_TRANS12_EXN of ()
-exception XATSOPT_TRANS23_EXN of ()
-exception XATSOPT_TRANS34_EXN of ()
+exception
+XATSOPT_TRERR01_EXN of ((*void*))
+exception
+XATSOPT_TRERR12_EXN of ((*void*))
+exception
+XATSOPT_TRERR23_EXN of ((*void*))
+exception
+XATSOPT_TRERR33_EXN of ((*void*))
+exception
+XATSOPT_TRERR3X_EXN of ((*void*))
+//
+exception
+XATSOPT_TRERR34_EXN of ((*void*))
 //
 (* ****** ****** *)
 //
@@ -59,8 +70,8 @@ exception XATSOPT_TRANS34_EXN of ()
 // raising FatalErrorException
 // raising FatalErrorException_interr
 //
-fun abort():<!exn> void
-fun abort_interr():<!exn> void
+fun abort((*void*)):<!exn> void
+fun abort_interr((*void*)):<!exn> void
 //
 (* ****** ****** *)
 

@@ -41,26 +41,44 @@ UN = "prelude/SATS/unsafe.sats"
 (* ****** ****** *)
 //
 #staload
-SYM="./../SATS/symbol.sats"
-#staload
-FIX="./../SATS/fixity.sats"
-//
-#staload
-ENV = "./../SATS/symenv.sats"
-//
-(* ****** ****** *)
-
-#staload
-LOC = "./../SATS/location.sats"
-overload + with $LOC.location_combine
-overload print with $LOC.print_location
-overload prerr with $LOC.prerr_location
-
+SYM = "./../SATS/xsymbol.sats"
 (* ****** ****** *)
 //
-#staload "./../SATS/basics.sats"
+#staload
+FIX = "./../SATS/xfixity.sats"
+#staload
+ENV = "./../SATS/xsymenv.sats"
 //
-#staload "./../SATS/lexing.sats"
+(* ****** ****** *)
+//
+#staload
+LOC = "./../SATS/locinfo.sats"
+//
+(* ****** ****** *)
+overload
+= with $SYM.eq_symbol_symbol
+(* ****** ****** *)
+overload
++ with $LOC.location_combine
+overload
+print with $LOC.print_location
+overload
+prerr with $LOC.prerr_location
+//
+(* ****** ****** *)
+//
+#staload
+"./../../xutl/SATS/mylibc.sats"
+//
+(* ****** ****** *)
+//
+#staload "./../SATS/xbasics.sats"
+//
+#staload "./../SATS/filpath.sats"
+#staload "./../SATS/filsrch.sats"
+//
+#staload "./../SATS/lexing0.sats"
+#staload "./../SATS/parsing.sats"
 //
 #staload "./../SATS/staexp0.sats"
 #staload "./../SATS/dynexp0.sats"
@@ -73,7 +91,7 @@ overload prerr with $LOC.prerr_location
 (* ****** ****** *)
 //
 #staload
-_(*TMP*) = "./../DATS/fixity.dats"
+_(*TMP*) = "./../DATS/xfixity.dats"
 //
 #staload
 _(*TMP*) = "./../DATS/staexp1_print.dats"
@@ -143,9 +161,9 @@ x0, f1, x2
     case+
     f1.node() of
     | D1Papp() =>
-      D1Papps(x0, list_sing(x2))
+      D1Papp1(x0, x2)
     | _(*non-D1Papp*) =>
-      D1Papps(f1, list_pair(x0, x2))
+      D1Papp2(f1, x0, x2)
   ) : d1pat_node // end of [val]
 in
   FXITMatm(d1pat_make_node(loc, d1p_node))
@@ -174,8 +192,7 @@ f0.node() of
       d1pat_make_node(loc, d1p_node)
     ) where
     {
-      val
-      d1p_node = D1Papps(f0, list_sing(x1))
+      val d1p_node = D1Papp1(f0, x1)
     }
   end // end of [non-D1Pbs0]
 //
@@ -189,7 +206,7 @@ $FIX.fxitm_postfix<d1pat>
 in
   FXITMatm
   (
-  d1pat_make_node(loc, D1Papps(f1, list_sing(x0)))
+  d1pat_make_node(loc, D1Papp1(f1, x0))
   )
 end // end of [$FIX.fxitm_postfix]
 //
@@ -249,9 +266,9 @@ x0, f1, x2
     case+
     f1.node() of
     | D1Eapp() =>
-      D1Eapps(x0, list_sing(x2))
+      D1Eapp1(x0, x2)
     | _(*non-D1Eapp*) =>
-      D1Eapps(f1, list_pair(x0, x2))
+      D1Eapp2(f1, x0, x2)
   ) : d1exp_node // end of [val]
 in
   FXITMatm(d1exp_make_node(loc, d1e_node))
@@ -280,8 +297,7 @@ f0.node() of
       d1exp_make_node(loc, d1e_node)
     ) where
     {
-      val
-      d1e_node = D1Eapps(f0, list_sing(x1))
+      val d1e_node = D1Eapp1(f0, x1)
     }
   end // end of [non-D1Ebs0]
 //
@@ -295,7 +311,7 @@ $FIX.fxitm_postfix<d1exp>
 in
   FXITMatm
   (
-  d1exp_make_node(loc, D1Eapps(f1, list_sing(x0)))
+  d1exp_make_node(loc, D1Eapp1(f1, x0))
   )
 end // end of [$FIX.fxitm_postfix]
 //
@@ -360,6 +376,12 @@ trans01_farglst: f0arglst -> f1arglst
 //
 extern
 fun
+trans01_dtyp: d0typ -> d1typ
+and
+trans01_dtyplst: d0typlst -> d1typlst
+//
+extern
+fun
 trans01_sqarg: sq0arg -> sq1arg
 and
 trans01_sqarglst: sq0arglst -> sq1arglst
@@ -384,23 +406,6 @@ trans01_qarg
 //
 val loc0 = q0a0.loc()
 //
-fun
-auxids
-( ids
-: i0dntlst): tokenlst =
-(
-case+ ids of
-| list_nil() =>
-  list_nil()
-| list_cons(id, ids) =>
-  let
-    val-
-    I0DNTsome(tok) = id.node()
-  in
-    list_cons(tok, auxids(ids))
-  end // end of [list_cons]
-)
-//
 in
 //
 case-
@@ -411,11 +416,15 @@ q0a0.node() of
     q1arg_make_node(loc0, Q1ARGnone(tok))
   )
 *)
-| Q0ARGsome(ids, opt) => let
-    val ids = auxids(ids)
+| Q0ARGsome(sid, opt) => let
+//
+    val-
+    I0DNTsome(tok) = sid.node()
+//
     val opt = trans01_sortopt(opt)
+//
   in
-    q1arg_make_node(loc0, Q1ARGsome(ids, opt))
+    q1arg_make_node(loc0, Q1ARGsome(tok, opt))
   end (* end of [Q0ARGsome] *)
 //
 end // end of [trans01_qarg]
@@ -449,65 +458,28 @@ in
 case-
 sq0a.node() of
 | SQ0ARGsome
-  (_, s0qs, _) => let
-    val s1qs = trans01_squalst(s0qs)
+  (_, q0as, _) => let
+    val q1as = trans01_qarglst(q0as)
   in
-    sq1arg_make_node(loc0, SQ1ARGsome(s1qs))
+    sq1arg_make_node(loc0, SQ1ARGsome(q1as))
   end // end of [SQ0ARGsome]
 //
 end // end of [trans01_sqarg]
 
 implement
 trans01_sqarglst
-  (sq0as) =
-list_vt2t(sq1as) where
+  (sqas) =
+list_vt2t(sqas) where
 {
   val
-  sq1as =
+  sqas =
   list_map<sq0arg><sq1arg>
-    (sq0as) where
+    (sqas) where
   {
     implement
     list_map$fopr<sq0arg><sq1arg> = trans01_sqarg
   }
 } (* end of [trans01_sqarglst] *)
-
-(* ****** ****** *)
-
-implement
-trans01_tiarg
-  (ti0a) = let
-//
-val
-loc0 = ti0a.loc()
-//
-in
-//
-case-
-ti0a.node() of
-| TI0ARGsome
-  (_, s0es, _) => let
-    val s1es = trans01_sexplst(s0es)
-  in
-    ti1arg_make_node(loc0, TI1ARGsome(s1es))
-  end // end of [TI0ARGsome]
-//
-end // end of [trans01_tiarg]
-
-implement
-trans01_tiarglst
-  (ti0as) =
-list_vt2t(ti1as) where
-{
-  val
-  ti1as =
-  list_map<ti0arg><ti1arg>
-    (ti0as) where
-  {
-    implement
-    list_map$fopr<ti0arg><ti1arg> = trans01_tiarg
-  }
-} (* end of [trans01_tiarglst] *)
 
 (* ****** ****** *)
 
@@ -545,6 +517,43 @@ list_vt2t(tq1as) where
     list_map$fopr<tq0arg><tq1arg> = trans01_tqarg
   }
 } (* end of [trans01_tqarglst] *)
+
+(* ****** ****** *)
+
+implement
+trans01_tiarg
+  (ti0a) = let
+//
+val
+loc0 = ti0a.loc()
+//
+in
+//
+case-
+ti0a.node() of
+| TI0ARGsome
+  (_, s0es, _) => let
+    val s1es = trans01_sexplst(s0es)
+  in
+    ti1arg_make_node(loc0, TI1ARGsome(s1es))
+  end // end of [TI0ARGsome]
+//
+end // end of [trans01_tiarg]
+
+implement
+trans01_tiarglst
+  (ti0as) =
+list_vt2t(ti1as) where
+{
+  val
+  ti1as =
+  list_map<ti0arg><ti1arg>
+    (ti0as) where
+  {
+    implement
+    list_map$fopr<ti0arg><ti1arg> = trans01_tiarg
+  }
+} (* end of [trans01_tiarglst] *)
 
 (* ****** ****** *)
 
@@ -595,54 +604,57 @@ in
 case-
 d0a0.node() of
 //
-| D0ARGsome_sta
-  (_, s0qs, _) => let
-    val
-    s1qs =
-    trans01_squalst(s0qs)
-  in
-    d1arg_make_node(loc0, D1ARGsome_sta(s1qs))
-  end // end of [D0ARGsome_sta]
+|
+D0ARGsome_sta
+(_, s0qs, _) =>
+let
+val
+s1qs =
+trans01_squalst(s0qs)
+in
+d1arg_make_node(loc0, D1ARGsome_sta(s1qs))
+end // end of [D0ARGsome_sta]
 //
-| D0ARGsome_dyn1
-  (sid) => let
-    val-
-    I0DNTsome(tok) = sid.node()
-  in
-    d1arg_make_node(loc0, D1ARGsome_dyn1(tok))
-  end // end of [D0ARGsome_dyn1]
-| D0ARGsome_dyn2
-  (_, arg0, opt1, _) => let
+|
+D0ARGsome_dyn1
+( sid ) => let
+val-
+I0DNTsome(tok) = sid.node()
+in
+d1arg_make_node(loc0, D1ARGsome_dyn1(tok))
+end // end of [D0ARGsome_dyn1]
+|
+D0ARGsome_dyn2
+(_, arg0, opt1, _) => let
 //
-    val arg0 =
-    trans01_atyplst(arg0)
+val arg0 =
+trans01_atyplst(arg0)
 //
-    val opt1 =
-    (
-    case+ opt1 of
-    | None() => None()
-    | Some(a0ts) => Some(trans01_atyplst(a0ts))
-    ) : a1typlstopt // end of [val]
+val opt1 =
+(
+case+ opt1 of
+| None() => None()
+| Some(a0ts) => Some(trans01_atyplst(a0ts))
+) : a1typlstopt // end of [val]
 //
-  in
-    d1arg_make_node(loc0, D1ARGsome_dyn2(arg0, opt1))
-  end // end of [D0ARGsome_dyn2]
+in
+d1arg_make_node(loc0, D1ARGsome_dyn2(arg0, opt1))
+end // end of [D0ARGsome_dyn2]
 //
-end // end of [trans01_darg]
+end (*let*) // end of [trans01_darg]
 
 implement
 trans01_darglst
   (d0as) =
 list_vt2t(d1as) where
 {
-  val
-  d1as =
-  list_map<d0arg><d1arg>
-    (d0as) where
-  {
-    implement
-    list_map$fopr<d0arg><d1arg> = trans01_darg
-  }
+val
+d1as =
+list_map<d0arg><d1arg>(d0as) where
+{
+implement
+list_map$fopr<d0arg><d1arg>(d0a) = trans01_darg(d0a)
+}
 } (* end of [trans01_darglst] *)
 
 (* ****** ****** *)
@@ -659,52 +671,243 @@ in
 case-
 f0a0.node() of
 //
-| F0ARGsome_dyn(d0p) => let
+|
+F0ARGsome_dyn
+  ( d0p1 ) =>
+let
 //
-    val d1p = trans01_dpat(d0p)
+val
+d1p1 =
+trans01_dpat(d0p1)
 //
-  in
-    f1arg_make_node(loc0, F1ARGsome_dyn(d1p))
-  end // end of [F0ARGsome_dyn]
+in
+f1arg_make_node(loc0, F1ARGsome_dyn(d1p1))
+end // end of [F0ARGsome_dyn]
 //
-| F0ARGsome_sta
-  (_, s0qs, _) => let
-    val
-    s1qs =
-    trans01_squalst(s0qs)
-  in
-    f1arg_make_node(loc0, F1ARGsome_sta(s1qs))
-  end // end of [F0ARGsome_sta]
+|
+F0ARGsome_sta
+(_, s0qs, _) => let
+val
+s1qs =
+trans01_squalst(s0qs)
+in
+f1arg_make_node(loc0, F1ARGsome_sta(s1qs))
+end // end of [F0ARGsome_sta]
 //
-| F0ARGsome_met
-  (_, s0es, _) => let
-    val
-    s1es =
-    trans01_sexplst(s0es)
-  in
-    f1arg_make_node(loc0, F1ARGsome_met(s1es))
-  end // end of [F0ARGsome_met]
+|
+F0ARGsome_met
+(_, s0es, _) => let
+val
+s1es =
+trans01_sexplst(s0es)
+in
+f1arg_make_node(loc0, F1ARGsome_met(s1es))
+end // end of [F0ARGsome_met]
 //
-end // end of [trans01_darg]
+end // end of [trans01_farg]
 
 implement
 trans01_farglst
   (f0as) =
 list_vt2t(f1as) where
 {
-  val
-  f1as =
-  list_map<f0arg><f1arg>
-    (f0as) where
-  {
-    implement
-    list_map$fopr<f0arg><f1arg> = trans01_farg
-  }
+val
+f1as =
+list_map<f0arg><f1arg>
+  (f0as) where
+{
+implement
+list_map$fopr<f0arg><f1arg>(f0a) = trans01_farg(f0a)
+}
 } (* end of [trans01_farglst] *)
 
 (* ****** ****** *)
 
+implement
+trans01_dtyp
+  (d0t0) =
+(
+case-
+d0t0.node() of
+(*
+|
+D0TYPnone(_) => ...
+*)
+|
+D0TYPsome
+(id0, opt) =>
+let
+val-
+I0DNTsome
+(tok) = id0.node()
+val opt =
+trans01_sexpopt(opt)
+in
+  d1typ_make_node
+  (loc0, D1TYPsome(tok, opt))
+end // end of [D0TYPsome]
+) where
+{
+  val
+  loc0 = d0t0.loc()
+//
+(*
+  val () =
+  println!
+  ("trans01_dtyp: d0t0 = ", d0t0)
+*)
+//
+} (*where*) // end of [trans01_dtyp]
+
+implement
+trans01_dtyplst
+  (d0ts) =
+list_vt2t(d1ts) where
+{
+val
+d1ts =
+list_map<d0typ><d1typ>
+  (d0ts) where
+{
+implement
+list_map$fopr<d0typ><d1typ>(d0t) = trans01_dtyp(d0t)
+}
+} (* end of [trans01_dtyplst] *)
+
+(* ****** ****** *)
+//
+implement
+trans01_stinv
+  (tinv) =
+let
+val
+loc0 = tinv.loc()
+fun
+auxstqs
+( stqs
+: st0qualst): st1qualst =
+(
+case+ stqs of
+|
+list_nil() =>
+list_nil(*void*)
+|
+list_cons
+(st0q, stqs) =>
+(
+case+ st0q of
+|
+ST0QUAnone _ =>
+auxstqs( stqs )
+|
+ST0QUAsome
+(tbeg, s0qs, tend) =>
+let
+val
+loc1 =
+tbeg.loc() + tend.loc()
+val
+s1qs = trans01_squalst(s0qs)
+val
+st1q = ST1QUAsome(loc1, s1qs)
+in
+  list_cons(st1q, auxstqs(stqs))
+end
+)
+) (* end of [auxstqs] *)
+
+in(*in-of-let*)
+
+case+ tinv of
+|
+ST0INVnone
+(stqs, terr) =>
+let
+//
+val
+stqs = auxstqs(stqs)
+//
+val d0ts = list_nil(*void*)
+//
+in
+  ST1INVsome(loc0, stqs, d0ts)
+end
+|
+ST0INVsome
+( stqs
+, tbeg, d0ts, tend) =>
+let
+//
+val
+stqs = auxstqs(stqs)
+//
+val
+d0ts = trans01_dtyplst(d0ts)
+//
+in
+  ST1INVsome(loc0, stqs, d0ts)
+end
+end (*let*) // end of [trans01_stinv]
+//
+(* ****** ****** *)
+
 local
+
+(* ****** ****** *)
+
+fun
+auxint
+( int
+: t0int)
+: d1pitm = let
+//
+val loc = int.loc()
+//
+val-
+T0INTsome(tok) = int.node()
+//
+in
+FXITMatm
+(d1pat_make_node(loc, D1Pint(tok)))
+end // end of [auxint]
+
+(* ****** ****** *)
+
+fun
+auxchr
+( chr
+: t0chr)
+: d1pitm = let
+//
+val loc = chr.loc()
+//
+val-
+T0CHRsome(tok) = chr.node()
+//
+in
+FXITMatm
+(d1pat_make_node(loc, D1Pchr(tok)))
+end // end of [auxchr]
+
+(* ****** ****** *)
+
+fun
+auxstr
+( str
+: t0str)
+: d1pitm = let
+//
+val loc = str.loc()
+//
+val-
+T0STRsome(tok) = str.node()
+//
+in
+FXITMatm
+(d1pat_make_node(loc, D1Pstr(tok)))
+end // end of [auxstr]
+
+(* ****** ****** *)
 
 fun
 auxid0
@@ -722,15 +925,19 @@ val tnd = tok.node()
 in
   case- tnd of
 //
-  | T_IDENT_alp(nam) => auxid0_IDENT(tok, nam)
-  | T_IDENT_sym(nam) => auxid0_IDENT(tok, nam)
+  | T_IDENT_alp(nam) =>
+    auxid0_IDENT(tok, nam)
+  | T_IDENT_sym(nam) =>
+    auxid0_IDENT(tok, nam)
 //
 (*
-  | T_IDENT_dlr(nam) => auxid0_IDENT(tok, nam)
-  | T_IDENT_srp(nam) => auxid0_IDENT(tok, nam)
+  | T_IDENT_dlr(nam) =>
+    auxid0_IDENT(tok, nam)
+  | T_IDENT_srp(nam) =>
+    auxid0_IDENT(tok, nam)
 *)
 //
-  | T_BACKSLASH((*void*)) => auxid0_BACKSLASH(tok)
+  | T_BSLASH((*void*)) => auxid0_BSLASH(tok)
 //
 end // end of [auxid0]
 
@@ -746,7 +953,7 @@ $SYM.symbol_make(nam)
 val opt =
 the_fxtyenv_search(sym)
 val d1p0 =
-d1pat_make_node(loc, D1Pid(tok))
+d1pat_make_node(loc, D1Pid0(tok))
 //
 in
 case+ opt of
@@ -760,7 +967,7 @@ case+ opt of
 end // end of [auxid0_IDENT]
 
 and
-auxid0_BACKSLASH
+auxid0_BSLASH
   (tok:token): d1pitm = let
 //
 val loc = tok.loc()
@@ -770,7 +977,7 @@ val d1p0 =
 //
 in
   FXITMopr(d1p0, $FIX.backslash_fixty)
-end // end of [auxid0_BACKSLASH]
+end // end of [auxid0_BSLASH]
 
 (* ****** ****** *)
 
@@ -783,26 +990,29 @@ auxitm
 val
 loc0 = d0p0.loc()
 //
+(*
 val () =
 println!("trans01_dpat:")
 val () =
 println!("auxitm: loc0 = ", loc0)
 val () =
 println!("auxitm: d0p0 = ", d0p0)
+*)
 //
 in
 //
 case-
 d0p0.node() of
 //
-| D0Pid(id0) =>
-  (
-    auxid0(id0)
-  )
+| D0Pid0(id0) =>
+  auxid0(id0)
 //
-(*
-| D0Pstr(str) => auxstr(str)
-*)
+| D0Pint(int) =>
+  auxint(int)
+| D0Pchr(int) =>
+  auxchr(int)
+| D0Pstr(str) =>
+  auxstr(str)
 //
 | D0Papps(d0ps) =>
   FXITMatm(d1p0) where
@@ -812,6 +1022,8 @@ d0p0.node() of
     val d1p0 =
     fxitmlst_resolve_d1pat(loc0, d1ps)
   }
+//
+| D0Psqarg _ => auxsqarg(d0p0)
 //
 | D0Pparen _ => auxparen(d0p0)
 //
@@ -849,6 +1061,30 @@ list_vt2t(ys) where
     list_map$fopr<d0pat><d1pitm>(x) = auxitm(x)
   }
 } (* end of [auxitmlst] *)
+
+(* ****** ****** *)
+
+and
+auxsqarg
+( d0p0
+: d0pat): d1pitm = let
+//
+val
+loc0 = d0p0.loc()
+//
+val-
+D0Psqarg
+(_, s0as, _) = d0p0.node()
+//
+val
+s1as = trans01_sarglst(s0as)
+//
+in
+//
+FXITMatm
+(d1pat_make_node(loc0, D1Psarg(s1as)))
+//
+end // end of [auxsqarg]
 
 (* ****** ****** *)
 
@@ -996,15 +1232,20 @@ val tnd = tok.node()
 in
   case- tnd of
 //
-  | T_IDENT_alp(nam) => auxid0_IDENT(tok, nam)
-  | T_IDENT_sym(nam) => auxid0_IDENT(tok, nam)
+  | T_IDENT_alp(nam) =>
+    auxid0_IDENT(tok, nam)
+  | T_IDENT_sym(nam) =>
+    auxid0_IDENT(tok, nam)
 //
-  | T_IDENT_dlr(nam) => auxid0_IDENT(tok, nam)
+  | T_IDENT_dlr(nam) =>
+    auxid0_IDENT(tok, nam)
+//
 (*
-  | T_IDENT_srp(nam) => auxid0_IDENT(tok, nam)
+  | T_IDENT_srp(nam) =>
+    auxid0_IDENT(tok, nam)
 *)
 //
-  | T_BACKSLASH((*void*)) => auxid0_BACKSLASH(tok)
+  | T_BSLASH((*void*)) => auxid0_BSLASH(tok)
 //
 end // end of [auxid0]
 
@@ -1020,31 +1261,35 @@ $SYM.symbol_make(nam)
 val opt =
 the_fxtyenv_search(sym)
 val d1e0 =
-d1exp_make_node(loc, D1Eid(tok))
+d1exp_make_node(loc, D1Eid0(tok))
 //
 in
 case+ opt of
-| ~None_vt() =>
-   FXITMatm(d1e0)
-| ~Some_vt(fxty) =>
-  (case+ fxty of
-   | $FIX.FIXTYnon() => FXITMatm(d1e0)
-   | _(*non-FIXTYnon*) => FXITMopr(d1e0, fxty)
-  ) (* end of [Some_vt] *)
+| ~
+None_vt() =>
+FXITMatm(d1e0)
+| ~
+Some_vt(fxty) =>
+(case+ fxty of
+ | $FIX.FIXTYnon() => FXITMatm(d1e0)
+ | _(*non-FIXTYnon*) => FXITMopr(d1e0, fxty)
+) (* end of [Some_vt] *)
 end // end of [auxid0_IDENT]
 
 and
-auxid0_BACKSLASH
+auxid0_BSLASH
   (tok:token): d1eitm = let
 //
 val loc = tok.loc()
 //
-val d1e0 =
-  d1exp_make_node(loc, D1Ebs0())
+val
+d1e0 =
+d1exp_make_node(loc, D1Ebs0())
 //
 in
-  FXITMopr(d1e0, $FIX.backslash_fixty)
-end // end of [auxid0_BACKSLASH]
+  FXITMopr
+  ( d1e0, $FIX.backslash_fixty )
+end // end of [auxid0_BSLASH]
 
 fun
 auxint
@@ -1058,8 +1303,8 @@ val-
 T0INTsome(tok) = int.node()
 //
 in
-  FXITMatm
-  (d1exp_make_node(loc, D1Eint(tok)))
+FXITMatm
+(d1exp_make_node(loc, D1Eint(tok)))
 end // end of [auxint]
 and
 auxchr
@@ -1073,8 +1318,8 @@ val-
 T0CHRsome(tok) = chr.node()
 //
 in
-  FXITMatm
-  (d1exp_make_node(loc, D1Echr(tok)))
+FXITMatm
+(d1exp_make_node(loc, D1Echr(tok)))
 end // end of [auxchr]
 and
 auxflt
@@ -1088,8 +1333,8 @@ val-
 T0FLTsome(tok) = flt.node()
 //
 in
-  FXITMatm
-  (d1exp_make_node(loc, D1Eflt(tok)))
+FXITMatm
+(d1exp_make_node(loc, D1Eflt(tok)))
 end // end of [auxflt]
 and
 auxstr
@@ -1103,9 +1348,53 @@ val-
 T0STRsome(tok) = str.node()
 //
 in
-  FXITMatm
-  (d1exp_make_node(loc, D1Estr(tok)))
+FXITMatm
+(d1exp_make_node(loc, D1Estr(tok)))
 end // end of [auxstr]
+
+(* ****** ****** *)
+
+fun
+auxopid
+( id0
+: d0eid)
+: d1eitm = let
+//
+val loc = id0.loc()
+val-
+I0DNTsome
+  (tok) = id0.node()
+//
+in
+FXITMatm
+(d1exp_make_node(loc, D1Eid0(tok)))
+end // end of [auxopid]
+
+(* ****** ****** *)
+//
+fun
+auxthen
+( d0e0
+: d0exp_THEN): d1exp =
+(
+case+ d0e0 of
+| d0exp_THEN
+  (tok, d0e) => trans01_dexp(d0e)
+)
+//
+fun
+auxelse
+( opt0
+: d0exp_ELSE): d1expopt =
+(
+case+ opt0 of
+| d0exp_ELSEnone
+  ((*void*)) => None((*void*))
+| d0exp_ELSEsome
+  (tok, d0e) => Some(trans01_dexp(d0e))
+)
+//
+(* ****** ****** *)
 
 fun
 auxitm
@@ -1113,24 +1402,23 @@ auxitm
 : d0exp)
 : d1eitm = let
 //
-val
-loc0 = d0e0.loc()
+val loc0 = d0e0.loc()
 //
-// (*
+(*
 val () =
 println!("trans01_dexp:")
 val () =
 println!("auxitm: loc0 = ", loc0)
 val () =
 println!("auxitm: d0e0 = ", d0e0)
-// *)
+*)
 //
 in
 //
 case-
 d0e0.node() of
 //
-| D0Eid(id0) =>
+| D0Eid0(id0) =>
   (
     auxid0(id0)
   )
@@ -1139,6 +1427,8 @@ d0e0.node() of
 | D0Echr(chr) => auxchr(chr)
 | D0Eflt(flt) => auxflt(flt)
 | D0Estr(str) => auxstr(str)
+//
+| D0Eopid(id0) => auxopid(id0)
 //
 | D0Eapps(d0es) =>
   FXITMatm(d1e0) where
@@ -1149,59 +1439,267 @@ d0e0.node() of
     fxitmlst_resolve_d1exp(loc0, d1es)
   }
 //
-| D0Esqarg
-  (tbeg, s0es, tend) =>
-  FXITMatm(d1e0) where
-  {
-    val s1es =
-    trans01_sexplst(s0es)
-    val d1e0 =
-    d1exp_make_node(loc0, D1Esqarg(s1es))
-  }
-| D0Etqarg
-  (tbeg, s0es, tend) =>
-  FXITMatm(d1e0) where
-  {
-    val s1es =
-    trans01_sexplst(s0es)
-    val d1e0 =
-    d1exp_make_node(loc0, D1Etqarg(s1es))
-  }
+|
+D0Esqarg
+(tbeg, s0es, tend) =>
+FXITMatm(d1e0) where
+{
+  val s1es =
+  trans01_sexplst(s0es)
+  val d1e0 =
+  d1exp_make_node(loc0, D1Esqarg(s1es))
+}
+|
+D0Etqarg
+(tbeg, s0es, tend) =>
+FXITMatm(d1e0) where
+{
+  val s1es =
+  trans01_sexplst(s0es)
+  val d1e0 =
+  d1exp_make_node(loc0, D1Etqarg(s1es))
+}
 //
 | D0Eparen _ => auxparen(d0e0)
 //
 | D0Etuple _ => auxtuple(d0e0)
 //
 | D0Eif0
-  ( tif0, d0e1
-  , d0e2, opt3, topt) => let
-    val d1e1 = trans01_dexp(d0e1)
-    val d1e2 =
-    (
-      case+ d0e2 of
-      | d0exp_THEN
-          (_, d0e2) => trans01_dexp(d0e2)
-        // d0exp_THEN
-    ) : d1exp // end of [val]
-    val opt3 =
-    (
-      case+ opt3 of
-      | d0exp_ELSEnone
-          () => None((*void*))
-      | d0exp_ELSEsome
-          (_, d0e) => Some(trans01_dexp(d0e))
-    ) : d1expopt // end of [val]
+  ( tif0
+  , d0e1
+  , d0e2, opt3) => let
+    val d1e1 =
+    trans01_dexp(d0e1)
+    val d1e2 = auxthen(d0e2)
+    val opt3 = auxelse(opt3)
   in
     FXITMatm(d1e0) where
     {
       val d1e0 =
-        d1exp_make_node
-        (loc0, D1Eif0(d1e1, d1e2, opt3))
+      d1exp_make_node
+      (loc0, D1Eif0(d1e1, d1e2, opt3))
     }
   end (* end of [D0Eif0] *)
+| D0Eif1
+  ( tif0
+  , d0e1
+  , d0e2
+  , opt3, tinv) => let
+    val d1e1 =
+    trans01_dexp(d0e1)
+    val d1e2 = auxthen(d0e2)
+    val opt3 = auxelse(opt3)
+    val tinv = trans01_stinv(tinv)
+  in
+    FXITMatm(d1e0) where
+    {
+      val d1e0 =
+      d1exp_make_node
+      (loc0, D1Eif1(d1e1, d1e2, opt3, tinv))
+    }
+  end (* end of [D0Eif1] *)
 //
-| D0Ecase
-  ( knd, d0e1, tof2
+| D0Ecas0
+  ( knd0
+  , d0e1
+  , tof2
+  , tbar, dcls) => let
+    val d1e1 =
+    trans01_dexp(d0e1)
+    val dcls =
+    trans01_dclaulst(dcls)
+  in
+    FXITMatm(d1e0) where
+    {
+      val d1e0 =
+      d1exp_make_node
+      (loc0, D1Ecas0(knd0, d1e1, dcls))
+      // end of [val]
+    }
+  end // end of [D0Ecas0]
+| D0Ecas1
+  ( knd0
+  , d0e1
+  , tof2, tbar
+  , dcls, tinv) => let
+    val d1e1 =
+    trans01_dexp(d0e1)
+    val dcls =
+    trans01_dclaulst(dcls)
+    val tinv = trans01_stinv(tinv)
+  in
+    FXITMatm(d1e0) where
+    {
+      val d1e0 =
+      d1exp_make_node
+      (loc0, D1Ecas1(knd0, d1e1, dcls, tinv))
+      // end of [val]
+    }
+  end // end of [D0Ecas1]
+//
+| D0Elet
+  ( tok(*let*)
+  , d0cs
+  , topt, d0es, tend) => let
+//
+    val
+    (pf0|()) =
+    the_trans01_pushnil()
+//
+    val d1cs =
+    trans01_declist(d0cs)
+    val d1es =
+    (
+    case+ d0es of
+    |
+    list_nil() =>
+    (
+      list_sing(d1e0)) where
+    {
+      val
+      d1e0 = d1exp_none(tend.loc())
+    }
+    |
+    list_cons _ => trans01_dexplst(d0es)
+    ) : d1explst // end of [val]
+//
+    val
+    ((*void*)) =
+    the_trans01_popfree( pf0 |(*void*) )
+//
+  in
+    FXITMatm
+    (
+      d1exp_make_node(loc0, D1Elet(d1cs, d1es))
+    )
+  end // end of [D0Elet] *)
+//
+| D0Ewhere
+  (d0e1, d0cs) =>
+  ( case+ d0cs of
+    |
+    d0eclseq_WHERE
+    (_, _, d0cs, _) => let
+//
+      val
+      (pf0|()) =
+      the_trans01_pushnil()
+//
+      // HX: this needs to
+      val // be processed first!
+      d1cs = trans01_declist(d0cs)
+//
+      val d1e1 = trans01_dexp(d0e1)
+//
+      val
+      ((*void*)) =
+      the_trans01_popfree( pf0 |(*void*) )
+//
+    in
+      FXITMatm
+      (
+      d1exp_make_node(loc0, D1Ewhere(d1e1, d1cs))
+      )
+    end // end of [d0eclseq_WHERE]
+  ) (* end of [D0Ewhere] *)
+//
+| D0Ebrack
+  (tbeg, d0es, tend) => let
+    val d1es =
+    trans01_dexplst(d0es)
+    val d1e0 =
+    (
+    d1exp_make_node(loc0, D1Ebrack(d1es))
+    ) (* end of [val] *)
+  in
+(*
+    HX: postfix
+    $FIX.brack_fixty =
+    FIXTYpos(brack_prcdv)
+*)
+    $FIX.FXITMopr(d1e0, $FIX.brack_fixty)
+  end
+//
+| D0Edtsel
+  (tdot, lab1, arg2) => let
+    val arg2 =
+    trans01_dexpopt(arg2)
+    val-
+    L0ABLsome(lab1) = lab1.node()
+    val d1e0 =
+    (
+      d1exp_make_node
+        (loc0, D1Edtsel(lab1, arg2))
+      // d1exp_make_node
+    ) (* end of [val] *)
+  in
+(*
+    HX: postfix
+    $FIX.dtsel_fixty =
+    FIXTYpos(dtsel_prcdv)
+*)
+    $FIX.FXITMopr(d1e0, $FIX.dtsel_fixty)
+  end
+//
+| D0Elam
+  ( knd//lam|lam@
+  , arg, res
+  , arrw, body, tend) => let
+//
+    val arg =
+      trans01_farglst(arg)
+    val res =
+      trans01_effsexpopt(res)
+    val arrw =
+      trans01_funarrow(arrw)
+//
+    val body = trans01_dexp(body)
+//
+  in
+    FXITMatm(d1e0) where
+    {
+      val d1e0 =
+      d1exp_make_node
+      ( loc0
+      , D1Elam
+        (knd, arg, res, arrw, body))
+    }
+  end // end of [D1Elam]
+//
+| D0Efix
+  ( knd//fix|fix@
+  , fid, arg, res
+  , arrw, body, tend) => let
+//
+    val fid =
+    (
+    case-
+    fid.node() of
+    | I0DNTsome(tok) => tok
+    ) : token
+//
+    val arg =
+      trans01_farglst(arg)
+    val res =
+      trans01_effsexpopt(res)
+    val arrw =
+      trans01_funarrow(arrw)
+//
+    val body = trans01_dexp(body)
+//
+  in
+    FXITMatm(d1e0) where
+    {
+    val d1e0 =
+    d1exp_make_node
+    ( loc0
+    , D1Efix
+      (knd, fid, arg, res, arrw, body))
+    }
+  end // end of [D1Efix]
+//
+| D0Etry0
+  ( tbeg, d0e1, twth
   , tbar, d0cs, tend) => let
     val d1e1 = trans01_dexp(d0e1)
     val d1cs = trans01_dclaulst(d0cs)
@@ -1210,77 +1708,9 @@ d0e0.node() of
     {
       val d1e0 =
         d1exp_make_node
-        (loc0, D1Ecase(knd, d1e1, d1cs))
+        (loc0, D1Etry0(tbeg, d1e1, d1cs))
     }
-  end // end of [D0Ecase]
-//
-| D0Elet
-  ( tok(*let*)
-  , d0cs, _, d0es, topt) => let
-    val d1cs = trans01_declist(d0cs)
-    val d1es = trans01_dexplst(d0es)
-  in
-    FXITMatm
-    (
-      d1exp_make_node(loc0, D1Elet(d1cs, d1es))
-    )
-  end // end of [D0Elet] *)
-//
-| D0Ewhere(d0e1, d0cs) => let
-//
-    val d1e1 = trans01_dexp(d0e1)
-//
-  in
-    case+ d0cs of
-    | d0eclseq_WHERE
-      (_, _, d0cs, _) => let
-        val d1cs = trans01_declist(d0cs)
-      in
-        FXITMatm
-        (
-          d1exp_make_node(loc0, D1Ewhere(d1e1, d1cs))
-        )
-      end // end of [d0eclseq_WHERE]
-  end // end of [D0Ewhere]
-//
-| D0Edtsel
-  (tok, lab, arg) => let
-    val arg =
-       trans01_dexpopt(arg)
-     // end of [val]
-    val-
-    L0ABsome(lab) = lab.node()
-    val d1e0 =
-      d1exp_make_node
-        (loc0, D1Edtsel(lab, arg))
-      // d1exp_make_node
-  in
-    $FIX.FXITMopr(d1e0, $FIX.dtsel_fixty)
-  end
-//
-| D0Elam
-  ( tok(*lam/lam@*)
-  , arg, res
-  , farrw, fbody, tfini) => let
-//
-    val arg =
-      trans01_farglst(arg)
-    val res =
-      trans01_effsexpopt(res)
-    val farrw =
-      trans01_funarrow(farrw)
-//
-    val fbody = trans01_dexp(fbody)
-//
-  in
-    FXITMatm(d1e0) where
-    {
-      val d1e0 =
-        d1exp_make_node
-        (loc0, D1Elam(arg, res, farrw, fbody))
-      // end of [val]
-    }
-  end // end of [D1Elam]
+  end // end of [D0Etry0]
 //
 | D0Eanno(d0e1, s0e2) =>
   let
@@ -1289,9 +1719,8 @@ d0e0.node() of
   in
     FXITMatm(d1e0) where
     {
-      val d1e0 =
-        d1exp_make_node(loc0, D1Eanno(d1e1, s1e2))
-      // end of [val]    
+    val d1e0 =
+    d1exp_make_node(loc0, D1Eanno(d1e1, s1e2))
     }
   end // end of [D0Eanno]
 //
@@ -1301,19 +1730,42 @@ d0e0.node() of
   in
     FXITMatm(d1e0) where
     {
-      val d1e0 =
-        d1exp_make_node(loc0, D1Equal(tok1, d1e2))
-      // end of [val]
+    val d1e0 =
+    d1exp_make_node(loc0, D1Equal(tok1, d1e2))
     }
   end // end of [D0Equal]
 //
-| D0Enone(_(*tokerr*)) =>
+| D0Enone1(tokerr) =>
+  let
+  val d1e0 = d1exp_none(loc0) in FXITMatm(d1e0)
+  end // end of [D0Enone]
+//
+| D0Eexname(gnm1) =>
+  (
   FXITMatm(d1e0) where
   {
-    val d1e0 = d1exp_make_node(loc0, D1Enone(*void*))
-  } (* end of [D0Enone] *)
+  val
+  gnm1 = trans01_gnam(gnm1)
+  val
+  d1e0 = d1exp_make_node(loc0, D1Eexname(gnm1))
+  }
+  ) (* end of [D0Eexname] *)
 //
-end // end of [auxitm]
+| D0Eexists
+  (tok0, sqas, d0e1) =>
+  let
+  val sqas =
+    trans01_dexplst(sqas)
+  // end of [val]
+  val d1e1 = trans01_dexp(d0e1)
+  val
+  d1e0 =
+  d1exp_make_node
+  ( loc0
+  , D1Eexists(tok0, sqas, d1e1)) in FXITMatm(d1e0)
+  end (*let*) // end of [D0Eexists]
+//
+end (* end of [auxitm] *)
 
 and
 auxitmlst
@@ -1350,7 +1802,8 @@ case+ rparen of
 | d0exp_RPAREN_cons0(_) =>
   D1Elist(d1es1) where
   {
-    val d1es1 = trans01_dexplst(d0es1)
+    val
+    d1es1 = trans01_dexplst(d0es1)
   }
 | d0exp_RPAREN_cons1(_, d0es2, _) =>
   D1Elist(d1es1, d1es2) where
@@ -1475,7 +1928,7 @@ fun
 trans01_dgua: d0gua -> d1gua
 extern
 fun
-trans01_dgpat: dg0pat -> dg1pat
+trans01_dgpat: d0gpat -> d1gpat
 extern
 fun
 trans01_dgualst: d0gualst -> d1gualst
@@ -1534,14 +1987,14 @@ in
 //
 case+
 d0gp.node() of
-| DG0PATpat(d0p) =>
-  dg1pat_make_node
+| D0GPATpat(d0p) =>
+  d1gpat_make_node
   ( loc0
-  , DG1PATpat(trans01_dpat(d0p)))
-| DG0PATgua(d0p, _, d0gs) =>
+  , D1GPATpat(trans01_dpat(d0p)))
+| D0GPATgua(d0p, _, d0gs) =>
   (
-  dg1pat_make_node
-  (loc0, DG1PATgua(d1p, d1gs))
+  d1gpat_make_node
+  (loc0, D1GPATgua(d1p, d1gs))
   ) where
   {
     val d1p = trans01_dpat(d0p)
@@ -1554,13 +2007,13 @@ end // end of [trans01_dgpat]
 
 implement
 trans01_dclau
-  (d0c0) = let
+  (d0cl) = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 in
 case+
-d0c0.node() of
+d0cl.node() of
 | D0CLAUgpat(dgp) =>
   d1clau_make_node
   (loc0, D1CLAUgpat(trans01_dgpat(dgp)))
@@ -1616,6 +2069,52 @@ trans01_dcstdeclist: d0cstdeclist -> d1cstdeclist
 (* ****** ****** *)
 
 fun
+trans01_gmarglst
+( gmas
+: g0marglst
+) : g1marglst =
+(
+list_vt2t(gmas) where
+{
+  val
+  gmas =
+  list_map<g0marg><g1marg>
+    (gmas) where
+  {
+    implement
+    list_map$fopr<g0marg><g1marg> = trans01_gmarg
+  }
+}
+) (* end of [trans01_gmarglst] *)
+
+(* ****** ****** *)
+
+fun
+trans01_g0expdef
+( gdef
+: g0expdef): g1expopt =
+(
+case+ gdef of
+| G0EDEFnone
+  ((*void*)) => None()
+| G0EDEFsome
+  (opt, g0e) => Some(trans01_gexp(g0e))
+)
+fun
+trans01_d0macdef
+( mdef
+: d0macdef): d1expopt =
+(
+case+ mdef of
+| D0MDEFnone
+  ((*void*)) => None()
+| D0MDEFsome
+  (opt, d0e) => Some(trans01_dexp(d0e))
+)
+
+(* ****** ****** *)
+
+fun
 trans01_teqdexpopt
 ( opt
 : teqd0expopt): teqd1expopt =
@@ -1643,10 +2142,10 @@ case+ opt of
 
 implement
 trans01_valdecl
-  (d0c0) = let
+  (d0cl) = let
 //
 val+
-V0ALDECL(rcd) = d0c0
+V0ALDECL(rcd) = d0cl
 //
 val
 loc = rcd.loc
@@ -1655,10 +2154,11 @@ teq = rcd.teq
 val
 pat = trans01_dpat(rcd.pat)
 val
-def = trans01_dexp(rcd.def)
+def = trans01_dexpopt(rcd.def)
 val
 wtp = trans01_wthsexpopt(rcd.wtp)
 //
+(*
 val () =
 println!("trans01_valdecl: loc = ", loc)
 val () =
@@ -1667,6 +2167,7 @@ val () =
 println!("trans01_valdecl: def = ", def)
 val () =
 println!("trans01_valdecl: wtp = ", wtp)
+*)
 //
 in
   V1ALDECL
@@ -1692,10 +2193,10 @@ list_vt2t(d1cs) where
 
 implement
 trans01_vardecl
-  (d0c0) = let
+  (d0cl) = let
 //
 val+
-V0ARDECL(rcd) = d0c0
+V0ARDECL(rcd) = d0cl
 //
 val
 loc = rcd.loc
@@ -1723,6 +2224,7 @@ res = trans01_sexpopt(rcd.res)
 val
 ini = trans01_teqdexpopt(rcd.ini)
 //
+(*
 val () =
 println!("trans01_vardecl: loc = ", loc)
 val () =
@@ -1731,6 +2233,7 @@ val () =
 println!("trans01_vardecl: wth = ", wth)
 val () =
 println!("trans01_vardecl: ini = ", ini)
+*)
 //
 in
   V1ARDECL
@@ -1742,24 +2245,24 @@ trans01_vardeclist
   (d0cs) =
 list_vt2t(d1cs) where
 {
-  val
-  d1cs =
-  list_map<v0ardecl><v1ardecl>
-    (d0cs) where
-  {
-    implement
-    list_map$fopr<v0ardecl><v1ardecl> = trans01_vardecl
-  }
+val
+d1cs =
+list_map<v0ardecl><v1ardecl>
+  (d0cs) where
+{
+implement
+list_map$fopr<v0ardecl><v1ardecl> = trans01_vardecl
+}
 } (* end of [trans01_vardeclist] *)
 
 (* ****** ****** *)
 
 implement
 trans01_fundecl
-  (d0c0) = let
+  (d0cl) = let
 //
 val+
-F0UNDECL(rcd) = d0c0
+F0UNDECL(rcd) = d0cl
 //
 val
 loc = rcd.loc
@@ -1777,10 +2280,11 @@ val
 res = trans01_effsexpopt(rcd.res)
 //
 val
-def = trans01_dexp(rcd.def)
+def = trans01_dexpopt(rcd.def)
 val
 wtp = trans01_wthsexpopt(rcd.wtp)
 //
+(*
 val () =
 println!("trans01_fundecl: loc = ", loc)
 val () =
@@ -1793,6 +2297,7 @@ val () =
 println!("trans01_fundecl: def = ", def)
 val () =
 println!("trans01_fundecl: wtp = ", wtp)
+*)
 //
 in
   F1UNDECL
@@ -1819,14 +2324,21 @@ list_vt2t(d1cs) where
 
 implement
 trans01_dcstdecl
-  (d0c0) = let
+  (d0cl) = let
 //
+(*
+val
+loc0 = d0cl.loc()
 val () =
 println!
-("trans01_dcstdecl: d0c0 = ", d0c0)
+("trans01_dcstdecl: loc0 = ", loc0)
+val () =
+println!
+("trans01_dcstdecl: d0cl = ", d0cl)
+*)
 //
 val+
-D0CSTDECL(rcd) = d0c0
+D0CSTDECL(rcd) = d0cl
 //
 val
 loc = rcd.loc
@@ -1965,17 +2477,17 @@ case+ opt of
 
 fun
 aux_fixity
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cfixity
 ( tok0
 , ids1
 , opt2
-) = d0c0.node()
+) = d0cl.node()
 //
 val-
 T_SRP_FIXITY
@@ -2016,6 +2528,7 @@ case+ xs of
     case- tok.node() of
     | T_IDENT_alp(nam) => nam
     | T_IDENT_sym(nam) => nam
+    | T_IDENT_dlr(nam) => nam
     ) : string // end of [val]
     val sym = $SYM.symbol_make(nam)
   in
@@ -2031,42 +2544,44 @@ in
   let
     val () = loop(ids1)
   in
-    d1ecl_make_node(loc0, D1Cnone(d0c0))
+    d1ecl_make_node(loc0, D1Cd0ecl(d0cl))
   end
 end // end of [aux_fixity]
 
 fun
 aux_nonfix
-(d0c0: d0ecl): d1ecl = let
+(d0cl: d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cnonfix
-(tok0, ids1) = d0c0.node()
+(tok0, ids1) = d0cl.node()
 //
 fun
 loop
 (xs: i0dntlst): void =
 (
 case+ xs of
-| list_nil() => ()
-| list_cons (x0, xs) => let
-    val-
-    I0DNTsome(tok) = x0.node()
-    val nam =
-    (
-    case- tok.node() of
-    | T_IDENT_alp(nam) => nam
-    | T_IDENT_sym(nam) => nam
-    ) : string // end of [val]
-    val sym = $SYM.symbol_make(nam)
-  in
-    loop(xs) where
-    {
-      val () =
-      the_fxtyenv_insert(sym, $FIX.FIXTYnon)
-    }
+|
+list_nil() => ()
+|
+list_cons (x0, xs) => let
+  val-
+  I0DNTsome(tok) = x0.node()
+  val nam =
+  (
+  case- tok.node() of
+  | T_IDENT_alp(nam) => nam
+  | T_IDENT_sym(nam) => nam
+  ) : string // end of [val]
+  val sym = $SYM.symbol_make(nam)
+in
+  loop(xs) where
+  {
+  val () =
+  the_fxtyenv_insert(sym, $FIX.FIXTYnon)
+  }
   end
 ) (* end of [loop] *)
 //
@@ -2074,7 +2589,7 @@ in
   let
     val () = loop(ids1)
   in
-    d1ecl_make_node(loc0, D1Cnone(d0c0))
+    d1ecl_make_node(loc0, D1Cd0ecl(d0cl))
   end
 end // end of [aux_nonfix]
 
@@ -2082,87 +2597,502 @@ end // end of [aux_nonfix]
 
 fun
 aux_static
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cstatic
-(tok, d0c) = d0c0.node()
+(tok, d0c) = d0cl.node()
 //
 val d1c = trans01_decl(d0c)
 //
 in
-  d1ecl_make_node(loc0, D1Cstatic(tok, d1c))
-end // end of [aux_static]
+d1ecl_make_node
+(loc0, D1Cstatic(tok, d1c))
+end (* let *) // end of [aux_static]
 fun
 aux_extern
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cextern
-(tok, d0c) = d0c0.node()
+(tok, d0c) = d0cl.node()
 //
 val d1c = trans01_decl(d0c)
 //
 in
-  d1ecl_make_node(loc0, D1Cextern(tok, d1c))
-end // end of [aux_extern]
+d1ecl_make_node
+(loc0, D1Cextern(tok, d1c))
+end (* let *) // end of [aux_extern]
 
 (* ****** ****** *)
+
+fun
+aux_define
+( d0cl
+: d0ecl): d1ecl = let
+//
+val loc0 = d0cl.loc()
+//
+val-
+D0Cdefine
+( tok0
+, gid0
+, gmas
+, gdef) = d0cl.node()
+//
+val-
+I0DNTsome(gid0) = gid0.node()
+//
+val
+gmas = trans01_gmarglst(gmas)
+val
+opt2 = trans01_g0expdef(gdef)
+//
+val () =
+(
+case+ gmas of
+|
+list_nil _ =>
+(
+case+ opt2 of
+|
+None() => ((*void*))
+|
+Some(g1e2) =>
+let
+val
+sym0 = gexpid_sym(gid0)
+in
+the_xnamenv_insert(sym0, g1e2)
+end // end of [Some]
+)
+| list_cons _ => ((*skipped*))
+)
+//
+in
+d1ecl_make_node
+( loc0
+, D1Cdefine(tok0, gid0, gmas, opt2))
+end (* let *) // end of [aux_define]
+
+(* ****** ****** *)
+
+fun
+aux_macdef
+( d0cl
+: d0ecl): d1ecl = let
+//
+val loc0 = d0cl.loc()
+//
+val-
+D0Cmacdef
+( tok0
+, gid0
+, gmas
+, mdef) = d0cl.node()
+//
+val-
+I0DNTsome(gid0) = gid0.node()
+//
+val gmas = trans01_gmarglst(gmas)
+val mdef = trans01_d0macdef(mdef)
+//
+in
+d1ecl_make_node
+( loc0
+, D1Cmacdef(tok0, gid0, gmas, mdef))
+end (* let *) // end of [aux_macdef]
+
+(* ****** ****** *)
+
+local
+//
+vtypedef
+fopt = fnameopt_vt
+//
+fun
+auxg1e
+(g1e: g1exp): fopt =
+let
+(*
+val () =
+println!
+("auxd1e: d1e = ", d1e)
+*)
+in
+case+
+g1e.node() of
+| G1Estr _ => auxstr(g1e)
+|
+_(*non-D1Estr*) => None_vt()
+end // end of [auxd1e]
+and
+auxstr
+(g1e: g1exp): fopt =
+(
+  auxtok(tok)) where
+{
+  val-
+  G1Estr(tok) = g1e.node()
+}
+and
+auxtok
+(tok: token): fopt =
+(
+case+
+tok.node() of
+| T_STRING_closed
+  (fnm) =>
+  (
+    Some_vt(FNM0(fnm))
+  ) where
+  { val
+    fnm = xatsopt_strunq(fnm)
+    val fnm = strnormize(fnm)
+    val fnm = strevalize(fnm)
+  } // T_STRING_closed
+| _(* else *) => None_vt(*void*)
+)
+//
+in (* in-of-local *)
 
 fun
 aux_include
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
+//
+(*
+val (_) =
+println!("trans01: ")
+val () =
+println!
+("aux_include: d0cl = ", d0cl")
+*)
 //
 val-
 D0Cinclude
-(tok, d0e) = d0c0.node()
+(tok, g0e) = d0cl.node()
 //
-val d1e = trans01_dexp(d0e)
+(*
+//
+val out = stdout_ref
+//
+(*
+val (_) =
+fprintln!(out, "trans01: ")
+val (_) =
+fprintln!(out, "aux_include: ")
+val (_) =
+fprintln!(out, "the_filepath: ")
+*)
+val (_) = $FP0.the_filpath_fprint(out)
+//
+(*
+val (_) =
+fprintln!(out, "the_filepathlst: ")
+*)
+val (_) = $FP0.the_filpathlst_fprint(out)
+//
+*)
+//
+val
+src =
+trans01_gexp(g0e)
+val
+opt0 = auxg1e(src)
+val
+opt1 =
+(
+case+ opt0 of
+|
+~None_vt() => None_vt()
+|
+~Some_vt(fnm) => filsrch_combined(fnm)
+) : Option_vt(filpath)
+//
+var
+knd:
+int = ~1
+//
+val opt2 =
+(
+case+ opt1 of
+|
+None_vt() =>
+None_vt()
+|
+Some_vt(fp0) =>
+let
+//
+val
+dp0 =
+dirpath_make
+(filpath_get_dirname(fp0))
+//
+val () =
+(
+ifcase
+|
+is_sats(fp0) => (knd := 0)
+|
+_(*non-sats*) => (knd := 1)
+)
 //
 in
-  d1ecl_make_node(loc0, D1Cinclude(tok, d1e))
+d1csopt where
+{
+val
+( pf1
+| ()) =
+the_filpathlst_push(fp0)
+val
+( pf2
+| ()) =
+the_dirpathlst_push(dp0)
+//
+val
+dparsed =
+parse_from_filpath_toplevel
+  (knd, fp0)
+val
+d0csopt =
+d0parsed_get_parsed(dparsed)
+//
+val
+d1csopt =
+(
+case+ d0csopt of
+|
+None() => None_vt()
+|
+Some(d0cs) =>
+Some_vt(trans01_declist(d0cs))
+) : Option_vt(d1eclist)
+//
+val () = the_filpathlst_pout(pf1|(*void*))
+val () = the_dirpathlst_pout(pf2|(*void*))
+//
+}  
+end // end of [Some_vt]
+) : Option_vt(d1eclist)
+//
+val opt1 = option_vt2t(opt1)
+val opt2 = option_vt2t(opt2)
+//
+in
+  d1ecl_make_node
+  (loc0, D1Cinclude(tok, src, knd, opt1, opt2))
 end // end of [aux_include]
+
+end // end of [local]
+
+(* ****** ****** *)
+
+local
+
+vtypedef
+fopt = fnameopt_vt
 
 (* ****** ****** *)
 
 fun
+iseq
+(x0: g1exp): bool =
+(
+case+
+x0.node() of
+| G1Eid0(sym) =>
+  ( sym = $SYM.EQ_symbol )
+| _ (* non-G1Eid0 *) => false
+)
+
+(* ****** ****** *)
+
+fun
+auxg1e
+(g1e: g1exp): fopt =
+let
+(*
+val () =
+println!
+("auxd1e: d1e = ", d1e)
+*)
+in
+case+
+g1e.node() of
+| G1Estr _ => auxstr(g1e)
+| G1Eapp2 _ => auxapp2(g1e)
+| _(*non-D1Estr*) => None_vt()
+end // end of [auxg1e]
+//
+and
+auxstr
+(g1e: g1exp): fopt =
+  auxtok(tok) where
+{
+  val-
+  G1Estr(tok) = g1e.node()
+}
+//
+and
+auxtok
+(tok: token): fopt =
+(
+case+
+tok.node() of
+| T_STRING_closed
+  (fnm) =>
+  (
+    Some_vt(FNM0(fnm))
+  ) where
+  { val
+    fnm = xatsopt_strunq(fnm)
+    val fnm = strnormize(fnm)
+    val fnm = strevalize(fnm)
+  } // T_STRING_closed
+| _(* else *) => None_vt(*void*)
+)
+//
+and
+auxapp2
+(g1e: g1exp): fopt =
+let
+//
+val-
+G1Eapp2
+(x0, x1, x2) = g1e.node()
+//
+in
+//
+ifcase
+|
+iseq(x0) =>
+(
+case+ x2.node() of
+| G1Estr _ => auxstr(x2)
+| _ (*else*) => None_vt(*void*)
+)
+| _ (* else *) => None_vt(*void*)
+//
+end // end of [auxapp2]
+
+in (* in-of-local *)
+
+fun
 aux_staload
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
+//
+(*
+val () =
+println!("aux_staload")
+*)
 //
 val-
 D0Cstaload
-(tok, d0e) = d0c0.node()
+(tok, g0e) = d0cl.node()
 //
-val d1e = trans01_dexp(d0e)
+val
+src =
+trans01_gexp(g0e)
+val
+opt = auxg1e(src)
+//
+val
+opt1 =
+(
+case+ opt of
+| ~
+None_vt() =>
+None_vt()
+| ~
+Some_vt(fnm) =>
+filsrch_combined(fnm)
+) : Option_vt(filpath)
+//
+var
+knd:
+int = ~1
+//
+var
+flag:int = 0
+//
+val
+opt2 =
+(
+case+ opt1 of
+|
+None_vt() =>
+None_vt()
+|
+Some_vt(fp0) =>
+let
+val () =
+(
+ifcase
+|
+is_sats(fp0) => knd := 0(*sta*)
+|
+_(*non-sats*) => knd := 1(*dyn*)
+)
+in
+(
+flag := result.0; result.1
+) where
+{
+val
+(pf0|()) =
+the_trans01_savecur((*void*))
+//
+val
+result =
+trans01_staload_from_filpath
+  (knd(*stadyn*), fp0(*fpath*))
+//
+val
+((*void*)) =
+the_trans01_restore(pf0|(*void*))
+//
+} (* end of [where] *)
+//
+end // end of [Some_vt]
+) : Option_vt(d1eclist)
+//
+val opt1 = option_vt2t(opt1) // fpath
+val opt2 = option_vt2t(opt2) // d1cls
 //
 in
-d1ecl_make_node(loc0, D1Cstaload(tok, d1e))
+//
+d1ecl_make_node
+( loc0
+, D1Cstaload(tok, src, knd, opt1, flag, opt2))
+//
 end // end of [aux_staload]
+
+end // end of [local]
 
 (* ****** ****** *)
 
 fun
 aux_abssort
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cabssort
-(tok, tid) = d0c0.node()
+(tok, tid) = d0cl.node()
 //
 val-
 I0DNTsome(tid) = tid.node()
@@ -2175,15 +3105,15 @@ end // end of [aux_abssort]
 
 fun
 aux_stacst0
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cstacst0
 ( tok, sid
-, tmas, tcln, s0t2) = d0c0.node()
+, tmas, tcln, s0t2) = d0cl.node()
 //
 val-
 I0DNTsome(sid) = sid.node()
@@ -2203,14 +3133,14 @@ end // end of [aux_stacst0]
 
 fun
 aux_sortdef
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Csortdef
-(knd, tid, _, def0) = d0c0.node()
+(knd, tid, _, def0) = d0cl.node()
 //
 val def1 =
 (
@@ -2249,17 +3179,17 @@ end // end of [aux_sortdef]
 
 fun
 aux_sexpdef
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Csexpdef
 ( knd
 , seid
 , arg0
-, opt0, _, def0) = d0c0.node()
+, opt0, _, def0) = d0cl.node()
 //
 val def1 = trans01_sexp(def0)
 val opt1 = trans01_sortopt(opt0)
@@ -2280,9 +3210,9 @@ println!("aux_sexpdef: def1 = ", def1)
 *)
 //
 in
-  d1ecl_make_node
-    (loc0, D1Csexpdef(knd, tok, arg1, opt1, def1))
-  // d1ecl_make_node
+d1ecl_make_node
+  (loc0, D1Csexpdef(knd, tok, arg1, opt1, def1))
+// d1ecl_make_node
 end // end of [aux_sexpdef]
 
 (* ****** ****** *)
@@ -2293,8 +3223,8 @@ aux_abstdef
 : abstdf0): abstdf1 =
 (
   case+ def0 of
-  | ABSTDF0nil() =>
-    ABSTDF1nil()
+  | ABSTDF0some() =>
+    ABSTDF1some()
   | ABSTDF0lteq(tok, s0e) =>
     ABSTDF1lteq(trans01_sexp(s0e))
   | ABSTDF0eqeq(tok, s0e) =>
@@ -2303,16 +3233,16 @@ aux_abstdef
 
 and
 aux_abstype
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cabstype
 ( knd
 , seid
-, arg0, res0, def0) = d0c0.node()
+, arg0, res0, def0) = d0cl.node()
 //
 val def1 =
   aux_abstdef(def0)
@@ -2344,18 +3274,39 @@ end // end of [aux_abstype]
 (* ****** ****** *)
 
 fun
-aux_absimpl
-( d0c0
+aux_absopen
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
+//
+val-
+D0Cabsopen
+(tok, sqid) = d0cl.node()
+//
+in
+//
+d1ecl_make_node
+(loc0, D1Cabsopen(tok, sqid)
+) (* d1ecl_make_node *)
+//
+end // end of [aux_absopen]
+
+(* ****** ****** *)
+
+fun
+aux_absimpl
+( d0cl
+: d0ecl): d1ecl = let
+//
+val loc0 = d0cl.loc()
 //
 val-
 D0Cabsimpl
 ( tok
 , sqid
 , smas
-, res0, teq1, def2) = d0c0.node()
+, res0, teq1, def2) = d0cl.node()
 //
 val smas =
 trans01_smarglst(smas)
@@ -2377,56 +3328,16 @@ end // end of [aux_absimpl]
 (* ****** ****** *)
 
 fun
-aux_valdecl
-( d0c0
-: d0ecl): d1ecl = let
-//
-val loc0 = d0c0.loc()
-//
-val-
-D0Cvaldecl
-(knd, mopt, d0cs) = d0c0.node()
-//
-val d1cs = trans01_valdeclist(d0cs)
-//
-in
-  d1ecl_make_node
-    (loc0, D1Cvaldecl(knd, mopt, d1cs))
-  // d1ecl_make_node
-end // end of [aux_valdecl]
-
-(* ****** ****** *)
-
-fun
-aux_vardecl
-( d0c0
-: d0ecl): d1ecl = let
-//
-val loc0 = d0c0.loc()
-//
-val-
-D0Cvardecl
-  (knd, d0cs) = d0c0.node()
-//
-val d1cs = trans01_vardeclist(d0cs)
-//
-in
-d1ecl_make_node(loc0, D1Cvardecl(knd, d1cs))
-end // end of [aux_vardecl]
-
-(* ****** ****** *)
-
-fun
 aux_fundecl
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cfundecl
 ( knd
-, mopt, tqas, d0cs) = d0c0.node()
+, mopt, tqas, d0cs) = d0cl.node()
 //
 val tqas = trans01_tqarglst(tqas)
 val d1cs = trans01_fundeclist(d0cs)
@@ -2440,17 +3351,58 @@ end // end of [aux_fundecl]
 (* ****** ****** *)
 
 fun
-aux_impdecl
-( d0c0
+aux_valdecl
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
+//
+val-
+D0Cvaldecl
+(knd, mopt, d0cs) = d0cl.node()
+//
+val d1cs = trans01_valdeclist(d0cs)
+//
+in
+  d1ecl_make_node
+    (loc0, D1Cvaldecl(knd, mopt, d1cs))
+  // d1ecl_make_node
+end // end of [aux_valdecl]
+
+(* ****** ****** *)
+
+fun
+aux_vardecl
+( d0cl
+: d0ecl): d1ecl = let
+//
+val loc0 = d0cl.loc()
+//
+val-
+D0Cvardecl
+(knd, mopt, d0cs) = d0cl.node()
+//
+val d1cs = trans01_vardeclist(d0cs)
+//
+in
+  d1ecl_make_node
+  (loc0, D1Cvardecl(knd, mopt, d1cs))
+end // end of [aux_vardecl]
+
+(* ****** ****** *)
+
+fun
+aux_impdecl
+( d0cl
+: d0ecl): d1ecl = let
+//
+val loc0 = d0cl.loc()
 //
 val-
 D0Cimpdecl
 ( knd
 , mopt, sqas, tqas
-, dqid, tias, f0as, res0, teq1, d0e2) = d0c0.node()
+, dqid, tias, f0as, res0, teq1, d0e2) = d0cl.node()
 //
 val sqas =
   trans01_sqarglst(sqas)
@@ -2480,14 +3432,14 @@ end // end of [aux_impdecl]
 
 fun
 aux_symload
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Csymload
-(tok, sym, _, dqid, tint) = d0c0.node()
+(tok, sym, _, dqid, tint) = d0cl.node()
 //
 in
 //
@@ -2500,14 +3452,14 @@ end // end of [aux_symload]
 
 fun
 aux_datasort
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cdatasort
-(knd, d0ts) = d0c0.node()
+(knd, d0ts) = d0cl.node()
 //
 val
 d1ts =
@@ -2544,15 +3496,35 @@ d0t0.node() of
 (* ****** ****** *)
 
 fun
-aux_datatype
-( d0c0
+aux_excptcon
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
+//
+val-
+D0Cexcptcon
+  (knd, d0cs) = d0cl.node()
+//
+val
+d1cs = trans01_datconlst(d0cs)
+//
+in
+  d1ecl_make_node(loc0, D1Cexcptcon(knd, d1cs))
+end // end of [aux_excptcon]
+
+(* ****** ****** *)
+
+fun
+aux_datatype
+( d0cl
+: d0ecl): d1ecl = let
+//
+val loc0 = d0cl.loc()
 //
 val-
 D0Cdatatype
-  (knd, d0ts, wd0cs) = d0c0.node()
+  (knd, d0ts, wd0cs) = d0cl.node()
 //
 val
 d1ts =
@@ -2573,12 +3545,14 @@ case+ wd0cs of
   WD1CSsome(trans01_declist(d0cs))
 ) : wd1eclseq // end of [val]
 //
+(*
 val () =
 println!("trans01_decl:")
 val () =
 println!("aux_datatype: d1ts = ", d1ts)
 val () =
 println!("aux_datatype: wd1cs = ", wd1cs)
+*)
 //
 in
   d1ecl_make_node(loc0, D1Cdatatype(knd, d1ts, wd1cs))
@@ -2587,28 +3561,34 @@ end // end of [aux_datatype]
 and
 aux_d0atype
 ( d0t0
-: d0atype): d1atype = let
+: d0atype
+)
+: d1atype = let
 //
-val loc0 = d0t0.loc()
+val
+loc0 = d0t0.loc()
 //
 in
 //
 case+
 d0t0.node() of
-| D0ATYPE
-  (deid, arg, res, teq, d0cs) => let
+|
+D0ATYPE
+( deid
+, arg1, res2, teq3, d0cs) =>
+let
 //
-    val-
-    I0DNTsome(tok) = deid.node()
+  val-
+  I0DNTsome(tok0) = deid.node()
 //
-    val res = trans01_sortopt(res)
-    val arg = trans01_tmarglst(arg)
+  val res2 = trans01_sortopt(res2)
+  val arg1 = trans01_tmarglst(arg1)
 //
-    val d1cs = trans01_datconlst(d0cs)
+  val d1cs = trans01_datconlst(d0cs)
 //
-  in
-    d1atype_make_node(loc0, D1ATYPE(tok, arg, res, d1cs))
-  end // end of [D0ATYPE]
+in
+  d1atype_make_node(loc0, D1ATYPE(tok0, arg1, res2, d1cs))
+end // end of [D0ATYPE]
 //
 end // end of [aux_d0atype]
 
@@ -2616,14 +3596,14 @@ end // end of [aux_d0atype]
 
 fun
 aux_dynconst
-( d0c0
+( d0cl
 : d0ecl): d1ecl = let
 //
-val loc0 = d0c0.loc()
+val loc0 = d0cl.loc()
 //
 val-
 D0Cdynconst
-(knd, tqas, d0cs) = d0c0.node()
+(knd, tqas, d0cs) = d0cl.node()
 //
 val tqas = trans01_tqarglst(tqas)
 val d1cs = trans01_dcstdeclist(d0cs)
@@ -2642,78 +3622,127 @@ in (* in-of-local *)
 
 implement
 trans01_decl
-  (d0c0) = let
+  (d0cl) = let
 //
 val
-loc0 = d0c0.loc()
+loc0 = d0cl.loc()
 //
 (*
 val () =
 println!
-("trans01_decl: d0c0 = ", d0c0)
+("trans01_decl: d0cl = ", d0cl)
 *)
 //
 in
 //
 case+
-d0c0.node() of
+d0cl.node() of
 //
-| D0Cnone _ => d1ecl_none1(d0c0)
+| D0Cfixity _ => aux_fixity(d0cl)
+| D0Cnonfix _ => aux_nonfix(d0cl)
 //
-| D0Cfixity _ => aux_fixity(d0c0)
-| D0Cnonfix _ => aux_nonfix(d0c0)
+| D0Cstatic _ => aux_static(d0cl)
+| D0Cextern _ => aux_extern(d0cl)
 //
-| D0Cstatic _ => aux_static(d0c0)
-| D0Cextern _ => aux_extern(d0c0)
-//
-| D0Cinclude _ => aux_include(d0c0)
-//
-| D0Cstaload _ => aux_staload(d0c0)
-//
-| D0Cabssort _ => aux_abssort(d0c0)
-//
-| D0Cstacst0 _ => aux_stacst0(d0c0)
-//
-| D0Csortdef _ => aux_sortdef(d0c0)
-//
-| D0Csexpdef _ => aux_sexpdef(d0c0)
-//
-| D0Cabstype _ => aux_abstype(d0c0)
-| D0Cabsimpl _ => aux_absimpl(d0c0)
-//
-| D0Cvaldecl _ => aux_valdecl(d0c0)
-| D0Cvardecl _ => aux_vardecl(d0c0)
-| D0Cfundecl _ => aux_fundecl(d0c0)
-//
-| D0Cimpdecl _ => aux_impdecl(d0c0)
-//
-| D0Csymload _ => aux_symload(d0c0)
-//
-| D0Cdatasort _ => aux_datasort(d0c0)
-//
-| D0Cdatatype _ => aux_datatype(d0c0)
-//
-| D0Cdynconst _ => aux_dynconst(d0c0)
+| D0Cdefine _ => aux_define(d0cl)
+| D0Cmacdef _ => aux_macdef(d0cl)
 //
 | D0Clocal
-  (_, d0cs1, _, d0cs2, _) =>
+  ( tbeg, head
+  , topt, body, tend) =>
   let
-    val d1cs1 = trans01_declist(d0cs1)
-    val d1cs2 = trans01_declist(d0cs2)
+//
+    val
+    (pf1|()) =
+    the_trans01_pushnil()
+//
+    val
+    head = trans01_declist(head)
+//
+    val
+    (pf2|()) =
+    the_trans01_pushnil()
+//
+    val
+    body = trans01_declist(body)
+//
+    val ((*void*)) =
+    the_trans01_locjoin(pf1, pf2 | (*none*))
+//
   in
-    d1ecl_make_node(loc0, D1Clocal(d1cs1, d1cs2))
+    d1ecl_make_node( loc0, D1Clocal(head, body) )
   end // end of [D0Clocal]
+//
+| D0Cinclude _ => aux_include(d0cl)
+//
+| D0Cstaload _ => aux_staload(d0cl)
+//
+| D0Cabssort _ => aux_abssort(d0cl)
+//
+| D0Cstacst0 _ => aux_stacst0(d0cl)
+//
+| D0Csortdef _ => aux_sortdef(d0cl)
+//
+| D0Csexpdef _ => aux_sexpdef(d0cl)
+//
+| D0Cabstype _ => aux_abstype(d0cl)
+| D0Cabsopen _ => aux_absopen(d0cl)
+| D0Cabsimpl _ => aux_absimpl(d0cl)
+//
+| D0Cfundecl _ => aux_fundecl(d0cl)
+//
+| D0Cvaldecl _ => aux_valdecl(d0cl)
+| D0Cvardecl _ => aux_vardecl(d0cl)
+//
+| D0Cimpdecl _ => aux_impdecl(d0cl)
+//
+| D0Csymload _ => aux_symload(d0cl)
+//
+| D0Cdatasort _ => aux_datasort(d0cl)
+//
+| D0Cexcptcon _ => aux_excptcon(d0cl)
+| D0Cdatatype _ => aux_datatype(d0cl)
+//
+| D0Cdynconst _ => aux_dynconst(d0cl)
+//
+| D0Celse(tok1) =>
+  (
+  d1ecl_make_node(loc0, D1Celse(tok1))
+  )
+| D0Cendif(tok1) =>
+  (
+  d1ecl_make_node(loc0, D1Cendif(tok1))
+  )
+| D0Cifdec
+  (tok1, test, topt) =>
+  let
+  val test = trans01_gexp(test)
+  in
+    d1ecl_make_node
+    (loc0, D1Cifdec(tok1, test, topt))
+  end
+| D0Celsif
+  (tok1, test, topt) =>
+  let
+  val test = trans01_gexp(test)
+  in
+    d1ecl_make_node
+    (loc0, D1Celsif(tok1, test, topt))
+  end
+//
+| D0Cnone _ => d1ecl_none1(d0cl)
 //
 | D0Ctokerr _ =>
   (
-    d1ecl_make_node(loc0, D1Ctokerr(d0c0))
+    d1ecl_make_node(loc0, D1Ctokerr(d0cl))
   )
 //
 (*
 | _ (*rest-of-d0ecl*) =>
   (
-    println! ("trans01_decl: d0c0 = ", d0c0); exit(1)
-  )
+    println!
+    (loc0, ": trans01_decl: d0cl = ", d0cl); exit(1)
+  ) (* end of [D0C...] *)
 *)    
 //
 end // end of [trans01_decl]

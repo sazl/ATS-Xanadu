@@ -40,13 +40,13 @@ UN = "prelude/SATS/unsafe.sats"
 //
 (* ****** ****** *)
 
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/lexing0.sats"
 #staload "./../SATS/parsing.sats"
 
 (* ****** ****** *)
 //
 absimpl
-tokbuf_tflat =
+tokbuf_tflt =
 $extype_struct
 "xats_tokbuf_struct" of
 {

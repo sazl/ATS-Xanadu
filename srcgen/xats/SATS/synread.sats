@@ -33,7 +33,7 @@
 //
 (* ****** ****** *)
 
-#staload "./lexing.sats"
+#staload "./lexing0.sats"
 
 (* ****** ****** *)
 
@@ -47,12 +47,14 @@ synreader
 (a:t@ype) = (a) -> void
 //
 (* ****** ****** *)
+(*
 //
 abstbox
 synreadst_type = ptr
 typedef
 synreadst = synreadst_type
 //
+*)
 (* ****** ****** *)
 //
 datatype
@@ -62,11 +64,23 @@ tkind =
 | K_CHAR of ()
 | K_STRING of ()
 //
+| K_AS of ()
+| K_OF of ()
+//
 | K_LAM of ()
 | K_ENDLAM of ()
 //
 | K_LET of ()
 | K_ENDLET of ()
+//
+| K_TRY of ()
+| K_ENDTRY of ()
+//
+| K_WHERE of ()
+| K_ENDWHERE of ()
+//
+| K_WHEN of ()
+| K_WITH of ()
 //
 | K_LOCAL of ()
 | K_ENDLOCAL of ()
@@ -85,10 +99,22 @@ tkind =
 //
 (* ****** ****** *)
 //
-datatype
-synerr =
+datatype synerr =
 //
 | SYNERRi0dnt of (i0dnt)
+//
+| SYNERRqname of (token)
+//
+| SYNERRl0abl of (l0abl)
+| SYNERRs0ymb of (s0ymb)
+//
+| SYNERRg0nid of (i0dnt)
+| SYNERRg0nam of (g0nam)
+//
+| SYNERRg0eid of (i0dnt)
+| SYNERRg0exp of (g0exp)
+| SYNERRg0arg of (g0arg)
+| SYNERRg0marg of (g0marg)
 //
 | SYNERRt0int of (t0int)
 | SYNERRt0chr of (t0chr)
@@ -102,260 +128,549 @@ synerr =
 | SYNERRsort0 of (sort0)
 //
 | SYNERRs0arg of (s0arg)
+| SYNERRt0arg of (t0arg)
 | SYNERRs0marg of (s0marg)
+| SYNERRt0marg of (t0marg)
+//
+| SYNERRs0uni of (s0uni)
 //
 | SYNERRs0exp of (s0exp)
 //
+| SYNERRd0pid of (i0dnt)
+| SYNERRd0eid of (i0dnt)
+//
 | SYNERRd0ecl of (d0ecl)
+| SYNERRifgua of (d0ecl)
+//
+| SYNERRf0arg of (f0arg)
+| SYNERRq0arg of (q0arg)
+| SYNERRtq0arg of (tq0arg)
 //
 | SYNERRtoken of
     (tkind, token) // token mismatch
   // SYNERRtoken
 //
-| SYNERRsignint_opr of (token) // sign: + or -
+| SYNERRfarrow of (token) // => | =<
 //
-typedef
-synerrlst = List0(synerr)
+| SYNERRsignopr of (token) // sign: + or -
+// HX-2021-01-24: the package is
+| SYNERRd0parsed of (d0parsed) // missing
 //
 (* ****** ****** *)
 //
-fun{}
+datatype
+synpth =
+| synpth_nil of ()
+| synpth_cons of (int, synpth)
+datatype
+syndff(syn:type) =
+| syndff01 of (synpth, syn)
+| syndff10 of (synpth, syn)
+| syndff11 of (synpth, syn, syn)
+//
+(* ****** ****** *)
+//
+typedef
+synerrlst = List0(synerr)
+typedef
+syndfflst(a:type) = List0(syndff(a))
+//
+(* ****** ****** *)
+//
+fun//{}
 synerr_add(synerr): void
 //
 (* ****** ****** *)
 //
 fun
-synread_top(d0eclist): void
+synread_package
+( p0kg: d0parsed ): void
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_i0dnt: synreader(i0dnt)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
+synread_qname: synreader(token)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_l0abl: synreader(l0abl)
+//
+fun//{}
+synread_s0ymb: synreader(s0ymb)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_g0nid: synreader(g0nid)
+fun//{}
+synread_g0nam: synreader(g0nam)
+fun//{}
+synread_g0namlst: synreader(g0namlst)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_g0eid: synreader(g0eid)
+fun//{}
+synread_g0exp: synreader(g0exp)
+fun//{}
+synread_g0explst: synreader(g0explst)
+//
+(* ****** ****** *)
+fun//{}
+synread_g0exp_THEN: synreader(g0exp_THEN)
+fun//{}
+synread_g0exp_ELSE: synreader(g0exp_ELSE)
+(* ****** ****** *)
+//
+fun//{}
+synread_g0arg: synreader(g0arg)
+fun//{}
+synread_g0marg: synreader(g0marg)
+fun//{}
+synread_g0arglst: synreader(g0arglst)
+fun//{}
+synread_g0marglst: synreader(g0marglst)
+//
+(* ****** ****** *)
+//
+fun//{}
 synread_t0int: synreader(t0int)
-fun{}
+fun//{}
 synread_t0chr: synreader(t0chr)
-fun{}
+fun//{}
 synread_t0flt: synreader(t0flt)
-fun{}
+fun//{}
 synread_t0str: synreader(t0str)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_s0tid: synreader(s0tid)
-fun{}
+fun//{}
 synread_s0eid: synreader(s0eid)
-fun{}
+fun//{}
+synread_sq0eid: synreader(sq0eid)
+//
+(* ****** ****** *)
+//
+fun//{}
 synread_i0dntlst: synreader(i0dntlst)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_sort0: synreader(sort0)
-fun{}
+fun//{}
 synread_sort0lst: synreader(sort0lst)
-fun{}
+fun//{}
 synread_sort0opt: synreader(sort0opt)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_s0arg: synreader(s0arg)
-fun{}
+fun//{}
 synread_s0marg: synreader(s0marg)
-fun{}
+fun//{}
 synread_s0arglst: synreader(s0arglst)
-fun{}
+fun//{}
 synread_s0marglst: synreader(s0marglst)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
+synread_t0arg: synreader(t0arg)
+fun//{}
+synread_t0marg: synreader(t0marg)
+fun//{}
+synread_t0arglst: synreader(t0arglst)
+fun//{}
+synread_t0marglst: synreader(t0marglst)
+//
+(* ****** ****** *)
+//
+fun//{}
 synread_s0qua: synreader(s0qua)
-fun{}
+fun//{}
 synread_s0qualst: synreader(s0qualst)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
+synread_s0uni: synreader(s0uni)
+fun//{}
+synread_s0unilst: synreader(s0unilst)
+//
+(* ****** ****** *)
+//
+fun//{}
 synread_s0exp: synreader(s0exp)
-fun{}
+fun//{}
 synread_s0explst: synreader(s0explst)
-fun{}
+fun//{}
 synread_s0expopt: synreader(s0expopt)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_labs0exp: synreader(labs0exp)
-fun{}
+fun//{}
 synread_labs0explst: synreader(labs0explst)
 //
 (* ****** ****** *)
 
-fun{}
+fun//{}
 synread_s0exp_RPAREN: synreader(s0exp_RPAREN)
-fun{}
+fun//{}
 synread_labs0exp_RBRACE: synreader(labs0exp_RBRACE)
 
 (* ****** ****** *)
+
+fun//{}
+synread_f0unarrow: synreader(f0unarrow)
+
+(* ****** ****** *)
+
+fun//{}
+synread_effs0expopt: synreader(effs0expopt)
+
+(* ****** ****** *)
 //
-fun{}
-synread_d0pat: synreader(d0pat)
-fun{}
-synread_labd0pat: synreader(labd0pat)
+fun//{}
+synread_d0atcon: synreader(d0atcon)
+fun//{}
+synread_d0atconlst: synreader(d0atconlst)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
+synread_d0pid: synreader(d0pid)
+//
+fun//{}
+synread_d0pat: synreader(d0pat)
+fun//{}
+synread_labd0pat: synreader(labd0pat)
+//
+fun//{}
+synread_d0patlst: synreader(d0patlst)
+fun//{}
+synread_labd0patlst: synreader(labd0patlst)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_d0pat_RPAREN: synreader(d0pat_RPAREN)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_d0eid: synreader(d0eid)
+fun//{}
+synread_dq0eid: synreader(dq0eid)
+//
+(* ****** ****** *)
+//
+fun//{}
 synread_d0exp: synreader(d0exp)
-fun{}
+fun//{}
 synread_labd0exp: synreader(labd0exp)
 //
-fun{}
+fun//{}
+synread_d0expopt: synreader(d0expopt)
+fun//{}
 synread_d0explst: synreader(d0explst)
-fun{}
+fun//{}
 synread_labd0explst: synreader(labd0explst)
 //
 (* ****** ****** *)
+
+fun//{}
+synread_d0exp_THEN: synreader(d0exp_THEN)
+fun//{}
+synread_d0exp_ELSE: synreader(d0exp_ELSE)
+
+(* ****** ****** *)
+
+fun//{}
+synread_d0exp_RPAREN: synreader(d0exp_RPAREN)
+
+(* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_d0ecl: synreader(d0ecl)
-fun{}
+fun//{}
 synread_d0eclist: synreader(d0eclist)
+//
+fun//{}
+synread_ifguardlst: synreader(d0eclist)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_INT1: synreader(token)
-fun{}
+fun//{}
 synread_INT12: synreader(token)
-fun{}
+fun//{}
 synread_INT123: synreader(token)
 //
 (* ****** ****** *)
 
-fun{}
+fun//{}
 synread_CHAR: synreader(token)
 
 (* ****** ****** *)
 
-fun{}
+fun//{}
 synread_STRING: synreader(token)
 
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_EQ: synreader(token)
-fun{}
+//
+fun//{}
 synread_LT: synreader(token)
-fun{}
+fun//{}
 synread_GT: synreader(token)
+fun//{}
+synread_LTGT: synreader(token)
+fun//{}
+synread_LT_GT
+(t0: token, t1: token): void
 //
-fun{}
+fun//{}
 synread_BAR: synreader(token)
+fun//{}
+synread_CLN: synreader(token)
+fun//{}
+synread_DOT: synreader(token)
+fun//{}
+synread_SMCLN: synreader(token)
 //
-fun{}
+fun//{}
 synread_EQLT: synreader(token)
-fun{}
+fun//{}
 synread_EQGT: synreader(token)
 //
-fun{}
+fun//{}
 synread_MSLT: synreader(token)
 (*
-fun{}
+fun//{}
 synread_MSGT: synreader(token)
 *)
 //
-fun{}
+//
+fun//{}
+synread_DOTLT: synreader(token)
+fun//{}
+synread_GTDOT: synreader(token)
+//
+//
+fun//{}
 synread_LPAREN: synreader(token)
-fun{}
+fun//{}
 synread_RPAREN: synreader(token)
 //
-fun{}
+fun//{}
 synread_LBRACE: synreader(token)
-fun{}
+fun//{}
 synread_RBRACE: synreader(token)
 //
-fun{}
+fun//{}
 synread_LBRACK: synreader(token)
-fun{}
+fun//{}
 synread_RBRACK: synreader(token)
-fun{}
+fun//{}
 synread_EXISTS: synreader(token)
 //
 (* ****** ****** *)
 //
-fun{}
-synread_LAM: synreader(token)
-fun{}
-synread_FIX: synreader(token)
-//
-fun{}
-synread_ENDLAM: synreader(tokenopt)
-fun{}
-synread_ENDFIX: synreader(tokenopt)
+fun//{}
+synread_AS: synreader(token)
+fun//{}
+synread_OF: synreader(token)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
+synread_LAM: synreader(token)
+fun//{}
+synread_FIX: synreader(token)
+//
+fun//{}
+synread_ENDLAM: synreader(token)
+fun//{}
+synread_ENDFIX: synreader(token)
+fun//{}
+synread_ENDLAM_opt: synreader(tokenopt)
+fun//{}
+synread_ENDFIX_opt: synreader(tokenopt)
+//
+(* ****** ****** *)
+//
+fun//{}
 synread_LET: synreader(token)
-fun{}
+fun//{}
 synread_ENDLET: synreader(token)
 //
 (* ****** ****** *)
 //
-fun{}
-synread_WHERE: synreader(token)
-fun{}
-synread_ENDWHERE: synreader(tokenopt)
+fun//{}
+synread_TRY: synreader(token)
+fun//{}
+synread_ENDTRY: synreader(token)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
+synread_WHERE: synreader(token)
+fun//{}
+synread_ENDWHERE: synreader(token)
+fun//{}
+synread_ENDWHERE_opt: synreader(tokenopt)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_WHEN: synreader(token)
+fun//{}
+synread_WITH: synreader(token)
+//
+(* ****** ****** *)
+//
+fun//{}
 synread_LOCAL: synreader(token)
-fun{}
+fun//{}
 synread_ENDLOCAL: synreader(token)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_TUPLE: synreader(token)
-fun{}
+fun//{}
 synread_RECORD: synreader(token)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_IDENT_qual: synreader(token)
 //
 (* ****** ****** *)
 //
 (*
-fun{}
+fun//{}
 synread_SORTDEF: synreader(token)
-fun{}
+fun//{}
 synread_SEXPDEF: synreader(token)
 *)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_precopt: synreader(precopt)
-fun{}
+fun//{}
 synread_precmod: synreader(precmod)
-fun{}
+fun//{}
 synread_signint: synreader(signint)
 //
 (* ****** ****** *)
 //
-fun{}
+fun//{}
 synread_s0rtdef: synreader(s0rtdef)
 //
+(* ****** ****** *)
+//
+fun//{}
+synread_abstdf0: synreader(abstdf0)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_g0expdef: synreader(g0expdef)
+fun//{}
+synread_d0macdef: synreader(d0macdef)
+//
+(* ****** ****** *)
+
+fun//{}
+synread_d0gua: synreader(d0gua)
+fun//{}
+synread_d0gualst: synreader(d0gualst)
+
+(* ****** ****** *)
+
+fun//{}
+synread_d0clau: synreader(d0clau) 
+fun//{}
+synread_d0gpat: synreader(d0gpat) 
+fun//{}
+synread_d0claulst: synreader(d0claulst) 
+
+(* ****** ****** *)
+//
+fun//{}
+synread_d0arglst: synreader(d0arglst)
+//
+fun//{}
+synread_a0typlst: synreader(a0typlst)
+fun//{}
+synread_a0typlstopt: synreader(a0typlstopt)
+//
+(* ****** ****** *)
+fun//{}
+synread_st0inv: synreader(st0inv)
+fun//{}
+synread_st0qua: synreader(st0qua)
+fun//{}
+synread_d0typlst: synreader(d0typlst)
+(* ****** ****** *)
+//
+fun//{}
+synread_wd0eclseq: synreader(wd0eclseq)
+fun//{}
+synread_d0atypelst: synreader(d0atypelst)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_d0cstdeclist: synreader(d0cstdeclist)
+//
+(* ****** ****** *)
+//
+fun//{}
+synread_f0arglst: synreader(f0arglst)
+fun//{}
+synread_q0arglst: synreader(q0arglst)
+fun//{}
+synread_tq0arglst: synreader(tq0arglst)
+//
+fun//{}
+synread_wths0expopt: synreader(wths0expopt)
+//
+fun//{}
+synread_teqd0expopt: synreader(teqd0expopt)
+//
+(* ****** ****** *)
+
+fun//{}
+synread_v0aldeclist: synreader(v0aldeclist)
+fun//{}
+synread_v0ardeclist: synreader(v0ardeclist)
+fun//{}
+synread_f0undeclist: synreader(f0undeclist)
+
+(* ****** ****** *)
+
+fun//{}
+synread_d0eclseq_WHERE: synreader(d0eclseq_WHERE)
+
 (* ****** ****** *)
 
 (* end of [xats_synread.sats] *)

@@ -1,10 +1,21 @@
-(*
+#define x 5+5
+#define f(x) = x + x
+#macdef f{a}(x) = x + x
+
+////
+
+fun
+foo(x: &(int(0)>>int(1))): int
+
+////
 (* ****** ****** *)
 //
 (*
+#prefix & of 00 (* static *)
 #prefix ! of 00 (* static *)
 *)
 //
+#prefix & of 99 (* dynamic *)
 #prefix ! of 99 (* dynamic *)
 //
 (* ****** ****** *)
@@ -72,7 +83,6 @@
 #nonfix foo bar baz
 
 (* ****** ****** *)
-*)
 
 (*
 abssort int
@@ -95,7 +105,13 @@ sexpdef ff = the_false_bool
 
 (* ****** ****** *)
 
-#stacst foo(tbox+, tflt-): prop
+#stacst x: int
+#stacst y: int
+sexpdef xy = (x:int) + (y:int)
+
+(* ****** ****** *)
+
+#stacst foo(tbox+, type-): prop
 
 (* ****** ****** *)
 
@@ -423,7 +439,7 @@ foo(int(a)): int(b) = $extern"C_foo"
 //
 fun
 <a,b:int><c:int>
-foo2(x1: int(a) | x2: int(b)):<0,!ntm,!wrt> int(c)
+foo2(x1: int(a) | x2: int(b)): int(c)
 //
 (* ****** ****** *)
 //
@@ -539,33 +555,33 @@ lemma_list_param
 castfn
 list_vt2t
   {x:type}{n:int}
-  (xs: list_vt(INV(x), n)):<!wrt> list(x, n)
+  (xs: list_vt(INV(x), n)): list(x, n)
 castfn
 list_of_list_vt
   {x:type}{n:int}
-  (xs: list_vt(INV(x), n)):<!wrt> list(x, n)
+  (xs: list_vt(INV(x), n)): list(x, n)
 //
 (* ****** ****** *)
 //
 fun<a:type>
-list_tuple_0():<> list(a, 0)
+list_tuple_0(): list(a, 0)
 //
 fun<a:type>
-list_tuple_1(x0: a):<> list(a, 1)
+list_tuple_1(x0: a): list(a, 1)
 fun<a:type>
-list_tuple_2(x0: a, x1: a):<> list(a, 2)
+list_tuple_2(x0: a, x1: a): list(a, 2)
 fun<a:type>
-list_tuple_3(x0: a, x1: a, x2: a):<> list(a, 3)
+list_tuple_3(x0: a, x1: a, x2: a): list(a, 3)
 //
 fun<a:type>
 list_tuple_4
-  (x0: a, x1: a, x2: a, x3: a):<> list(a, 4)
+  (x0: a, x1: a, x2: a, x3: a): list(a, 4)
 fun<a:type>
 list_tuple_5
-  (x0: a, x1: a, x2: a, x3: a, x4: a):<> list(a, 5)
+  (x0: a, x1: a, x2: a, x3: a, x4: a): list(a, 5)
 fun<a:type>
 list_tuple_6
-  (x0: a, x1: a, x2: a, x3: a, x4: a, x5: a):<> list(a, 6)
+  (x0: a, x1: a, x2: a, x3: a, x4: a, x5: a): list(a, 6)
 //
 (* ****** ****** *)
 //
@@ -588,17 +604,17 @@ list_tuple with list_tuple_6
 
 fun
 <x:type>
-list_make_sing(x):<!wrt> list_vt(x, 1)
+list_make_sing(x): list_vt(x, 1)
 fun
 <x:type>
-list_make_pair(x, x):<!wrt> list_vt(x, 2)
+list_make_pair(x, x): list_vt(x, 2)
 
 (* ****** ****** *)
 //
 fun
 <x:type>
 list_make_elt
-{n:nat}(n: int(n), x: x):<!wrt> list_vt(x, n)
+{n:nat}(n: int(n), x: x): list_vt(x, n)
 // end of [list_make_elt]
 //
 (* ****** ****** *)

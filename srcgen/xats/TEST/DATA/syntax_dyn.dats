@@ -1,4 +1,315 @@
-var x = 1
+fun
+<a:type>
+list_length
+(xs) =
+(
+case+ xs of
+| nil() => 0
+| cons(x, xs) => 1+list_length(xs)
+)
+withtype {n:nat} list(a, n) -> int(n)
+
+////
+#define x 5
+#macdef f{a}(x,y) = u*(x+y*z)
+////
+(*
+#macdef g(x) x + 6
+*)
+
+case+ xs of
+| nil () => 0
+| cons x xs => 1+length(xs)
+
+#define f(x)(y) x + y
+
+lam(x) => lam(y) => x + y
+
+G0Vclo(lam(y) => x + y, D0E
+
+D0E
+
+app(lam(xs) => cons(x, xs))
+
+
+
+#if
+x = 0
+#then
+#define x = 0
+#elif
+x = 1
+#then
+#define x = 1
+#else
+#define x = 2
+#endif
+
+(*
+p_ifgdec := [#if] p_ifrest
+p_ifrest := g0exp p_srpthen p_srpendif
+p_srpthen := [#then] d0eclseq p_srpelse
+p_srpelse := | [#else] d0eclseq | [#elif] p_ifrest
+*)
+
+////
+
+#include
+"./syntax_sta.sats"
+#include
+"prelude/SATS/list.sats"
+#staload
+"prelude/SATS/list.sats"
+#staload
+List =
+"prelude/SATS/list.sats"
+
+////
+
+#include
+XATSPRE("SATS/list.sats")
+#include
+XATSLIB("SATS/list.sats")
+#include
+XATSLIBC("SATS/list.sats")
+
+////
+
+#staload
+"http://www.ats-lang.org/hello1.dats"
+#staload
+HELLO2 =
+"http://www.ats-lang.org/hello2.dats"
+
+////
+
+abstype
+abcdefg1(int)
+
+absimpl
+abcedfg2(x:int) = int(x)
+
+////
+
+implement
+<x0:t0>
+list_length(xs) = 0
+
+////
+
+#extern
+fun
+foo(x:int): bool
+and
+bar(x:int): bool = (x = x)
+
+////
+(* ****** ****** *)
+
+val x = $addr(x)
+val:
+prf x = $view(x)
+val:
+prf x = $fold(x)
+val:
+prf x = $unfold(x)
+
+(* ****** ****** *)
+
+fun
+foo(xs) = let
+//
+var
+d2v:int = (0)
+val pfx = $view(d2v)
+//
+var
+d2v:int with pfx = (0)
+//
+in
+end // end of [foo]
+
+////
+fun
+foo(xs) =
+(
+case+ xs of
+| list_nil //
+| list_nil() => 0
+| xs => foo(xs) + 1
+| ys => xs + foo(ys)
+| list_cons{a}{n}(_, xs) => foo(xs) + 1
+) where
+{
+  val xs = xs ++ xs
+} where
+{
+  val xs = xs ++ xs
+} endwhere // end of [fun]
+
+////
+#extern
+fun
+<a
+,b:type
+;c:type>
+pair
+( x: !a >> a?
+, y: !a >> a?): list(?a, ?n) = @(x, y)
+////
+
+if nil?(xs) then () els
+
+if some?(xs) then process(unsome(xs)) else ()
+
+~nil?(x)
+
+#static
+fun
+<a
+,b:type>
+pair(x, y) = $(x, y)
+
+fun myplus(x, y) = x + y
+
+////
+#extern
+fun
+fact
+{i:nat}
+.< i >.
+(x:int(i)): int =
+if
+(x > 0)
+then
+let
+val x1 = x-1 in x * fact(x1)
+endlet
+else 1 // end of [else]
+////
+val
+x = 1
+
+fun
+fact(x) =
+if x > 0 then x * fact(x-1) else 1
+////
+val:
+(rec
+,prf)
+fact =
+lam(x) =>
+if x > 0 then x * fact(x-1) else 1
+
+////
+
+fun
+<a:type>
+foo:
+{n:nat}(a) -> int(n)
+
+val x = foo<int>{1}(1)
+
+fun
+bar(x: int): int =
+(
+  x + y
+) where
+{
+  val y = foo(x) + 1
+} endwhere
+
+(*
+fun
+baz:
+$type
+($A.foo<int>) = lam (x) => -x + 1
+*)
+
+(*
+typedef
+append_type =
+{a:type}
+{m,n:int}
+( list(a, m)
+, list(a, n)) => list(a, m+n)
+
+fun
+<a:type>append : append_type(a)
+
+implement
+<a>
+append
+{m,n}(xs, ys) =
+auxlst(xs) where
+{
+fun
+auxlst
+{m:int}
+$type
+(append<x>) =
+lam(xs, ys) =>
+(
+case+ xs of
+| nil() => ys
+| cons(x0, xs) => cons(x0, auxlst(xs, ys))
+)
+}
+*)
+
+////
+
+fun
+isevn: int -> int
+and
+isodd(x: int): int =
+if x > 0 then isevn(x-1) else false
+// end of [isodd]
+
+implmnt
+isevn(x) =
+  if x > 0 then isodd(x-1) else true
+// implmnt
+
+////
+
+#static
+val foo: int
+
+#extern
+fun
+foo: int -> int
+and
+bar: int -> int
+
+////
+val
+foo: int
+and
+bar: int = 1
+
+////
+fun
+foo(x: int(x)): int
+////
+extern
+fun
+foo: int -> int
+////
+val
+:rec
+x = 1
+val
+:prf
+y = foo(x)
+
+////
+
+fun:
+(prf, rec)
+foo:
+int -> int =
+lam(arg) => 1
 
 ////
 #staload N = $ADD
@@ -346,6 +657,10 @@ test
 , xs: list(int)): bool =
 (xs).iforall(lam(i, x) => (x != x0) && (abs(x-x0) != i+1))
 }
+
+(* ****** ****** *)
+
+typedef xyz = $extype("list", int)
 
 (* ****** ****** *)
 

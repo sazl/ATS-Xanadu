@@ -41,14 +41,14 @@ UN = "prelude/SATS/unsafe.sats"
 (* ****** ****** *)
 //
 #staload
-SYM = "./../SATS/symbol.sats"
+SYM = "./../SATS/xsymbol.sats"
 #staload
-FIX = "./../SATS/fixity.sats"
+FIX = "./../SATS/xfixity.sats"
 #staload
-ENV = "./../SATS/symenv.sats"
+ENV = "./../SATS/xsymenv.sats"
 //
 #staload
-LOC = "./../SATS/location.sats"
+LOC = "./../SATS/locinfo.sats"
 //
 (* ****** ****** *)
 //
@@ -58,8 +58,8 @@ overload print with $LOC.print_location
 
 (* ****** ****** *)
 
-#staload "./../SATS/basics.sats"
-#staload "./../SATS/lexing.sats"
+#staload "./../SATS/xbasics.sats"
+#staload "./../SATS/lexing0.sats"
 
 (* ****** ****** *)
 
@@ -73,13 +73,16 @@ overload print with $LOC.print_location
 (* ****** ****** *)
 //
 #staload
-_(*TMP*) = "./../DATS/fixity.dats"
+_(*TMP*) = "./../DATS/xfixity.dats"
 //
 (* ****** ****** *)
 
 stadef fxitm = $FIX.fxitm
 
 (* ****** ****** *)
+
+typedef g1eitm = fxitm(g1exp)
+typedef g1eitmlst = List0(g1eitm)
 
 typedef s1titm = fxitm(sort1)
 typedef s1titmlst = List0(s1titm)
@@ -95,6 +98,100 @@ FXITMatm
 macdef
 FXITMopr
 (i0, f0) = $FIX.FXITMopr(,(i0), ,(f0))
+
+(* ****** ****** *)
+
+fun
+fxitmlst_resolve_g1exp
+( loc0: loc_t
+, itms: g1eitmlst): g1exp =
+(
+$FIX.fxitmlst_resolve<g1exp>(loc0, itms)
+) where
+{
+//
+implement
+$FIX.fxitm_infix<g1exp>
+(
+x0, f1, x2
+) = let
+  val loc =
+  x0.loc() + x2.loc()
+  val g1e_node =
+  (
+    case+
+    f1.node() of
+    | G1Eapp() =>
+      G1Eapp1(x0, x2)
+    | _(*non-G1Eapp*) =>
+      G1Eapp2(f1, x0, x2)
+  ) : g1exp_node // end of [val]
+in
+  FXITMatm(g1exp_make_node(loc, g1e_node))
+end // end of [$FIX.fxitm_infix]
+//
+implement
+$FIX.fxitm_prefix<g1exp>
+  (f0, x1) = let
+  val loc =
+  f0.loc() + x1.loc()
+in
+  FXITMatm
+  (
+  g1exp_make_node(loc, g1e_node)
+  ) where
+  {
+    val g1e_node = G1Eapp1(f0, x1)
+  }
+end // end of [$FIX.fxitm_prefix]
+//
+implement
+$FIX.fxitm_postfix<g1exp>
+  (x0, f1) = let
+  val loc =
+  x0.loc() + f1.loc()
+in
+  FXITMatm
+  (
+  g1exp_make_node(loc, g1e_node)
+  ) where
+  {
+    val g1e_node = G1Eapp1(f1, x0)
+  }
+end // end of [$FIX.fxitm_postfix]
+//
+implement
+$FIX.fxatm_none<g1exp>
+  (loc) =
+  g1exp_none(loc)
+implement
+$FIX.fxopr_get_loc<g1exp>
+  (opr) = opr.loc()
+//
+implement
+$FIX.fxitm_get_loc<g1exp>
+  (itm) =
+(
+case+ itm of
+| $FIX.FXITMatm(x0) => x0.loc()
+| $FIX.FXITMopr(x0, _) => x0.loc()
+) (* end of [$FIX.fxitm_get_loc] *)
+//
+implement
+$FIX.fxopr_make_app<g1exp>
+  (itm) = let
+//
+val loc =
+$FIX.fxitm_get_loc<g1exp>(itm)
+//
+val g1e =
+g1exp_make_node(loc, G1Eapp(*void*))
+//
+in
+  $FIX.FXITMopr(g1e, $FIX.app_fixty)
+end // end of [$FIX.fxopr_make_app]
+//
+} // end of [fxitmlst_resolve_g1exp]
 
 (* ****** ****** *)
 
@@ -302,6 +399,440 @@ end // end of [$FIX.fxopr_make_app]
 local
 
 fun
+auxnid
+( nid
+: g0nid): g1nam =
+let
+val-
+I0DNTsome
+(tok) = nid.node()
+in
+case-
+tok.node() of
+|
+T_IDENT_alp(nam) =>
+G1Nid0
+($SYM.symbol_make(nam))
+|
+T_IDENT_sym(nam) =>
+G1Nid0
+($SYM.symbol_make(nam))
+end // end of [auxnid]
+
+fun
+auxint
+( int
+: t0int): g1nam =
+let
+val-
+T0INTsome
+  (tok) = int.node()
+in
+G1Nint(token2sint(tok))
+end // end of [auxint]
+fun
+auxflt
+( flt
+: t0flt): g1nam =
+let
+val-
+T0FLTsome
+  (tok) = flt.node()
+in
+G1Nflt(token2sflt(tok))
+end // end of [auxflt]
+fun
+auxstr
+( str
+: t0str): g1nam =
+let
+val-
+T0STRsome
+  (tok) = str.node()
+in
+G1Nstr(token2sstr(tok))
+end // end of [auxstr]
+
+in(*in-of-local*)
+
+implement
+trans01_gnam
+  (gnm0) =
+(
+case+
+gnm0.node() of
+|
+G0Nid0(nid) => auxnid(nid)
+|
+G0Nint(int) => auxint(int)
+|
+G0Nflt(flt) => auxflt(flt)
+|
+G0Nstr(str) => auxstr(str)
+//
+|
+G0Nlist
+(tbeg, gnms, tend) =>
+(
+case+ gnms of
+|
+list_nil() => G1Nnil()
+|
+list_cons(gnm1, gnms) =>
+let
+val
+gnm1 = trans01_gnam(gnm1)
+in
+case+ gnms of
+|
+list_nil _ => gnm1
+|
+list_cons _ =>
+let
+  val
+  gnms =
+  trans01_gnamlst(gnms)
+in
+  G1Nlist(list_cons(gnm1, gnms))
+end
+end
+) (* end of [G0Nlist] *)
+//
+| G0Nnone0() => G1Nnone0()
+//
+| _(*rest-of-g0nam*) => G1Nnone1(gnm0)
+) (* end of [trans01_gnam] *)
+
+end // end of [local]
+
+implement
+trans01_gnamlst
+  (gnms) =
+list_vt2t(g1es) where
+{
+val
+g1es =
+list_map<g0nam><g1nam>
+  (gnms) where
+{
+implement
+list_map$fopr<g0nam><g1nam> = trans01_gnam
+}
+} (* end of [trans01_gnamlst] *)
+
+(* ****** ****** *)
+
+local
+
+fun
+auxgid
+( gid
+: g0eid)
+: g1eitm = let
+//
+val loc = gid.loc()
+val-
+I0DNTsome
+  (tok) = gid.node()
+//
+val sym =
+(
+case-
+tok.node() of
+| T_IDENT_alp(nam) =>
+  $SYM.symbol_make(nam)
+| T_IDENT_sym(nam) =>
+  $SYM.symbol_make(nam)
+) : sym_t // end of [val]
+//
+val opt =
+the_fxtyenv_search(sym)
+//
+val g1e0 =
+g1exp_make_node(loc, G1Eid0(sym))
+//
+in
+//
+case+ opt of
+| ~
+None_vt() =>
+FXITMatm(g1e0)
+| ~
+Some_vt(fxty) =>
+(
+case+ fxty of
+|
+$FIX.FIXTYnon() => FXITMatm(g1e0)
+|
+_(*non-FIXTYnon*) => FXITMopr(g1e0, fxty)
+) (* end of [Some_vt] *)
+//
+end // end of [auxgid]
+
+fun
+auxint
+( int
+: t0int)
+: g1eitm = let
+//
+val loc = int.loc()
+//
+val-
+T0INTsome(tok) = int.node()
+//
+in
+  FXITMatm
+  (g1exp_make_node(loc, G1Eint(tok)))
+end // end of [auxint]
+fun
+auxchr
+( chr
+: t0chr)
+: g1eitm = let
+//
+val loc = chr.loc()
+//
+val-
+T0CHRsome(tok) = chr.node()
+//
+in
+  FXITMatm
+  (g1exp_make_node(loc, G1Echr(tok)))
+end // end of [auxchr]
+fun
+auxflt
+( flt
+: t0flt)
+: g1eitm = let
+//
+val loc = flt.loc()
+//
+val-
+T0FLTsome(tok) = flt.node()
+//
+in
+  FXITMatm
+  (g1exp_make_node(loc, G1Eflt(tok)))
+end // end of [auxflt]
+fun
+auxstr
+( str
+: t0str)
+: g1eitm = let
+//
+val loc = str.loc()
+//
+val-
+T0STRsome(tok) = str.node()
+//
+in
+  FXITMatm
+  (g1exp_make_node(loc, G1Estr(tok)))
+end // end of [auxstr]
+
+fun
+auxitm
+( g0e0
+: g0exp)
+: g1eitm = let
+//
+val
+loc0 = g0e0.loc()
+//
+(*
+val () =
+println!("trans01_gexp:")
+val () =
+println!("auxitm: loc0 = ", loc0)
+val () =
+println!("auxitm: g0e0 = ", g0e0)
+*)
+//
+in
+//
+case+
+g0e0.node() of
+//
+| G0Eid0(gid) => auxgid(gid)
+//
+| G0Eint(int) => auxint(int)
+| G0Echr(chr) => auxchr(chr)
+| G0Eflt(flt) => auxflt(flt)
+| G0Estr(str) => auxstr(str)
+//
+| G0Eif0
+  ( tif0
+  , g0e1
+  , g0e2
+  , g0e3, topt) =>
+  FXITMatm(g1e0) where
+  {
+    val g1e1 =
+    trans01_gexp(g0e1)
+//
+    val g1e2 =
+    (
+    case+ g0e2 of
+    | g0exp_THEN
+      (tok1, g0e2) =>
+      trans01_gexp(g0e2))
+//
+    val g1e3 =
+    (
+    case+ g0e3 of
+    | g0exp_ELSE
+      (tok1, g0e3) =>
+      trans01_gexp(g0e3))
+//
+    val g1e0 =
+    g1exp_make_node
+    (loc0, G1Eif0(g1e1, g1e2, g1e3))
+//
+  }
+//
+| G0Eapps(g0es) =>
+  FXITMatm(g1e0) where
+  {
+    val g1es =
+    auxitmlst(g0es)
+    val g1e0 =
+    fxitmlst_resolve_g1exp(loc0, g1es)
+  }
+//
+| G0Elist
+  (_, g0es, _) =>
+  FXITMatm(g1e0) where
+  {
+    val g1es =
+    trans01_gexplst(g0es)
+    val g1e0 =
+    g1exp_make_node(loc0, G1Elist(g1es))
+  }
+//
+| G0Enone1(tok) =>
+  FXITMatm(g1e0) where
+  {
+    val g1e0 =
+      g1exp_make_node(loc0, G1Enone1(g0e0))
+    // end of [val]
+  }
+//
+end // end of [auxitm]
+
+and
+auxitmlst
+( xs
+: g0explst)
+: g1eitmlst =
+list_vt2t(ys) where
+{
+  val ys =
+  list_map<g0exp><g1eitm>
+    (xs) where
+  {
+    implement
+    list_map$fopr<g0exp><g1eitm>(x) = auxitm(x)
+  }
+} (* end of [auxitmlst] *)
+
+in (* in-of-local *)
+
+implement
+trans01_gexp
+  (g0e0) = let
+//
+val
+loc0 = g0e0.loc()
+//
+(*
+val () =
+println!
+("trans01_gexp: g0e0 = ", g0e0)
+*)
+//
+in(*in-of-let*)
+//
+case+
+auxitm(g0e0) of
+| $FIX.FXITMatm(g1e0) => g1e0
+| $FIX.FXITMopr(g1e0, fxty) => g1e0
+//
+end (* end of [trans01_gexp] *)
+
+end // end of [local]
+
+(* ****** ****** *)
+
+implement
+trans01_gexplst
+  (g0es) =
+list_vt2t(g1es) where
+{
+val
+g1es =
+list_map<g0exp><g1exp>
+  (g0es) where
+{
+  implement
+  list_map$fopr<g0exp><g1exp> = trans01_gexp
+}
+} (* end of [trans01_gexplst] *)
+
+(* ****** ****** *)
+
+implement
+trans01_gmarg
+  (g0ma) =
+(
+case-
+g0ma.node() of
+|
+G0MARGsarg
+(tbeg, g0as, tend) =>
+let
+  val g1as =
+  (
+    list_map<g0arg><g1arg>(g0as)
+  ) where
+  {
+    implement
+    list_map$fopr<g0arg><g1arg>
+      (g0a) =
+      let
+      val-I0DNTsome(tok) = g0a.node() in tok
+      end
+  } (* end of [where] *)
+  val g1as = list_vt2t{g1arg}(g1as)
+in
+  g1marg_make_node(g0ma.loc(), G1MARGsarg(g1as))
+end // end of [let]
+|
+G0MARGdarg
+(tbeg, g0as, tend) =>
+let
+  val g1as =
+  (
+    list_map<g0arg><g1arg>(g0as)
+  ) where
+  {
+    implement
+    list_map$fopr<g0arg><g1arg>
+      (g0a) =
+      let
+      val-I0DNTsome(tok) = g0a.node() in tok
+      end
+  } (* end of [where] *)
+  val g1as = list_vt2t{g1arg}(g1as)
+in
+  g1marg_make_node(g0ma.loc(), G1MARGdarg(g1as))
+end // end of [let]
+) (* end of [trans01_gmarg] *)
+
+(* ****** ****** *)
+
+local
+
+fun
 auxtid
 ( tid
 : s0tid)
@@ -328,14 +859,14 @@ ifcase
 | sym= // '+' is special
   $SYM.ADD_symbol =>
   Some_vt($FIX.postplus_fixty)
-| sym= // '+' is special
+| sym= // '-' is special
   $SYM.SUB_symbol =>
   Some_vt($FIX.postmnus_fixty)
 | _(*else*) => the_fxtyenv_search(sym)
 ) : fixtyopt_vt // end of [val]
 //
 val s1t0 =
-sort1_make_node(loc, S1Tid(sym))
+sort1_make_node(loc, S1Tid0(sym))
 //
 in
 //
@@ -389,7 +920,7 @@ in
 case+
 s0t0.node() of
 //
-| S0Tid(tid) => auxtid(tid)
+| S0Tid0(tid) => auxtid(tid)
 //
 | S0Tint(int) => auxint(int)
 //
@@ -463,7 +994,7 @@ println!
 ("trans01_sort: s0t0 = ", s0t0)
 *)
 //
-in
+in(*in-of-let*)
 //
 case+
 auxitm(s0t0) of
@@ -473,6 +1004,8 @@ auxitm(s0t0) of
 end (* end of [trans01_sort] *)
 
 end // end of [local]
+
+(* ****** ****** *)
 
 implement
 trans01_sortopt
@@ -604,8 +1137,11 @@ loc0 = t0a0.loc()
 val
 t1a0_node =
 (
-case+
+case-
 t0a0.node() of
+(*
+| T0ARGnone(tok) => ...
+*)
 | T0ARGsome
   (s0t, opt) =>
   T1ARGsome(s1t, opt) where
@@ -775,21 +1311,25 @@ auxsid
 : s1eitm = let
 //
 val loc = sid.loc()
+//
 val-
 I0DNTsome
-  (tok) = sid.node()
+( tok ) = sid.node()
 //
 val tnd = tok.node()
 //
 in
   case- tnd of
 //
-  | T_IDENT_alp(nam) => auxsid_IDENT(tok, nam)
-  | T_IDENT_sym(nam) => auxsid_IDENT(tok, nam)
+  | T_IDENT_alp(nam) =>
+    auxsid_IDENT(tok, nam)
+  | T_IDENT_sym(nam) =>
+    auxsid_IDENT(tok, nam)
 //
-  | T_IDENT_dlr(nam) => auxsid_IDENT(tok, nam)
+  | T_IDENT_dlr(nam) =>
+    auxsid_IDENT(tok, nam)
 //
-  | T_BACKSLASH((*void*)) => auxsid_BACKSLASH(tok)
+  | T_BSLASH((*void*)) => auxsid_BSLASH(tok)
 //
 end // end of [auxsid]
 
@@ -805,7 +1345,7 @@ $SYM.symbol_make(nam)
 val opt =
 the_fxtyenv_search(sym)
 val s1e0 =
-s1exp_make_node(loc, S1Eid(sym))
+s1exp_make_node(loc, S1Eid0(sym))
 //
 in
 case+ opt of
@@ -819,7 +1359,7 @@ case+ opt of
 end // end of [auxsid_IDENT]
 
 and
-auxsid_BACKSLASH
+auxsid_BSLASH
   (tok:token): s1eitm = let
 //
 val loc = tok.loc()
@@ -829,7 +1369,7 @@ val s1e0 =
 //
 in
   FXITMopr(s1e0, $FIX.backslash_fixty)
-end // end of [auxsid_BACKSLASH]
+end // end of [auxsid_BSLASH]
 
 fun
 auxint
@@ -915,7 +1455,7 @@ in
 case-
 s0e0.node() of
 //
-| S0Eid(sid) => auxsid(sid)
+| S0Eid0(sid) => auxsid(sid)
 //
 | S0Eint(int) => auxint(int)
 | S0Echr(chr) => auxchr(chr)
@@ -928,7 +1468,7 @@ s0e0.node() of
     val sym = sexpid_sym(tok)
     val s1e =
     s1exp_make_node
-      (tok.loc(), S1Eid(sym))
+      (tok.loc(), S1Eid0(sym))
     // end of [val]
     val s1e0 =
     s1exp_make_node(loc0, S1Ebs1(s1e))
@@ -942,7 +1482,7 @@ s0e0.node() of
     val sym = sexpid_sym(tok)
     val s1e =
     s1exp_make_node
-      (tok.loc(), S1Eid(sym))
+      (tok.loc(), S1Eid0(sym))
     // end of [val]
     val s1e0 =
     s1exp_make_node(loc0, S1Ebs1(s1e))
@@ -1031,7 +1571,7 @@ s0e0.node() of
 | S0Enone(_(*tok*)) =>
   FXITMatm(s1e0) where
   {
-    val s1e0 = s1exp_make_node(loc0, S1Enone())
+    val s1e0 = s1exp_make_node(loc0, S1Enone(loc0))
   } (* end of [S0Enone] *)
 //
 end // end of [auxitm]
@@ -1144,14 +1684,17 @@ case+ rparen of
   (_) =>
   S1Erecord(k0, ls1es1) where
   {
-    val ls1es1 = trans01_lsexplst(ls0es1)
+    val
+    ls1es1 = trans01_labsexplst(ls0es1)
   }
 | labs0exp_RBRACE_cons1
   (_, ls0es2, _) =>
   S1Erecord(k0, ls1es1, ls1es2) where
   {
-    val ls1es1 = trans01_lsexplst(ls0es1)
-    val ls1es2 = trans01_lsexplst(ls0es2)
+    val
+    ls1es1 = trans01_labsexplst(ls0es1)
+    val
+    ls1es2 = trans01_labsexplst(ls0es2)
   }
 ) : s1exp_node // end of [val]
 //
@@ -1210,7 +1753,7 @@ list_map<s0exp><s1exp>
 (* ****** ****** *)
 
 implement
-trans01_lsexp
+trans01_labsexp
   (ls0e) = let
 //
   val
@@ -1218,10 +1761,10 @@ trans01_lsexp
 //
 in
   SL0ABLED(l0, tok, trans01_sexp(s0e))
-end // end of [trans01_lsexp]
+end // end of [trans01_labsexp]
 
 implement
-trans01_lsexplst
+trans01_labsexplst
   (ls0es) =
 list_vt2t(ls1es) where
 {
@@ -1231,12 +1774,13 @@ list_map<labs0exp><labs1exp>
   (ls0es) where
 {
   implement
-  list_map$fopr<labs0exp><labs1exp> = trans01_lsexp
+  list_map$fopr<labs0exp><labs1exp> = trans01_labsexp
 }
-} (* end of [trans01_lsexplst] *)
+} (* end of [trans01_labsexplst] *)
 
 (* ****** ****** *)
 //
+(*
 implement
 trans01_seff
   (s0ef) =
@@ -1247,6 +1791,7 @@ case+ s0ef of
 | S0EFFsome(_, s0es, _) =>
   S1EFFsome(trans01_sexplst(s0es))
 ) (* end of [trans01_seff] *)
+*)
 //
 (* ****** ****** *)
 
@@ -1257,12 +1802,16 @@ trans01_effsexpopt
 case+ opt0 of
 | EFFS0EXPnone() =>
   EFFS1EXPnone()
+| EFFS0EXPsome(s0e) =>
+  EFFS1EXPsome(trans01_sexp(s0e))
+(*
 | EFFS0EXPsome(s0f, s0e) =>
   EFFS1EXPsome(s1f, s1e) where
   {
     val s1f = trans01_seff(s0f)
     val s1e = trans01_sexp(s0e)
   }
+*)
 ) (* end of [trans01_effsexpopt] *)
 
 (* ****** ****** *)

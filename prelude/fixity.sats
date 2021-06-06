@@ -51,39 +51,23 @@ VERBOSE_FIXITY
 #endif // end of [VERBOSE_FIXITY]
 
 (* ****** ****** *)
-//
-(*
-#prefix ! of 00 (* static *)
-*)
-//
-#prefix ! of 99 (* dynamic *)
-//
-(* ****** ****** *)
-
-(*
-#postfix .lab of 80 // dynamic
-#postfix ->lab of 80 // dynamic
-*)
-
-(* ****** ****** *)
-
-(*
-#prefix & of 79 // dynamic
-*)
-
-(* ****** ****** *)
 
 (*
 #infixl
-app of 70 // the app_prcdv
+app of 70 // app_prcdv
 *)
 
 (* ****** ****** *)
-
-(*
-#postfix ? of 69 // static?
-*)
-
+//
+#prefix
+! of 69 (* stadyn *)
+#prefix
+& of 69 (* stadyn *)
+#prefix
+? of 69 (* static *)
+#prefix
+?! of 69 (* static *)
+//
 (* ****** ****** *)
 //
 // HX-2015-08-04:
@@ -95,7 +79,7 @@ app of 70 // the app_prcdv
 //
 // multiplicative
 //
-#infixl * / % mod of 60
+#infixl * / % of 60
 //
 (*
 #infixl nmul ndiv nmod of 60
@@ -123,20 +107,28 @@ app of 70 // the app_prcdv
 
 (* ****** ****** *)
 //
-#infixr :: @ of 40
-#infix0 < <= > >= of 40
+#infixr @ of 40 (*flat*)
+#prefix @ of 69 (*uflat*)
+//
+#infixr :: of 40 (* cons *)
 //
 (* ****** ****** *)
-
-#infix0 = != == !== of 30
-
+//
+#infix0 < <= of 40
+#infix0 > >= of 40
+#infix0 = != of 30
+//
+#infix0 == !== of 30
+#infix0 === !=== of 30
+//
 (* ****** ****** *)
 
 #infixl || of 20
 #infixl && of ||(+1)
 
-#infixl andalso land of &&
-#infixl orelse xor lor lxor of ||
+#infixl xor lxor of ||
+#infixl lor orelse of ||
+#infixl land andalso of &&
 
 (* ****** ****** *)
 
@@ -149,8 +141,8 @@ app of 70 // the app_prcdv
 
 (* ****** ****** *)
 
-#infixl << of 0 (* asl/lsl *)
-#infixr >> of 0 (* asr/lsr *)
+#infixl << of 0 (* HX: asl/lsl *)
+#infixr >> of 0 (* HX: asr/lsr *)
 
 (* ****** ****** *)
 
@@ -166,6 +158,10 @@ app of 70 // the app_prcdv
 #infix0 :+= :-= :*= :/= // x:=x+a, x:=x-a, ...
 #infix0 :=+ :=- :=* :=/ // x:=a+x, x:=a-x, ...
 *)
+
+(* ****** ****** *)
+
+#prefix $raise of 0 // raising an excetion
 
 (* ****** ****** *)
 
