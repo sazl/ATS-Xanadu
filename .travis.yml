@@ -22,6 +22,7 @@ addons:
       - libgmp-dev
   homebrew:
     packages:
+      - gcc
       - gmp
       - libgc
     update: true
