@@ -23,6 +23,7 @@ addons:
     packages:
       - gmp
       - libgc
+    update: true
 
 before_install:
   - date
