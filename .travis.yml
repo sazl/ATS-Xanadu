@@ -1,6 +1,14 @@
 ---
 os:
   - linux
+  - osx
+
+jobs:
+  include:
+    - os: linux
+      dist: focal
+    - os: osx
+      osx_image: xcode12.5
 
 language: c
 
@@ -17,6 +25,11 @@ addons:
       - libgmp-dev
 
 before_install:
+  # OSX
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update           ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install gmp libgc; fi
+
+  # Generic
   - date
   - export PATSHOME=${HOME}/ATS2
   - export PATH=${PATH}:${PATSHOME}/bin
