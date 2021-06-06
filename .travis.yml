@@ -1,16 +1,12 @@
 ---
-os:
-  - linux
-  - osx
-
 jobs:
   include:
     - os: linux
-      dist: focal
     - os: osx
-      osx_image: xcode12.5
 
 language: c
+
+compiler: gcc
 
 node_js:
   - "5.10.1"
@@ -23,13 +19,12 @@ addons:
     packages:
       - libgc-dev
       - libgmp-dev
+  homebrew:
+    packages:
+      - gmp
+      - libgc
 
 before_install:
-  # OSX
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update           ; fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install gmp libgc; fi
-
-  # Generic
   - date
   - export PATSHOME=${HOME}/ATS2
   - export PATH=${PATH}:${PATSHOME}/bin
