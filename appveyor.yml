@@ -43,8 +43,7 @@ init:
   - "echo Build folder is: %APPVEYOR_BUILD_FOLDER%"
 
 install:
-  - cmd: if [%CYG_ARCH%]==[x86] (curl -qsS --fail --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-x86.exe)
-  - cmd: if [%CYG_ARCH%]==[x86_64] (curl -qsS --fail --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-x86_64.exe)
+  - "$XATSHOME/appveyor/install_cygwin.ps1"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - '%CYG_INSTALL% "wget"'
