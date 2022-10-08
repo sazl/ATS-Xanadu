@@ -47,7 +47,7 @@ init:
 install:
   - "echo Installing Cygwin"
   - 'echo "%XATSHOME%/contrib/sazl/appveyor/install_cygwin.ps1"'
-  - 'ls "%XATSHOME%/contrib/sazl/appveyor/install_cygwin.ps1"'
+  - 'ls "%XATSHOME%/contrib/sazl/appveyor/"'
   - ps: "%XATSHOME%/contrib/sazl/appveyor/install_cygwin.ps1"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
