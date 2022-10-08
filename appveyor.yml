@@ -18,13 +18,15 @@ environment:
       CYG_ROOT: C:/cygwin
       CYG_CACHE: C:/cygwin/var/cache/setup
       CYG_SH: C:/cygwin/bin/bash -lc
-      CYG_INSTALL: C:/cygwin/setup-x86.exe -q -s "%CYGWIN_MIRROR%" -P
+      CYG_SETUP: C:/cygwin/setup-x86.exe
+      CYG_INSTALL: '%CYG_SETUP% -q -s "%CYGWIN_MIRROR%" -P'
       CYG_PATH: C:/cygwin/bin/cygpath -u
     - CYG_ARCH: x86_64
       CYG_ROOT: C:/cygwin64
       CYG_CACHE: C:/cygwin64/var/cache/setup
       CYG_SH: C:/cygwin64/bin/bash -lc
-      CYG_INSTALL: C:/cygwin64/setup-x86_64.exe -q -s "%CYGWIN_MIRROR%" -P
+      CYG_SETUP: C:/cygwin64/setup-x86_64.exe
+      CYG_INSTALL: '%CYG_SETUP% -q -s "%CYGWIN_MIRROR%" -P'
       CYG_PATH: C:/cygwin64/bin/cygpath -u
 
 cache:
@@ -46,11 +48,11 @@ init:
 
 install:
   - "echo Installing Cygwin"
-  - 'echo "%APPVEYOR_BUILD_FOLDER%\contrib\sazl\appveyor\install_cygwin.ps1"'
-  - 'ls %APPVEYOR_BUILD_FOLDER%\contrib\sazl\appveyor'
-  - '%APPVEYOR_BUILD_FOLDER%\\contrib\\sazl\\appveyor\\install_cygwin.ps1'
+  - 'curl -qsS --fail --retry 5 --max-time 1999 --compressed -O "https://cygwin.com/setup-%CYG_ARCH%.exe" -o "%CYG_SETUP%"'
+  - "echo Installed Cygwin %CYG_SETUP%"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
+  - 'echo "%CYG_INSTALL% wget"'
   - '%CYG_INSTALL% "wget"'
   - '%CYG_SH% "wget rawgit.com/transcode-open/apt-cyg/master/apt-cyg"'
   - '%CYG_SH% "install apt-cyg /bin"'
