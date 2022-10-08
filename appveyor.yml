@@ -5,6 +5,8 @@ image: Visual Studio 2015
 platform:
   - x64
 
+skip_branch_with_pr: true
+
 environment:
   global:
     PATSVERSION: 0.4.2
@@ -43,7 +45,7 @@ init:
   - "echo Build folder is: %APPVEYOR_BUILD_FOLDER%"
 
 install:
-  - "%XATSHOME%/appveyor/install_cygwin.ps1"
+  - "%XATSHOME%/contrib/sazl/appveyor/install_cygwin.ps1"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - '%CYG_INSTALL% "wget"'
