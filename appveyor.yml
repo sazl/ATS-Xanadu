@@ -43,6 +43,8 @@ init:
   - "echo Build folder is: %APPVEYOR_BUILD_FOLDER%"
 
 install:
+  - cmd: if [%CONFIG%]==[cygwin] (curl -qsS --fail --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-x86.exe)
+  - cmd: if [%CONFIG%]==[cygwin64] (curl -qsS --fail --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-x86_64.exe)
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - '%CYG_INSTALL% "wget"'
