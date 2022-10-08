@@ -51,7 +51,7 @@ install:
   - 'rm -rf %CYG_ROOT%"'
   - 'mkdir "%CYG_ROOT%"'
   - "echo Downloading Cygwin"
-  - 'echo curl --retry 5 --max-time 1999 --compressed -O "https://cygwin.com/setup-%CYG_ARCH%.exe" -o $(wslpath "%CYG_SETUP%")'
+  - "echo curl --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-%CYG_ARCH%.exe -o "$(wslpath '%CYG_SETUP%')"
   - 'curl --retry 5 --max-time 1999 --compressed -O "https://cygwin.com/setup-%CYG_ARCH%.exe" -o $(wslpath "%CYG_SETUP%")'
   - 'dir /s "%CYG_ROOT%"'
   - "echo Installing Cygwin %CYG_SETUP%"
