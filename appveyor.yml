@@ -43,7 +43,7 @@ init:
   - "echo Build folder is: %APPVEYOR_BUILD_FOLDER%"
 
 install:
-  - "$XATSHOME/appveyor/install_cygwin.ps1"
+  - "%XATSHOME%/appveyor/install_cygwin.ps1"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - '%CYG_INSTALL% "wget"'
