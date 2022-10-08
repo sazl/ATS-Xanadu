@@ -47,6 +47,8 @@ init:
   - "echo Build folder is: %APPVEYOR_BUILD_FOLDER%"
 
 install:
+  - "echo Removing existing Cygwin"
+  - 'rm -rf %CYGWIN_ROOT"'
   - "echo Downloading Cygwin"
   - 'curl -qsS --fail --retry 5 --max-time 1999 --compressed -O "https://cygwin.com/setup-%CYG_ARCH%.exe" -o "%CYG_SETUP%"'
   - "echo Installing Cygwin %CYG_SETUP%"
