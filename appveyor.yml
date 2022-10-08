@@ -46,9 +46,9 @@ init:
 
 install:
   - "echo Installing Cygwin"
-  - "echo '%BUILD_FOLDER%\contrib\sazl\appveyor\install_cygwin.ps1'"
-  - "ls %BUILD_FOLDER%\contrib\sazl\appveyor"
-  - "%BUILD_FOLDER%\contrib\sazl\appveyor\install_cygwin.ps1"
+  - "echo '%BUILD_FOLDER%\\contrib\\sazl\\appveyor\\install_cygwin.ps1'"
+  - "ls %BUILD_FOLDER%\\contrib\\sazl\\appveyor"
+  - "%BUILD_FOLDER%\\contrib\\sazl\\appveyor\\install_cygwin.ps1"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - '%CYG_INSTALL% "wget"'
