@@ -52,7 +52,7 @@ install:
   - 'mkdir "%CYG_ROOT%"'
   - "echo Downloading Cygwin"
   - 'curl --retry 5 --max-time 1999 --compressed -O "https://cygwin.com/setup-%CYG_ARCH%.exe" -o "%CYG_SETUP%"'
-  - 'ls "%CYG_ROOT%"'
+  - 'dir /s "%CYG_ROOT%"'
   - "echo Installing Cygwin %CYG_SETUP%"
   - '%CYG_SETUP% -qgnNdO -l "%CYG_CACHE%" -R "%CYG_ROOT%" -s "%CYGWIN_MIRROR%"'
   - "echo Checking the Cygwin setup"
