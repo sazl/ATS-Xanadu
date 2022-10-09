@@ -51,9 +51,10 @@ install:
   - 'rm -rf %CYG_ROOT%"'
   - 'mkdir "%CYG_ROOT%"'
   - "echo Downloading Cygwin"
-  - "echo curl --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-%CYG_ARCH%.exe -o $(wslpath '%CYG_SETUP%')"
-  - ps: "(New-Object Net.WebClient).DownloadFile('https://cygwin.com/setup-$env:CYG_ARCH.exe', $env:CYG_SETUP)"
-  - 'dir /s "%CYG_ROOT%"'
+  - "echo curl --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-%CYG_ARCH%.exe -o %CYG_SETUP%"
+  - "curl --retry 5 --max-time 1999 --compressed -O https://cygwin.com/setup-%CYG_ARCH%.exe -o %CYG_SETUP%"
+  - "dir /s"
+  - "dir /s %CYG_ROOT%"
   - "echo Installing Cygwin %CYG_SETUP%"
   - '%CYG_SETUP% -qgnNdO -l "%CYG_CACHE%" -R "%CYG_ROOT%" -s "%CYGWIN_MIRROR%"'
   - "echo Checking the Cygwin setup"
