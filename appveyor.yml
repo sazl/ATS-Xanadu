@@ -84,3 +84,6 @@ build_script:
 
 test_script:
   - "%CYG_SH% $XATSHOME/appveyor/test.sh"
+
+on_failure:
+  - '"%CYG_SH" cat "$PATSHOME/config.log"'
