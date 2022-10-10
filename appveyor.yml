@@ -87,7 +87,6 @@ test_script:
 
 on_failure:
   - "dir"
-  - "%CYG_SH% cd $PATSHOME && cat config.log"
   - "%CYG_SH% cat config.log"
   - '%CYG_SH% echo "$(cat config.log)"'
   - '%CYG_SH% echo "$(cat $PATSHOME/config.log)"'
