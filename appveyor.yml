@@ -87,6 +87,6 @@ test_script:
 
 on_failure:
   - "dir"
-  - "%CYG_SH% cd ATS2 && cat config.log"
+  - "%CYG_SH% cd $XATSHOME/ATS2 && cat config.log"
   - '%CYG_SH% echo "$(cat config.log)"'
   - '%CYG_SH% echo "$(cat $PATSHOME/config.log)"'
