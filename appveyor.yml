@@ -88,6 +88,6 @@ test_script:
 on_failure:
   - "%CYG_SH% pwd"
   - "%CYG_SH% ls"
-  - "%CYG_SH% cd $XATSHOME/ATS2 && cat config.log"
+  - "%CYG_SH% cd $XATSHOME/appveyor/ && cat config.log"
   - '%CYG_SH% echo "$(cat config.log)"'
   - '%CYG_SH% echo "$(cat $PATSHOME/config.log)"'
