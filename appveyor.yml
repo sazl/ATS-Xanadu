@@ -34,7 +34,6 @@ cache:
   - "%PATSHOME_WIN% -> appveyor.yml, appveyor/install-ats2.sh"
 
 init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   # Set Windows environment variables so that they're accessible from within cygwin
   - 'FOR /F "tokens=* USEBACKQ" %%F IN (`%CYG_PATH% %APPVEYOR_BUILD_FOLDER%`) DO SET BUILD_FOLDER=%%F'
   - 'FOR /F "tokens=* USEBACKQ" %%F IN (`%CYG_PATH% %APPVEYOR_BUILD_FOLDER%`) DO SET XATSHOME=%%F'
@@ -55,6 +54,8 @@ install:
   - "curl --retry 5 --max-time 1999 --compressed -o %CYG_SETUP% -O https://cygwin.com/setup-%CYG_ARCH%.exe"
   - "echo Installing Cygwin %CYG_SETUP%"
   - '%CYG_SETUP% -qgnNdO -l "%CYG_CACHE%" -R "%CYG_ROOT%" -s "%CYGWIN_MIRROR%"'
+  - "echo Update Cygwin"
+  - '%CYG_SETUP% -q -s "%CYGWIN_MIRROR%"'
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - 'echo "%CYG_INSTALL% wget"'
@@ -85,11 +86,3 @@ build_script:
 
 test_script:
   - "%CYG_SH% $XATSHOME/appveyor/test.sh"
-
-on_failure:
-  - "%CYG_SH% pwd"
-  - "%CYG_SH% ls"
-
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-  - dir
