@@ -54,8 +54,6 @@ install:
   - "curl --retry 5 --max-time 1999 --compressed -o %CYG_SETUP% -O https://cygwin.com/setup-%CYG_ARCH%.exe"
   - "echo Installing Cygwin %CYG_SETUP%"
   - '%CYG_SETUP% -qgnNdO -l "%CYG_CACHE%" -R "%CYG_ROOT%" -s "%CYGWIN_MIRROR%"'
-  - "echo Update Cygwin"
-  - "%CYG_SETUP% -q -P libgmpc"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - 'echo "%CYG_INSTALL% wget"'
@@ -63,6 +61,8 @@ install:
   - '%CYG_SH% "wget rawgit.com/transcode-open/apt-cyg/master/apt-cyg"'
   - '%CYG_SH% "install apt-cyg /bin"'
   - '%CYG_SH% "apt-cyg install make autoconf automake gcc-core libtool intltool pkg-config git libgc-devel libgmp-devel"'
+  - "echo Update Cygwin"
+  - '%CYG_SETUP%' -q'
   - "echo Setup Cygwin dependencies is finished!"
   - "echo Printing GCC version"
   - '%CYG_SH% "gcc --version"'
