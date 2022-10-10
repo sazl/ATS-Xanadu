@@ -34,6 +34,7 @@ cache:
   - "%PATSHOME_WIN% -> appveyor.yml, appveyor/install-ats2.sh"
 
 init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   # Set Windows environment variables so that they're accessible from within cygwin
   - 'FOR /F "tokens=* USEBACKQ" %%F IN (`%CYG_PATH% %APPVEYOR_BUILD_FOLDER%`) DO SET BUILD_FOLDER=%%F'
   - 'FOR /F "tokens=* USEBACKQ" %%F IN (`%CYG_PATH% %APPVEYOR_BUILD_FOLDER%`) DO SET XATSHOME=%%F'
@@ -88,6 +89,6 @@ test_script:
 on_failure:
   - "%CYG_SH% pwd"
   - "%CYG_SH% ls"
-  - "%CYG_SH% cd $XATSHOME/appveyor/ && cat config.log"
-  - '%CYG_SH% echo "$(cat config.log)"'
-  - '%CYG_SH% echo "$(cat $PATSHOME/config.log)"'
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
