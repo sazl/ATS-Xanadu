@@ -86,7 +86,8 @@ test_script:
   - "%CYG_SH% $XATSHOME/appveyor/test.sh"
 
 on_failure:
-  - "dir"
+  - "%CYG_SH% pwd"
+  - "%CYG_SH% ls"
   - "%CYG_SH% cd $XATSHOME/ATS2 && cat config.log"
   - '%CYG_SH% echo "$(cat config.log)"'
   - '%CYG_SH% echo "$(cat $PATSHOME/config.log)"'
