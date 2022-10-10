@@ -55,7 +55,7 @@ install:
   - "echo Installing Cygwin %CYG_SETUP%"
   - '%CYG_SETUP% -qgnNdO -l "%CYG_CACHE%" -R "%CYG_ROOT%" -s "%CYGWIN_MIRROR%"'
   - "echo Update Cygwin"
-  - '%CYG_SETUP% -q -s "%CYGWIN_MIRROR%"'
+  - "%CYG_SETUP% -q -P libgmpc"
   - "echo Checking the Cygwin setup"
   - '%CYG_SH% "cygcheck -dc cygwin"'
   - 'echo "%CYG_INSTALL% wget"'
