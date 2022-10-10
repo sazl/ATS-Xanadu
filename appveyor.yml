@@ -62,7 +62,7 @@ install:
   - '%CYG_SH% "install apt-cyg /bin"'
   - '%CYG_SH% "apt-cyg install make autoconf automake gcc-core libtool intltool pkg-config git libgc-devel libgmp-devel"'
   - "echo Update Cygwin"
-  - '%CYG_SETUP%' -q'
+  - "%CYG_SETUP% -q"
   - "echo Setup Cygwin dependencies is finished!"
   - "echo Printing GCC version"
   - '%CYG_SH% "gcc --version"'
