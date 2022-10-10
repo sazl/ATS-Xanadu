@@ -80,12 +80,8 @@ build_script:
   - "echo Repo build branch is: %APPVEYOR_REPO_BRANCH%"
   - "echo Repo build commit is: %APPVEYOR_REPO_COMMIT%"
   - '%CYG_SH% "echo XATSHOME=$XATSHOME"'
-  - '%CYG_SH% "echo PATH=$PATH"'
   - "echo Build ATS3..."
   - "%CYG_SH% $XATSHOME/appveyor/build.sh"
 
 test_script:
   - "%CYG_SH% $XATSHOME/appveyor/test.sh"
-
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
