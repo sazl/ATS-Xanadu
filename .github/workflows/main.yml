@@ -21,8 +21,6 @@ env:
 jobs:
   build-and-test-cygwin:
     runs-on: "windows-latest"
-    defaults:
-
     steps:
       - name: Set autocrlf false
         run: git config --global core.autocrlf false
