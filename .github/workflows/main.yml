@@ -33,15 +33,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Switch to bash shell
-        run:
-          shell: C:\tools\cygwin\bin\bash.exe --login -o igncr '{0}'
-
       - name: Install dependencies
         uses: egor-tensin/setup-cygwin@v3
         with:
           platform: x64
           packages: make autoconf automake gcc-core libtool intltool pkg-config git libgc-devel libgmp-devel wget
+
+      - name: Switch to bash shell
+        run: C:\tools\cygwin\bin\bash.exe --login -o igncr '{0}'
 
       - name: Set environment variables
         run: |
