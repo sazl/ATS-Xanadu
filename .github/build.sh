@@ -2,5 +2,4 @@
 
 set -e
 
-cd $XATSHOME/srcgenx
-make all
+cd $XATSHOME/srcgenx && make all
