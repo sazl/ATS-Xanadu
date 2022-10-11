@@ -25,6 +25,11 @@ jobs:
       run:
         shell: C:\tools\cygwin\bin\bash.exe --login -o igncr '{0}'
     steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -69,6 +74,9 @@ jobs:
 
       - name: Install ATS2
         run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh "$ATS2_VERSION" "${{ env.PATSHOME }}"
+
+      - name: Print PATSHOME/bin
+        run: echo "$(ls)" >> $GITHUB_STEP_SUMMARY
 
       - name: Build ATS3
         run: ${GITHUB_WORKSPACE}/.github/build.sh
