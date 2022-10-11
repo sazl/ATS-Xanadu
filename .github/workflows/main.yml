@@ -75,8 +75,10 @@ jobs:
       - name: Install ATS2
         run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh "$ATS2_VERSION" "${{ env.PATSHOME }}"
 
-      - name: Print PATSHOME/bin
-        run: echo "$(ls)" >> $GITHUB_STEP_SUMMARY
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
 
       - name: Build ATS3
         run: ${GITHUB_WORKSPACE}/.github/build.sh
