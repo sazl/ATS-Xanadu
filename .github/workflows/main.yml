@@ -36,12 +36,12 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "PATSHOME=${GITHUB_WORKSPACE}/ATS2" >> $GITHUB_ENV
-          echo "PATH=${PATH}:${PATSHOME}/bin" >> $GITHUB_ENV
-          echo "XATSHOME=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+          echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
+          echo "XATSHOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "${{ env.PATSHOME }}/bin" >> $GITHUB_PATH
 
       - name: Install ATS2
-        run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh ${env.ATS2_VERSION} ${env.PATSHOME}
+        run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh ${{ env.ATS2_VERSION }} ${{ env.PATSHOME }}
 
       - name: Build ATS2
         run: ${GITHUB_WORKSPACE}/.github/build.sh
@@ -63,12 +63,12 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "PATSHOME=${GITHUB_WORKSPACE}/ATS2" >> $GITHUB_ENV
-          echo "PATH=${PATH}:${PATSHOME}/bin" >> $GITHUB_ENV
-          echo "XATSHOME=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+          echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
+          echo "XATSHOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "${{ env.PATSHOME }}/bin" >> $GITHUB_PATH
 
       - name: Install ATS2
-        run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh "$ATS2_VERSION" "${env.PATSHOME}"
+        run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh "$ATS2_VERSION" "${{ env.PATSHOME }}"
 
       - name: Build ATS2
         run: ${GITHUB_WORKSPACE}/.github/build.sh
