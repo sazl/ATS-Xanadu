@@ -26,10 +26,10 @@ jobs:
         shell: C:\tools\cygwin\bin\bash.exe --login -o igncr '{0}'
     steps:
       - name: Set autocrlf false
-        run: git config --global core.autocrlf false
+        run: git config --global "core.autocrlf" "false"
 
       - name: Set EOL LF
-        run: git config --global core.eol lf
+        run: git config --global "core.eol" "lf"
 
       - name: Checkout
         uses: actions/checkout@v3
