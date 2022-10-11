@@ -25,8 +25,10 @@ jobs:
       run:
         shell: C:\tools\cygwin\bin\bash.exe --login -o igncr '{0}'
     steps:
-      - name: Set git to use LF
+      - name: Set autocrlf false
         run: git config --global core.autocrlf false
+
+      - name: Set EOL LF
         run: git config --global core.eol lf
 
       - name: Checkout
