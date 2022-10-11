@@ -68,7 +68,7 @@ jobs:
           echo "XATSHOME=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
 
       - name: Install ATS2
-        run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh ${env.ATS2_VERSION} ${env.PATSHOME}
+        run: ${GITHUB_WORKSPACE}/.github/install-ats2.sh "$ATS2_VERSION" "${env.PATSHOME}"
 
       - name: Build ATS2
         run: ${GITHUB_WORKSPACE}/.github/build.sh
