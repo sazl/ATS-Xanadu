@@ -136,7 +136,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "/usr/local/bin" >> $GITHUB_PATH
-          echo "CC=gcc-11" >> $GITHUB_ENV
+          echo "CC=/usr/local/bin/gcc-11" >> $GITHUB_ENV
           echo "CCOMP=gcc-11" >> $GITHUB_ENV
           echo "CFLAGS=-Wno-implicit-function-declaration" >> $GITHUB_ENV
           echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
