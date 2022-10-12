@@ -47,7 +47,7 @@ jobs:
           echo "${{ env.PATSHOME }}/bin" >> $GITHUB_PATH
           echo "${{ env.XATSHOME }}/bin" >> $GITHUB_PATH
 
-      - name: Build ATS2
+      - name: Build ATS3
         run: ${{ env.XATSHOME }}/.github/build.sh
 
       - name: Run Tests
@@ -69,8 +69,8 @@ jobs:
           install: >-
             base-devel
             gcc
-            libgmp-dev
-            libgc-dev
+            gmp
+            gc
 
       - name: Set environment variables
         run: |
@@ -85,7 +85,7 @@ jobs:
           echo "${{ env.PATSHOME }}/bin" >> $GITHUB_PATH
           echo "${{ env.XATSHOME }}/bin" >> $GITHUB_PATH
 
-      - name: Build ATS2
+      - name: Build ATS3
         run: ${{ env.XATSHOME }}/.github/build.sh
 
       - name: Run Tests
@@ -129,7 +129,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: brew install gcc libgc-dev libgmp-dev
+        run: brew install gcc gmp bdw-gc
 
       - name: Set environment variables
         run: |
