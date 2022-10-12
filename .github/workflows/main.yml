@@ -69,8 +69,8 @@ jobs:
           install: >-
             base-devel
             gcc
-            gmp
-            gc
+            gmp-devel
+            libgc-devel
 
       - name: Set environment variables
         run: |
@@ -131,8 +131,10 @@ jobs:
       - name: Install dependencies
         run: brew install gcc gmp bdw-gc
 
+      # Set GCC as a default
       - name: Set environment variables
         run: |
+          echo "/usr/local/bin" >> $GITHUB_PATH
           echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
           echo "XATSHOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
