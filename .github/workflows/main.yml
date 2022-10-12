@@ -132,10 +132,8 @@ jobs:
       - name: Install dependencies
         run: brew install gcc gmp bdw-gc
 
-      - run: echo "$(gcc --version)" >> $GITHUB_STEP_SUMMARY
-
       - name: Symbolic link GCC
-        run: ln -s /usr/bin/local/gcc /usr/bin/local/gcc-11
+        run: ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
 
       # Set GCC as a default
       - name: Set environment variables
