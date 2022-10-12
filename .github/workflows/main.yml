@@ -133,7 +133,9 @@ jobs:
         run: brew install gcc gmp bdw-gc
 
       - name: Symbolic link GCC
-        run: ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
+        run: |
+        ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
+        ln -s /usr/local/include/gmp.h /usr/include/gmp.h
 
       # Set GCC as a default
       - name: Set environment variables
