@@ -132,6 +132,12 @@ jobs:
       - name: Install dependencies
         run: brew install gcc gmp bdw-gc
 
+      - name: Debug env vars
+        run: |
+          echo ${{ env.CFLAGS }}
+          echo $CFLAGS
+          echo $LDFLAGS
+
       # Set GCC as a default
       - name: Set environment variables
         run: |
