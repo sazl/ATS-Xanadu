@@ -26,7 +26,7 @@ test01_cblist_dats
 test01_cblist_dats: \
 test01_cblist.dats; $(MYATSCC) $<
 regress:: \
-test01_cblist_dats; ./@
+test01_cblist_dats
 cleanall:: ; $(RMF) test01_cblist_dats
 
 ######
