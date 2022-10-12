@@ -36,7 +36,7 @@ test02_mylibc_dats
 test02_mylibc_dats: \
 test02_mylibc.dats; $(MYATSCC) $<
 regress:: \
-test02_mylibc_dats; ./@
+test02_mylibc_dats
 cleanall:: ; $(RMF) test02_mylibc_dats
 
 ######

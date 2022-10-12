@@ -19,7 +19,7 @@ env:
   ATS2_VERSION: 0.4.2
 
 jobs:
-  build-and-test-cygwin:
+  build-and-test:
     runs-on: "windows-latest"
     defaults:
       run:
@@ -60,7 +60,7 @@ jobs:
       - name: Install dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: libgc-dev libgmp-dev
+          packages: build-essential gcc libgc-dev libgmp-dev
           version: 1.0
 
       - name: Set environment variables

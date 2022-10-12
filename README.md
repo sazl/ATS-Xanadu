@@ -5,8 +5,8 @@ and Templates
 
 ## Build Status
 
-* [![Build Status](https://travis-ci.org/githwxi/ATS-Xanadu.svg?branch=master)](https://travis-ci.org/githwxi/ATS-Xanadu) Ubuntu
-* [![Build Status](https://ci.appveyor.com/api/projects/status/github/githwxi/ats-xanadu?branch=master&svg=true)](https://ci.appveyor.com/project/githwxi/ats-xanadu/branch/master) Cygwin
+![ATS3](https://github.com/sazl/ATS-Xanadu/actions/workflows/main.yml/badge.svg)
+
 
 ## Project Description
 

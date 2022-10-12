@@ -7,4 +7,4 @@ echo 'running unit-tests'
 (cd $XATSHOME/srcgenx/UTIL/TEST/Posix && make testall)
 
 echo 'running integration tests...'
-(cd $XATSHOME/srcgenx/TEST/. && make XATSOPT=./../xatsopt -f Makefile_test all)
+(cd $XATSHOME/srcgenx/TEST/ && make XATSOPT=./../xatsopt -f Makefile_test all)
