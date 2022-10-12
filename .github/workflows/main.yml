@@ -132,18 +132,12 @@ jobs:
       - name: Install dependencies
         run: brew install gcc gmp bdw-gc
 
-      - name: Debug env vars
-        run: |
-          echo ${{ env.CFLAGS }}
-          echo $CFLAGS
-          echo $LDFLAGS
-
       # Set GCC as a default
       - name: Set environment variables
         run: |
           echo "/usr/local/bin" >> $GITHUB_PATH
           echo "CC=gcc-11" >> $GITHUB_ENV
-          echo "CFLAGS=-std=gnu99" >> $GITHUB_ENV
+          echo "CFLAGS=-Wno-implicit-function-declaration" >> $GITHUB_ENV
           echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
           echo "XATSHOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
