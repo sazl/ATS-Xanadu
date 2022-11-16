@@ -28,9 +28,6 @@ jobs:
 
       - name: Install dependencies
         uses: egor-tensin/setup-cygwin@v3
-        with:
-          platform: x64
-          install-dir: C:\cygwin
 
       - name: List cygwin tools
         run: ls C:\tools\
