@@ -33,7 +33,7 @@ jobs:
           install-dir: C:\cygwin
 
       - name: List cygwin tools
-        run: ls C:\tools\cygwin\
+        run: ls C:\tools\
         shell: pwsh
 
       # The package installation is currently broken. Please see https://github.com/egor-tensin/setup-cygwin/issues/9
