@@ -133,7 +133,7 @@ jobs:
 
       - name: Symbolic link GCC
         run: |
-          brew link gcc
+          brew link gcc@11
           brew link gmp
           brew link bdw-gc
 
@@ -141,9 +141,8 @@ jobs:
       - name: Set environment variables
         run: |
           echo "/opt/homebrew/bin" >> $GITHUB_PATH
-          echo "CC=/opt/homebrew/bin/gcc-14" >> $GITHUB_ENV
+          echo "CC=/opt/homebrew/bin/gcc-11" >> $GITHUB_ENV
           echo "CFLAGS=-Wno-error=implicit-function-declaration" >> $GITHUB_ENV
-          echo "GCFLAG=-Wno-error=implicit-function-declaration" >> $GITHUB_ENV
           echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
           echo "XATSHOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
           echo "C_INCLUDE_PATH=/opt/homebrew/include:$C_INCLUDE_PATH" >> $GITHUB_ENV
