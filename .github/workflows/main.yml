@@ -133,7 +133,7 @@ jobs:
 
       - name: Symbolic link GCC
         run: |
-          ln -s /usr/local/bin/gcc-11 /usr/local/bin/gcc
+          ln -s /opt/homebrew/bin/gcc-14 /usr/local/bin/gcc
 
       # Set GCC as a default
       - name: Set environment variables
