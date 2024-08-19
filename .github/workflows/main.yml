@@ -129,7 +129,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: brew install gcc gmp bdw-gc
+        run: brew install gcc@11 gmp bdw-gc
 
       - name: Symbolic link GCC
         run: |
