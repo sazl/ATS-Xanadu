@@ -142,7 +142,7 @@ jobs:
         run: |
           echo "/opt/homebrew/bin" >> $GITHUB_PATH
           echo "CC=/opt/homebrew/bin/gcc-14" >> $GITHUB_ENV
-          echo "CFLAGS=-Wno-implicit-function-declaration" >> $GITHUB_ENV
+          echo "CFLAGS=-Wno-error=implicit-function-declaration" >> $GITHUB_ENV
           echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
           echo "XATSHOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
           echo "C_INCLUDE_PATH=/opt/homebrew/include:$C_INCLUDE_PATH" >> $GITHUB_ENV
