@@ -139,7 +139,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "/usr/local/bin" >> $GITHUB_PATH
-          echo "CC=/usr/local/bin/gcc-11" >> $GITHUB_ENV
+          echo "CC=/usr/local/bin/gcc" >> $GITHUB_ENV
           echo "PATSHOME=$GITHUB_WORKSPACE/ATS2" >> $GITHUB_ENV
           echo "XATSHOME=$GITHUB_WORKSPACE" >> $GITHUB_ENV
           echo "C_INCLUDE_PATH=/usr/local/include:$C_INCLUDE_PATH" >> $GITHUB_ENV
