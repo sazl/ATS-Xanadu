@@ -55,7 +55,7 @@ $WGETQ -O- $ATS2LANGURL_download | $TARZX -C $ATS2HOME --strip 1)
 
 ######
 
-(cd $ATS2HOME && ./configure && make all)
+(cd $ATS2HOME && ./configure CFLAGS=$CFLAGS LDFLAGS=$LDFLAGS && make all)
 
 ######
 
